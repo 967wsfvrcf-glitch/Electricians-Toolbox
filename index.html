@@ -66,7 +66,7 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
    <select id="emtsize"><option value="0.5">1/2 inch EMT</option><option value="0.75" selected>3/4 inch EMT</option><option value="1">1 inch EMT</option></select>
    <p class="muted">Size selection is recorded for your workflow. Bend geometry and take-up can vary by bender and shoe; enter the manufacturer's take-up for stub-ups.</p>
    <label for="bendtype">Bend type</label>
-   <select id="bendtype"><option value="offset">Two-bend offset</option><option value="stub">90° stub-up</option></select>
+   <select id="bendtype"><option value="offset">Two-bend offset</option><option value="stub">90° stub-up</option><option value="kick">Kick bend</option></select>
    <div id="offsetFields">
     <div class="row"><div><label for="offsetHeight">Offset height (inches)</label><input id="offsetHeight" type="number" min="0.01" step="any" placeholder="e.g. 4"></div>
     <div><label for="offsetAngle">Bend angle (each bend)</label><select id="offsetAngle"><option value="10">10°</option><option value="15">15°</option><option value="22.5">22.5°</option><option value="30" selected>30°</option><option value="45">45°</option><option value="60">60°</option></select></div></div>
@@ -79,6 +79,13 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
     <button class="btn" id="solveStub">Calculate stub mark</button>
     <div id="stubResult" aria-live="polite"></div>
     <p class="muted">Enter the take-up printed on your bender or provided by its manufacturer. It varies by bender and conduit size.</p>
+   </div>
+   <div id="kickFields" class="hidden">
+    <div class="row"><div><label for="kickHeight">Rise / kick height (inches)</label><input id="kickHeight" type="number" min="0.01" step="any" placeholder="e.g. 2"></div>
+    <div><label for="kickAngle">Kick angle</label><select id="kickAngle"><option value="10">10°</option><option value="15">15°</option><option value="22.5">22.5°</option><option value="30" selected>30°</option><option value="45">45°</option></select></div></div>
+    <button class="btn" id="solveKick">Calculate kick mark</button>
+    <div id="kickResult" aria-live="polite"></div>
+    <p class="muted">This estimates the distance from the obstruction/contact point to the bend mark using rise ÷ sin(angle). Actual mark placement depends on how you measure the kick and the bender's geometry.</p>
    </div>
    <div class="notice"><b>Field check:</b> These calculations provide starting measurements, not a guarantee of bend accuracy. Account for bender-specific geometry, conduit springback, spacing, and job conditions. Measure the actual result before cutting or installing.</div>
   </div>
@@ -135,9 +142,10 @@ const num=id=>{const s=document.getElementById(id).value.trim();return s===""?nu
 const fmt=n=>Number.isFinite(n)?n.toLocaleString("en-US",{maximumFractionDigits:4}):"—";
 const bendType=document.getElementById("bendtype");
 bendType.addEventListener("change",()=>{
- const isOffset=bendType.value==="offset";
+ const isOffset=bendType.value==="offset", isStub=bendType.value==="stub", isKick=bendType.value==="kick";
  document.getElementById("offsetFields").classList.toggle("hidden",!isOffset);
- document.getElementById("stubFields").classList.toggle("hidden",isOffset);
+ document.getElementById("stubFields").classList.toggle("hidden",!isStub);
+ document.getElementById("kickFields").classList.toggle("hidden",!isKick);
 });
 document.getElementById("solveOffset").addEventListener("click",()=>{
  const h=num("offsetHeight"),a=Number(document.getElementById("offsetAngle").value),box=document.getElementById("offsetResult");
@@ -155,6 +163,12 @@ document.getElementById("solveStub").addEventListener("click",()=>{
  if(h<=t){box.innerHTML='<div class="notice">The entered stub height is less than or equal to the take-up. Check your measurements and bender reference.</div>';return;}
  const mark=h-t, size=document.getElementById("emtsize").selectedOptions[0].text;
  box.innerHTML='<div class="result"><b>Mark from conduit end: '+fmt(mark)+' in</b><p>Conduit: '+size+'</p><p>Finished stub target: '+fmt(h)+' in</p><p>Bender take-up used: '+fmt(t)+' in</p><small>Measure the desired stub height and subtract the take-up value for your bender. Confirm with a test bend because measuring conventions can vary.</small></div>';
+});
+document.getElementById("solveKick").addEventListener("click",()=>{
+ const h=num("kickHeight"),a=Number(document.getElementById("kickAngle").value),box=document.getElementById("kickResult");
+ if(h===null||!Number.isFinite(h)||h<=0){box.innerHTML='<div class="notice">Enter a kick height greater than zero.</div>';return;}
+ const spacing=h/Math.sin(a*Math.PI/180), size=document.getElementById("emtsize").selectedOptions[0].text;
+ box.innerHTML='<div class="result"><b>Estimated mark distance: '+fmt(spacing)+' in</b><p>Conduit: '+size+'</p><div class="row"><p>Rise<br><strong>'+fmt(h)+' in</strong></p><p>Angle<br><strong>'+a+'°</strong></p><p>Multiplier<br><strong>'+fmt(1/Math.sin(a*Math.PI/180))+'</strong></p></div><small>Use this as a geometric starting estimate. Measure from the correct reference point for your bending method and verify the result with a test bend.</small></div>';
 });
 document.getElementById("solveOhm").addEventListener("click",()=>{
  let v=num("v"),i=num("i"),r=num("r"),p=num("p");const a=[v,i,r,p].filter(x=>x!==null);
