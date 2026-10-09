@@ -62,6 +62,9 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
   <button class="back" data-home>← Home</button><div class="eyebrow">Conduit tools · First working module</div><h2>Conduit Bending</h2>
   <p class="intro">Calculate common EMT bend marks. Confirm results against your bender's markings and the actual conduit before making a production bend.</p>
   <div class="card">
+   <label for="emtsize">EMT conduit size</label>
+   <select id="emtsize"><option value="0.5">1/2 inch EMT</option><option value="0.75" selected>3/4 inch EMT</option><option value="1">1 inch EMT</option></select>
+   <p class="muted">Size selection is recorded for your workflow. Bend geometry and take-up can vary by bender and shoe; enter the manufacturer's take-up for stub-ups.</p>
    <label for="bendtype">Bend type</label>
    <select id="bendtype"><option value="offset">Two-bend offset</option><option value="stub">90° stub-up</option></select>
    <div id="offsetFields">
@@ -139,18 +142,19 @@ bendType.addEventListener("change",()=>{
 document.getElementById("solveOffset").addEventListener("click",()=>{
  const h=num("offsetHeight"),a=Number(document.getElementById("offsetAngle").value),box=document.getElementById("offsetResult");
  if(h===null||!Number.isFinite(h)||h<=0){box.innerHTML='<div class="notice">Enter an offset height greater than zero.</div>';return;}
+ const size=document.getElementById("emtsize").selectedOptions[0].text;
  const rad=a*Math.PI/180, multiplier=1/Math.sin(rad), spacing=h*multiplier;
  // Common field rule-of-thumb shrink factors, shown as estimates rather than guaranteed bender geometry.
  const shrinkPerInch={10:0.015,15:0.035,22.5:0.0625,30:0.125,45:0.1875,60:0.25};
  const shrink=h*shrinkPerInch[a];
- box.innerHTML='<div class="result"><b>Mark spacing: '+fmt(spacing)+' in</b><div class="row"><p>Offset height<br><strong>'+fmt(h)+' in</strong></p><p>Multiplier<br><strong>'+fmt(multiplier)+'</strong></p><p>Angle<br><strong>'+a+'° each</strong></p><p>Estimated shrink<br><strong>'+fmt(shrink)+' in</strong></p></div><small>Measure between the two bend marks. Shrink is a common rule-of-thumb estimate and varies with technique and bender. Verify with your preferred field method.</small></div>';
+ box.innerHTML='<div class="result"><b>Mark spacing: '+fmt(spacing)+' in</b><p>Conduit: '+size+'</p><div class="row"><p>Offset height<br><strong>'+fmt(h)+' in</strong></p><p>Multiplier<br><strong>'+fmt(multiplier)+'</strong></p><p>Angle<br><strong>'+a+'° each</strong></p><p>Estimated shrink<br><strong>'+fmt(shrink)+' in</strong></p></div><small>Measure between the two bend marks. Shrink is a common rule-of-thumb estimate and varies with technique and bender. Verify with your preferred field method.</small></div>';
 });
 document.getElementById("solveStub").addEventListener("click",()=>{
  const h=num("stubHeight"),t=num("takeup"),box=document.getElementById("stubResult");
  if(h===null||t===null||!Number.isFinite(h)||!Number.isFinite(t)||h<=0||t<0){box.innerHTML='<div class="notice">Enter a stub height greater than zero and a non-negative take-up.</div>';return;}
  if(h<=t){box.innerHTML='<div class="notice">The entered stub height is less than or equal to the take-up. Check your measurements and bender reference.</div>';return;}
- const mark=h-t;
- box.innerHTML='<div class="result"><b>Mark from conduit end: '+fmt(mark)+' in</b><p>Finished stub target: '+fmt(h)+' in</p><p>Bender take-up used: '+fmt(t)+' in</p><small>Measure the desired stub height and subtract the take-up value for your bender. Confirm with a test bend because measuring conventions can vary.</small></div>';
+ const mark=h-t, size=document.getElementById("emtsize").selectedOptions[0].text;
+ box.innerHTML='<div class="result"><b>Mark from conduit end: '+fmt(mark)+' in</b><p>Conduit: '+size+'</p><p>Finished stub target: '+fmt(h)+' in</p><p>Bender take-up used: '+fmt(t)+' in</p><small>Measure the desired stub height and subtract the take-up value for your bender. Confirm with a test bend because measuring conventions can vary.</small></div>';
 });
 document.getElementById("solveOhm").addEventListener("click",()=>{
  let v=num("v"),i=num("i"),r=num("r"),p=num("p");const a=[v,i,r,p].filter(x=>x!==null);
