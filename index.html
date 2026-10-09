@@ -67,7 +67,7 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
    <select id="emtsize"><option value="0.5">1/2 inch EMT</option><option value="0.75" selected>3/4 inch EMT</option><option value="1">1 inch EMT</option></select>
    <p class="muted">Size selection is recorded for your workflow. Bend geometry and take-up can vary by bender and shoe; enter the manufacturer's take-up for stub-ups.</p>
    <label for="bendtype">Bend type</label>
-   <select id="bendtype"><option value="offset">Two-bend offset</option><option value="stub">90° stub-up</option><option value="kick">Kick bend</option><option value="saddle3">3-point saddle</option><option value="saddle4">4-point saddle</option></select>
+   <select id="bendtype"><option value="offset">Two-bend offset</option><option value="stub">90° stub-up</option><option value="kick">Kick bend</option><option value="saddle3">3-point saddle</option></select>
    <div id="offsetFields">
     <div class="row"><div><label for="offsetHeight">Offset height (inches)</label><input id="offsetHeight" type="number" min="0.01" step="any" placeholder="e.g. 4"></div>
     <div><label for="offsetAngle">Bend angle (each bend)</label><select id="offsetAngle"><option value="10">10°</option><option value="15">15°</option><option value="22.5">22.5°</option><option value="30" selected>30°</option><option value="45">45°</option><option value="60">60°</option></select></div></div>
@@ -96,14 +96,6 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
     <div id="saddle3Result" aria-live="polite"></div>
     <p class="muted">Uses a center bend angle with two outer bends at half that angle in the opposite direction. The outer mark spacing is a geometric estimate; verify your preferred field method and bender.</p>
    </div>
-   <div id="saddle4Fields" class="hidden">
-    <div class="row"><div><label for="s4Height">Obstacle height (inches)</label><input id="s4Height" type="number" min="0.01" step="any" placeholder="e.g. 2"></div>
-    <div><label for="s4Width">Obstacle width (inches)</label><input id="s4Width" type="number" min="0.01" step="any" placeholder="e.g. 8"></div></div>
-    <label for="s4Angle">Bend angle (each bend)</label><select id="s4Angle"><option value="10">10°</option><option value="15">15°</option><option value="22.5">22.5°</option><option value="30" selected>30°</option><option value="45">45°</option></select>
-    <button class="btn" id="solveSaddle4">Calculate 4-point saddle</button>
-    <div id="saddle4Result" aria-live="polite"></div>
-    <p class="muted">Estimates rise geometry and mark spacing. The two parallel offset pairs must be laid out around the actual obstacle; account for conduit clearance and verify with a test bend.</p>
-   </div>
    <div class="notice"><b>Field check:</b> These calculations provide starting measurements, not a guarantee of bend accuracy. Account for bender-specific geometry, conduit springback, spacing, and job conditions. Measure the actual result before cutting or installing.</div>
   </div>
   <div class="card"><h3>Offset angle guide</h3><p class="muted">Larger bend angles shorten mark spacing but generally create more shrink and can be harder to pull through crowded runs. Choose an angle that suits the obstruction and the available space.</p></div>
@@ -120,14 +112,10 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
    <div class="notice">Diagrams illustrate the general idea only. Follow your bender's instructions for hook, arrow, star, or notch alignment; reference points differ between tools.</div>
   </div>
   <div class="card"><h3>Saddle bend diagrams</h3><p class="muted">Schematic layouts for understanding the bend order. Mark spacing and angles depend on your chosen method; use the calculator results as preliminary estimates.</p>
-   <label for="saddleGuide">Saddle guide</label><select id="saddleGuide"><option value="s3">3-point saddle</option><option value="s4">4-point saddle</option></select>
+   <label for="saddleGuide">Saddle guide</label><select id="saddleGuide"><option value="s3">3-point saddle</option></select>
    <div id="s3Diagram" class="guide-diagram">
     <svg viewBox="0 0 320 160" role="img" aria-label="Schematic three point saddle with two outer bends and a center bend"><line x1="16" y1="118" x2="74" y2="118" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><line x1="74" y1="118" x2="145" y2="58" stroke="#36b3a8" stroke-width="5" stroke-linecap="round"/><line x1="145" y1="58" x2="175" y2="58" stroke="#36b3a8" stroke-width="5" stroke-linecap="round"/><line x1="175" y1="58" x2="246" y2="118" stroke="#36b3a8" stroke-width="5" stroke-linecap="round"/><line x1="246" y1="118" x2="304" y2="118" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><rect x="135" y="85" width="50" height="28" rx="4" fill="none" stroke="#e3a43b" stroke-dasharray="4 3" stroke-width="2"/><line x1="74" y1="98" x2="74" y2="135" stroke="#e3a43b" stroke-width="2"/><line x1="160" y1="38" x2="160" y2="76" stroke="#e3a43b" stroke-width="2"/><line x1="246" y1="98" x2="246" y2="135" stroke="#e3a43b" stroke-width="2"/><text x="74" y="91" fill="currentColor" font-size="10" text-anchor="middle">1</text><text x="160" y="28" fill="currentColor" font-size="10" text-anchor="middle">2 · center</text><text x="246" y="91" fill="currentColor" font-size="10" text-anchor="middle">3</text><text x="160" y="151" fill="currentColor" font-size="10" text-anchor="middle">Obstacle (schematic)</text></svg>
     <p><b>General sequence:</b> Mark the obstacle center and the two outer bend locations using your verified layout. Make the center bend, then the two outer bends in the appropriate opposing direction for your method. Check alignment and clearance before finalizing.</p>
-   </div>
-   <div id="s4Diagram" class="guide-diagram hidden">
-    <svg viewBox="0 0 320 160" role="img" aria-label="Schematic four point saddle made from two offset pairs"><path d="M14 118 L58 118 L88 72 L130 72 L160 118 L202 118 L232 72 L274 72 L304 118" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><line x1="58" y1="96" x2="58" y2="135" stroke="#e3a43b" stroke-width="2"/><line x1="130" y1="52" x2="130" y2="91" stroke="#e3a43b" stroke-width="2"/><line x1="202" y1="96" x2="202" y2="135" stroke="#e3a43b" stroke-width="2"/><line x1="274" y1="52" x2="274" y2="91" stroke="#e3a43b" stroke-width="2"/><text x="58" y="89" fill="currentColor" font-size="10" text-anchor="middle">1</text><text x="130" y="42" fill="currentColor" font-size="10" text-anchor="middle">2</text><text x="202" y="89" fill="currentColor" font-size="10" text-anchor="middle">3</text><text x="274" y="42" fill="currentColor" font-size="10" text-anchor="middle">4</text><text x="166" y="151" fill="currentColor" font-size="10" text-anchor="middle">Obstacle span (schematic)</text></svg>
-    <p><b>General sequence:</b> Lay out four marks around the obstruction using the chosen offset method. Bend the first and second marks as one offset pair, then the third and fourth as the second pair. Keep the offsets aligned and allow for the needed clearance.</p>
    </div>
    <div class="notice"><b>Field caution:</b> These illustrations show the concept, not exact bend geometry or clearance. Confirm angle convention, mark spacing, shrink, and sequence against a trusted conduit-bending reference and your bender instructions before installing.</div>
   </div>
@@ -183,17 +171,15 @@ const num=id=>{const s=document.getElementById(id).value.trim();return s===""?nu
 const fmt=n=>Number.isFinite(n)?n.toLocaleString("en-US",{maximumFractionDigits:4}):"—";
 const bendType=document.getElementById("bendtype");
 bendType.addEventListener("change",()=>{
- const isOffset=bendType.value==="offset", isStub=bendType.value==="stub", isKick=bendType.value==="kick", isS3=bendType.value==="saddle3", isS4=bendType.value==="saddle4";
+ const isOffset=bendType.value==="offset", isStub=bendType.value==="stub", isKick=bendType.value==="kick", isS3=bendType.value==="saddle3";
  document.getElementById("offsetFields").classList.toggle("hidden",!isOffset);
  document.getElementById("stubFields").classList.toggle("hidden",!isStub);
  document.getElementById("kickFields").classList.toggle("hidden",!isKick);
  document.getElementById("saddle3Fields").classList.toggle("hidden",!isS3);
- document.getElementById("saddle4Fields").classList.toggle("hidden",!isS4);
+
 });
 document.getElementById("saddleGuide").addEventListener("change",()=>{
- const is3=document.getElementById("saddleGuide").value==="s3";
- document.getElementById("s3Diagram").classList.toggle("hidden",!is3);
- document.getElementById("s4Diagram").classList.toggle("hidden",is3);
+ // Only the 3-point saddle guide is offered in the field-focused version.
 });
 document.getElementById("visualGuide").addEventListener("change",()=>{
  const isOffset=document.getElementById("visualGuide").value==="offset";
@@ -228,12 +214,6 @@ document.getElementById("solveSaddle3").addEventListener("click",()=>{
  if(h===null||w===null||!Number.isFinite(h)||!Number.isFinite(w)||h<=0||w<=0){box.innerHTML='<div class="notice">Enter positive obstacle height and width values.</div>';return;}
  const outer=a/2, centerTravel=h/Math.sin(a*Math.PI/180), outerSpacing=(h/2)/Math.sin(outer*Math.PI/180), size=document.getElementById("emtsize").selectedOptions[0].text;
  box.innerHTML='<div class="result"><b>3-point saddle layout</b><p>Conduit: '+size+'</p><div class="row"><p>Center mark<br><strong>At obstacle center</strong></p><p>Outer mark spacing<br><strong>'+fmt(outerSpacing)+' in each side</strong></p><p>Center bend<br><strong>'+a+'°</strong></p><p>Outer bends<br><strong>'+outer+'° each</strong></p></div><small>Obstacle width entered: '+fmt(w)+' in. Center travel for the rise is approximately '+fmt(centerTravel)+' in along the bend geometry. Common practice may use different angle conventions and shrink compensation; confirm the layout with a trusted bending method before using it in the field.</small></div>';
-});
-document.getElementById("solveSaddle4").addEventListener("click",()=>{
- const h=num("s4Height"),w=num("s4Width"),a=Number(document.getElementById("s4Angle").value),box=document.getElementById("saddle4Result");
- if(h===null||w===null||!Number.isFinite(h)||!Number.isFinite(w)||h<=0||w<=0){box.innerHTML='<div class="notice">Enter positive obstacle height and width values.</div>';return;}
- const multiplier=1/Math.sin(a*Math.PI/180), spacing=h*multiplier, size=document.getElementById("emtsize").selectedOptions[0].text;
- box.innerHTML='<div class="result"><b>4-point saddle layout</b><p>Conduit: '+size+'</p><div class="row"><p>Each offset rise<br><strong>'+fmt(h)+' in</strong></p><p>Mark spacing per pair<br><strong>'+fmt(spacing)+' in</strong></p><p>Bend angle<br><strong>'+a+'°</strong></p><p>Multiplier<br><strong>'+fmt(multiplier)+'</strong></p></div><p>Set the inner marks around the obstacle width ('+fmt(w)+' in), allowing for needed clearance and your chosen reference points.</p><small>This is a starting layout calculation, not a complete clearance- or shrink-compensated layout. Verify mark locations using your preferred field method and test bend.</small></div>';
 });
 document.getElementById("solveOhm").addEventListener("click",()=>{
  let v=num("v"),i=num("i"),r=num("r"),p=num("p");const a=[v,i,r,p].filter(x=>x!==null);
