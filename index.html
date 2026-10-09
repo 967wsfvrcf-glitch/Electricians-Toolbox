@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10151d">
+<meta name="description" content="Electrician's Toolbox — field calculations and references">
+<title>Electrician's Toolbox</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1017;--panel:#141d28;--panel2:#1a2634;--line:#2b3a4b;--text:#f3f6fa;--muted:#a8b6c6;--accent:#ffbd59;--good:#69d6a5;--warn:#ffd080}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}
+header{padding:calc(18px + env(safe-area-inset-top)) 18px 16px;background:linear-gradient(145deg,#182534,#10151d);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:13px;background:var(--accent);color:#171b21;display:grid;place-items:center;font-weight:900;font-size:21px}
+h1{font-size:21px;margin:0;letter-spacing:-.4px}header p{margin:3px 0 0;color:var(--muted);font-size:13px}
+main{max-width:850px;margin:auto;padding:18px 15px 105px}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:var(--accent);font-weight:800;margin:5px 0 8px}
+h2{font-size:24px;letter-spacing:-.5px;margin:0 0 7px}h3{font-size:17px;margin:0 0 8px}
+.intro{color:var(--muted);margin:0 0 18px}
+.notice{background:#292315;border:1px solid #5a4827;color:#ffe3ac;border-radius:12px;padding:12px 13px;font-size:13px;margin:15px 0 20px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.tile{min-height:116px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:14px;color:var(--text);display:flex;flex-direction:column;gap:7px}
+.tile:active,.tile:hover{border-color:var(--accent);background:var(--panel2)}
+.tile .ico{font-size:24px}.tile strong{font-size:15px}.tile span:last-child{color:var(--muted);font-size:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px;margin:12px 0}
+label{display:block;color:var(--muted);font-size:13px;margin:12px 0 5px}
+input,select{width:100%;background:#0c121a;color:var(--text);border:1px solid #354658;border-radius:10px;padding:12px;min-height:46px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{border:0;border-radius:10px;background:var(--accent);color:#1c2026;font-weight:800;padding:12px 15px;min-height:46px;width:100%;margin-top:14px}
+.btn.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+.result{border:1px solid #426b5a;background:#12261f;border-radius:12px;padding:13px;margin-top:14px}
+.result b{color:var(--good);font-size:20px}.result small{display:block;color:#b8d8ca;margin-top:4px}
+.muted{color:var(--muted);font-size:13px}.hidden{display:none!important}
+.back{background:transparent;border:1px solid var(--line);color:var(--text);padding:8px 12px;border-radius:9px;margin-bottom:14px}
+.listrow{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding:13px 0}.listrow:last-child{border-bottom:0}.listrow .ico{font-size:22px}
+.bottom{position:fixed;bottom:0;left:0;right:0;padding:9px 12px calc(9px + env(safe-area-inset-bottom));background:#101720ee;backdrop-filter:blur(12px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);gap:5px;z-index:4}
+.bottom button{border:0;border-radius:10px;background:transparent;color:var(--muted);font-size:11px;padding:7px 2px;display:flex;flex-direction:column;align-items:center;gap:3px}.bottom button span{font-size:19px}.bottom button.active{background:var(--panel2);color:var(--accent)}
+ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px}
+@media(min-width:620px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}main{padding-top:25px}.tile{min-height:130px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="logo">ET</div><div><h1>Electrician's Toolbox</h1><p>Field calculations · references · jobsite tools</p></div></div>
+</header>
+<main>
+ <section id="home">
+  <div class="eyebrow">Field toolkit</div><h2>What do you need to work out?</h2>
+  <p class="intro">Fast, practical tools for the electrical jobsite. More modules will be added and verified in stages.</p>
+  <div class="grid">
+   <button class="tile" data-page="conduit"><span class="ico">〰️</span><strong>Conduit Bending</strong><span>Offsets, stubs, kicks & saddles</span></button>
+   <button class="tile" data-page="ohms"><span class="ico">⚡</span><strong>Ohm's Law</strong><span>Voltage, current, resistance & power</span></button>
+   <button class="tile" data-page="voltage"><span class="ico">📉</span><strong>Voltage Drop</strong><span>Single- and three-phase estimate</span></button>
+   <button class="tile" data-page="fill"><span class="ico">🧰</span><strong>Conduit Fill</strong><span>Raceway and conductor planning</span></button>
+   <button class="tile" data-page="code"><span class="ico">📘</span><strong>NEC Reference</strong><span>2026 edition planning & code topics</span></button>
+   <button class="tile" data-page="quick"><span class="ico">📋</span><strong>Quick References</strong><span>Units, formulas & field notes</span></button>
+  </div>
+  <div class="notice"><b>Code & safety note:</b> This foundation is not an authority having jurisdiction (AHJ) determination. Confirm calculations, equipment instructions, adopted code edition, local amendments, and job conditions before installation. Never work energized unless specifically qualified and authorized under applicable procedures.</div>
+  <div class="card"><h3>Build status</h3><p class="muted">Foundation preview · US customary units · Target reference edition: 2026 NEC. This is an early build; not all tools are implemented yet.</p></div>
+ </section>
+ <section id="conduit" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Conduit tools</div><h2>Conduit Bending</h2><p class="intro">Choose a bend type. Marking instructions will be added with bender-specific references.</p>
+  <div class="card"><label for="bendtype">Bend type</label><select id="bendtype"><option value="offset">Two-bend offset</option><option value="stub">90° stub-up</option><option value="kick">Kick</option><option value="saddle">Saddle</option><option value="rolling">Rolling offset</option></select><div class="notice">Bender arrow, star, take-up, and shoe geometry vary by tool and bend type. This preview intentionally avoids inventing universal bender marks.</div><p class="muted">The first verified bending module will calculate geometry, mark spacing, and bend sequence separately, with your bender's reference details identified.</p></div>
+ </section>
+ <section id="ohms" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Electrical calculations</div><h2>Ohm's Law & Power</h2><p class="intro">Enter any two values to solve for voltage, current, resistance, and DC power where mathematically possible.</p>
+  <div class="card">
+   <div class="row"><div><label for="v">Voltage (V)</label><input id="v" type="number" min="0" step="any" placeholder="e.g. 120"></div><div><label for="i">Current (A)</label><input id="i" type="number" min="0" step="any" placeholder="e.g. 10"></div></div>
+   <div class="row"><div><label for="r">Resistance (Ω)</label><input id="r" type="number" min="0" step="any" placeholder="e.g. 12"></div><div><label for="p">Power (W)</label><input id="p" type="number" min="0" step="any" placeholder="e.g. 1200"></div></div>
+   <button class="btn" id="solveOhm">Calculate</button><button class="btn secondary" id="clearOhm">Clear fields</button><div id="ohmResult" aria-live="polite"></div>
+   <p class="muted">For DC resistive circuits. AC calculations involving impedance, power factor, harmonics, or non-linear loads require additional information.</p>
+  </div>
+ </section>
+ <section id="voltage" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Electrical calculations</div><h2>Voltage Drop</h2><p class="intro">A preliminary copper-conductor estimate using a simplified resistance model.</p>
+  <div class="card">
+   <label for="phase">Circuit type</label><select id="phase"><option value="2">Single-phase / DC two-wire loop</option><option value="1.732">Three-phase</option></select>
+   <div class="row"><div><label for="amps">Load current (A)</label><input id="amps" type="number" min="0" step="any" placeholder="e.g. 20"></div><div><label for="feet">One-way length (ft)</label><input id="feet" type="number" min="0" step="any" placeholder="e.g. 100"></div></div>
+   <label for="wire">Copper conductor size</label><select id="wire"><option value="14">14 AWG</option><option value="12">12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option><option value="4">4 AWG</option><option value="3">3 AWG</option><option value="2">2 AWG</option><option value="1">1 AWG</option><option value="0">1/0 AWG</option><option value="-1">2/0 AWG</option><option value="-2">3/0 AWG</option><option value="-3">4/0 AWG</option><option value="250">250 kcmil</option><option value="300">300 kcmil</option><option value="350">350 kcmil</option><option value="500">500 kcmil</option></select>
+   <div class="row"><div><label for="sysv">System voltage (V)</label><input id="sysv" type="number" min="1" step="any" placeholder="e.g. 120"></div><div><label for="temp">Copper resistance factor</label><select id="temp"><option value="12.9">Approx. 20°C</option><option value="14.0">Approx. warmer conductor estimate</option></select></div></div>
+   <button class="btn" id="solveDrop">Estimate drop</button><div id="dropResult" aria-live="polite"></div>
+   <p class="muted">This is a rough estimate, not final conductor sizing. Actual AC impedance, conductor temperature, terminals, load characteristics, and applicable code requirements can change the result. Verify with approved tables and project conditions.</p>
+  </div>
+ </section>
+ <section id="fill" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Raceway planning</div><h2>Conduit Fill</h2><p class="intro">The fill module is planned here; a compliant calculator needs verified raceway internal areas and conductor areas for the selected types and sizes.</p>
+  <div class="card"><h3>Planned inputs</h3><ul><li>Raceway type and trade size</li><li>Conductor type, insulation, and gauge</li><li>Number of each conductor</li><li>Applicable fill percentage and NEC table reference</li></ul><div class="notice">No fill result is shown yet because the reference tables have not been populated and validated. We won't guess code table values.</div></div>
+ </section>
+ <section id="code" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Code library</div><h2>NEC Reference</h2><p class="intro">Target edition: 2026 National Electrical Code (NFPA 70), subject to adoption and local amendments.</p>
+  <div class="card"><h3>Reference library roadmap</h3><div class="listrow"><span class="ico">🔎</span><div><b>Search by topic</b><div class="muted">Wiring methods, grounding, overcurrent, motors, boxes, and more.</div></div></div><div class="listrow"><span class="ico">📑</span><div><b>Article and table index</b><div class="muted">Show exact reference identifiers and edition notes.</div></div></div><div class="listrow"><span class="ico">🗺️</span><div><b>Local adoption</b><div class="muted">Record jurisdiction and effective edition.</div></div></div><div class="notice">The full NEC is copyrighted. The app can provide original explanations, limited reference metadata, and links to authorized resources; it will not reproduce the entire code text without appropriate rights.</div></div>
+ </section>
+ <section id="quick" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Field reference</div><h2>Quick References</h2><div class="card"><h3>Core formulas</h3><p><b>Ohm's law</b><br>V = I × R &nbsp; · &nbsp; I = V ÷ R &nbsp; · &nbsp; R = V ÷ I</p><p><b>DC power</b><br>P = V × I &nbsp; · &nbsp; P = I²R &nbsp; · &nbsp; P = V² ÷ R</p><p><b>Single-phase real power</b><br>P = V × I × power factor</p><p><b>Balanced three-phase real power</b><br>P = √3 × line voltage × line current × power factor</p><p class="muted">AC power formulas require the appropriate RMS values and assumptions. Use the correct formula for the circuit and load.</p></div><div class="card"><h3>Next reference packs</h3><ul><li>Conduit bend multipliers and geometry</li><li>Wire and cable identification</li><li>Motor and transformer tables</li><li>Grounding and bonding references</li><li>Unit conversion and job notes</li></ul></div>
+ </section>
+ <section id="about" class="hidden">
+  <div class="eyebrow">Project</div><h2>About this toolbox</h2><div class="card"><p>This is the first foundation preview for an electrician's field app.</p><p><b>Standards target:</b> 2026 NEC; US customary units.</p><p><b>Design goals:</b> phone-first, fast, readable outdoors, and honest about assumptions.</p><p class="muted">Not a substitute for qualified electrical judgment, manufacturer instructions, or applicable laws and codes.</p></div>
+ </section>
+</main>
+<nav class="bottom" aria-label="Main navigation">
+ <button class="active" data-nav="home"><span>⌂</span>Home</button>
+ <button data-nav="conduit"><span>〰</span>Conduit</button>
+ <button data-nav="ohms"><span>⚡</span>Calculators</button>
+ <button data-nav="code"><span>▤</span>NEC & refs</button>
+</nav>
+<script>
+const pages=["home","conduit","ohms","voltage","fill","code","quick","about"];
+function showPage(id){pages.forEach(p=>document.getElementById(p).classList.toggle("hidden",p!==id));document.querySelectorAll("[data-nav]").forEach(b=>b.classList.toggle("active",b.dataset.nav===id||(id==="voltage"||id==="fill"||id==="quick")&&b.dataset.nav==="ohms"||(id==="about")&&b.dataset.nav==="home"));window.scrollTo({top:0,behavior:"instant"});}
+document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+document.querySelectorAll("[data-nav]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.nav)));
+document.querySelectorAll("[data-home]").forEach(b=>b.addEventListener("click",()=>showPage("home")));
+const num=id=>{const s=document.getElementById(id).value.trim();return s===""?null:Number(s)};
+const fmt=n=>Number.isFinite(n)?n.toLocaleString("en-US",{maximumFractionDigits:4}):"—";
+document.getElementById("solveOhm").addEventListener("click",()=>{
+ let v=num("v"),i=num("i"),r=num("r"),p=num("p");const a=[v,i,r,p].filter(x=>x!==null);
+ const box=document.getElementById("ohmResult");
+ if(a.length<2||a.some(x=>!Number.isFinite(x)||x<0)){box.innerHTML='<div class="notice">Enter at least two valid non-negative values. Use a positive value for resistance when solving a resistive circuit.</div>';return;}
+ // Generate candidates from every valid pair and keep internally consistent values.
+ let c=[];
+ const add=(V,I,R,P)=>{if([V,I,R,P].every(x=>Number.isFinite(x)&&x>=0))c.push({V,I,R,P})};
+ if(v!==null&&i!==null){add(v,i,i>0?v/i:null,v*i)}
+ if(v!==null&&r!==null&&r>0){add(v,v/r,r,v*v/r)}
+ if(i!==null&&r!==null){add(i*r,i,r,i*i*r)}
+ if(p!==null&&v!==null&&v>0){add(v,p/v,v*v/p,p)}
+ if(p!==null&&i!==null&&i>0){add(p/i,i,p/(i*i),p)}
+ if(p!==null&&r!==null&&r>0){add(Math.sqrt(p*r),Math.sqrt(p/r),r,p)}
+ if(!c.length){box.innerHTML='<div class="notice">Those values do not provide a valid solvable pair. Check that resistance is above zero where required.</div>';return;}
+ const z=c[0];box.innerHTML='<div class="result"><b>Calculated values</b><div class="row"><p>Voltage<br><strong>'+fmt(z.V)+' V</strong></p><p>Current<br><strong>'+fmt(z.I)+' A</strong></p><p>Resistance<br><strong>'+fmt(z.R)+' Ω</strong></p><p>Power<br><strong>'+fmt(z.P)+' W</strong></p></div><small>Check that any additional values you entered agree with this result.</small></div>';
+});
+document.getElementById("clearOhm").addEventListener("click",()=>{["v","i","r","p"].forEach(id=>document.getElementById(id).value="");document.getElementById("ohmResult").innerHTML=""});
+document.getElementById("solveDrop").addEventListener("click",()=>{
+ const amps=num("amps"),feet=num("feet"),volts=num("sysv"),k=Number(document.getElementById("phase").value),factor=Number(document.getElementById("temp").value),wire=document.getElementById("wire").value;
+ const areas={"14":4110,"12":6530,"10":10380,"8":16510,"6":26240,"4":41740,"3":52620,"2":66360,"1":83690,"0":105600,"-1":133100,"-2":167800,"-3":211600,"250":250000,"300":300000,"350":350000,"500":500000};
+ const area=areas[wire],box=document.getElementById("dropResult");
+ if([amps,feet,volts].some(x=>x===null||!Number.isFinite(x)||x<=0)){box.innerHTML='<div class="notice">Enter positive current, length, and system voltage.</div>';return;}
+ // Simplified copper K-method: VD = K × I × length × circuit factor / CM.
+ const vd=factor*amps*feet*k/area,pct=vd/volts*100;
+ box.innerHTML='<div class="result"><b>Estimated drop: '+fmt(vd)+' V</b><p>Approx. voltage at load: '+fmt(volts-vd)+' V</p><p>Voltage drop: '+fmt(pct)+'%</p><small>Simplified K-method estimate only. This does not determine code compliance or final conductor size.</small></div>';
+});
+</script>
+</body>
+</html>
