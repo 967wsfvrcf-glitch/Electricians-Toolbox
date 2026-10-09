@@ -142,7 +142,17 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
    <p class="muted">Model assumptions: simplified K-method using one-way length and a circuit factor of 2 for single-phase/DC two-wire circuits or √3 for three-phase. Actual AC impedance, conductor temperature, terminals, load characteristics, and applicable code requirements can change the result. Verify with approved tables and project conditions.</p>
   </div>
  </section>
- <section id="fill" class="hidden">
+ <section id="ampacity" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Electrical reference</div><h2>Wire Ampacity Reference</h2>
+  <p class="intro">Preliminary lookup of common conductor ampacity values. This starter reference uses 2023 NEC Table 310.16 values and has not been validated against the 2026 NEC.</p>
+  <div class="card">
+   <label for="ampMaterial">Conductor material</label><select id="ampMaterial"><option value="cu">Copper</option><option value="al">Aluminum / copper-clad aluminum</option></select>
+   <label for="ampSize">Conductor size</label><select id="ampSize"><option value="14">14 AWG</option><option value="12" selected>12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option><option value="4">4 AWG</option><option value="3">3 AWG</option><option value="2">2 AWG</option><option value="1">1 AWG</option><option value="0">1/0 AWG</option><option value="-1">2/0 AWG</option><option value="-2">3/0 AWG</option><option value="-3">4/0 AWG</option><option value="250">250 kcmil</option><option value="300">300 kcmil</option><option value="350">350 kcmil</option><option value="500">500 kcmil</option></select>
+   <button class="btn" id="lookupAmp">Look up ampacity</button><div id="ampResult" aria-live="polite"></div>
+  </div>
+  <div class="card"><h3>Important limits</h3><p>These are preliminary table values, not automatically the final allowable ampacity. Base conditions, correction/adjustment factors, terminal temperature ratings, overcurrent rules, installation conditions, and the locally adopted code matter. Verify the official table for the code edition adopted on your job.</p></div>
+ </section>
+<section id="fill" class="hidden">
   <button class="back" data-home>← Home</button><div class="eyebrow">Raceway planning</div><h2>Conduit Fill</h2><p class="intro">The fill module is planned here; a compliant calculator needs verified raceway internal areas and conductor areas for the selected types and sizes.</p>
   <div class="card"><h3>Planned inputs</h3><ul><li>Raceway type and trade size</li><li>Conductor type, insulation, and gauge</li><li>Number of each conductor</li><li>Applicable fill percentage and NEC table reference</li></ul><div class="notice">No fill result is shown yet because the reference tables have not been populated and validated. We won't guess code table values.</div></div>
  </section>
