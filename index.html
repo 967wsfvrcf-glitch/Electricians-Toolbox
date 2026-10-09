@@ -91,10 +91,10 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
    <div id="saddle3Fields" class="hidden">
     <div class="row"><div><label for="s3Height">Obstacle height (inches)</label><input id="s3Height" type="number" min="0.01" step="any" placeholder="e.g. 2"></div>
     <div><label for="s3Width">Obstacle width (inches)</label><input id="s3Width" type="number" min="0.01" step="any" placeholder="e.g. 4"></div></div>
-    <label for="s3Angle">Center bend angle</label><select id="s3Angle"><option value="22.5">22.5°</option><option value="30" selected>30°</option><option value="45">45°</option></select>
+    <label for="s3Angle">Center bend angle</label><select id="s3Angle"><option value="30">30°</option><option value="45" selected>45°</option><option value="60">60°</option></select>
     <button class="btn" id="solveSaddle3">Calculate 3-point saddle</button>
     <div id="saddle3Result" aria-live="polite"></div>
-    <p class="muted">Uses a center bend angle with two outer bends at half that angle in the opposite direction. The outer mark spacing is a geometric estimate; verify your preferred field method and bender.</p>
+    <p class="muted">Enter the obstacle's rise and width. The calculator lays out a center mark and two symmetric outer marks using a simplified geometric model. Verify the method against a trusted field reference and your bender before using the marks on an installation.</p>
    </div>
    <div class="notice"><b>Field check:</b> These calculations provide starting measurements, not a guarantee of bend accuracy. Account for bender-specific geometry, conduit springback, spacing, and job conditions. Measure the actual result before cutting or installing.</div>
   </div>
@@ -213,7 +213,7 @@ document.getElementById("solveSaddle3").addEventListener("click",()=>{
  const h=num("s3Height"),w=num("s3Width"),a=Number(document.getElementById("s3Angle").value),box=document.getElementById("saddle3Result");
  if(h===null||w===null||!Number.isFinite(h)||!Number.isFinite(w)||h<=0||w<=0){box.innerHTML='<div class="notice">Enter positive obstacle height and width values.</div>';return;}
  const outer=a/2, centerTravel=h/Math.sin(a*Math.PI/180), outerSpacing=(h/2)/Math.sin(outer*Math.PI/180), size=document.getElementById("emtsize").selectedOptions[0].text;
- box.innerHTML='<div class="result"><b>3-point saddle layout</b><p>Conduit: '+size+'</p><div class="row"><p>Center mark<br><strong>At obstacle center</strong></p><p>Outer mark spacing<br><strong>'+fmt(outerSpacing)+' in each side</strong></p><p>Center bend<br><strong>'+a+'°</strong></p><p>Outer bends<br><strong>'+outer+'° each</strong></p></div><small>Obstacle width entered: '+fmt(w)+' in. Center travel for the rise is approximately '+fmt(centerTravel)+' in along the bend geometry. Common practice may use different angle conventions and shrink compensation; confirm the layout with a trusted bending method before using it in the field.</small></div>';
+ box.innerHTML='<div class="result"><b>3-point saddle — preliminary layout</b><p>Conduit: '+size+'</p><div class="row"><p>Center mark<br><strong>At obstacle center</strong></p><p>Outer mark distance<br><strong>'+fmt(outerSpacing)+' in from center</strong></p><p>Left outer mark<br><strong>Center − '+fmt(outerSpacing)+' in</strong></p><p>Right outer mark<br><strong>Center + '+fmt(outerSpacing)+' in</strong></p><p>Center bend<br><strong>'+a+'°</strong></p><p>Outer bends<br><strong>'+outer+'° each</strong></p></div><p><b>Suggested sequence:</b> mark the obstacle center, measure the same calculated distance to each side for the outer marks, then follow your chosen saddle method and bender instructions for the bend order and orientation.</p><small>Obstacle width entered: '+fmt(w)+' in. This simplified model does not fully compensate for conduit clearance, shrink, bender geometry, or every field method. Treat marks as estimates and verify with a trusted reference and test bend before installation.</small></div>';
 });
 document.getElementById("solveOhm").addEventListener("click",()=>{
  let v=num("v"),i=num("i"),r=num("r"),p=num("p");const a=[v,i,r,p].filter(x=>x!==null);
