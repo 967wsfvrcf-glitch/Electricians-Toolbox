@@ -134,8 +134,9 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
   <div class="card">
    <label for="phase">Circuit type</label><select id="phase"><option value="2">Single-phase / DC two-wire loop</option><option value="1.732">Three-phase</option></select>
    <div class="row"><div><label for="amps">Load current (A)</label><input id="amps" type="number" min="0" step="any" placeholder="e.g. 20"></div><div><label for="feet">One-way length (ft)</label><input id="feet" type="number" min="0" step="any" placeholder="e.g. 100"></div></div>
-   <label for="wire">Copper conductor size</label><select id="wire"><option value="14">14 AWG</option><option value="12">12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option><option value="4">4 AWG</option><option value="3">3 AWG</option><option value="2">2 AWG</option><option value="1">1 AWG</option><option value="0">1/0 AWG</option><option value="-1">2/0 AWG</option><option value="-2">3/0 AWG</option><option value="-3">4/0 AWG</option><option value="250">250 kcmil</option><option value="300">300 kcmil</option><option value="350">350 kcmil</option><option value="500">500 kcmil</option></select>
-   <div class="row"><div><label for="sysv">System voltage (V)</label><input id="sysv" type="number" min="1" step="any" placeholder="e.g. 120"></div><div><label for="temp">Copper resistance factor</label><select id="temp"><option value="12.9">Approx. 20°C</option><option value="14.0">Approx. warmer conductor estimate</option></select></div></div>
+   <label for="material">Conductor material</label><select id="material"><option value="cu">Copper</option><option value="al">Aluminum</option></select>
+   <label for="wire">Conductor size</label><select id="wire"><option value="14">14 AWG</option><option value="12">12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option><option value="4">4 AWG</option><option value="3">3 AWG</option><option value="2">2 AWG</option><option value="1">1 AWG</option><option value="0">1/0 AWG</option><option value="-1">2/0 AWG</option><option value="-2">3/0 AWG</option><option value="-3">4/0 AWG</option><option value="250">250 kcmil</option><option value="300">300 kcmil</option><option value="350">350 kcmil</option><option value="500">500 kcmil</option></select>
+   <div class="row"><div><label for="sysv">System voltage (V)</label><input id="sysv" type="number" min="1" step="any" placeholder="e.g. 120"></div><div><label for="temp">Conductor temperature estimate</label><select id="temp"><option value="cool">Approx. 20°C</option><option value="warm">Approx. warmer conductor</option></select></div></div>
    <button class="btn" id="solveDrop">Estimate drop</button><div id="dropResult" aria-live="polite"></div>
    <p class="muted">This is a rough estimate, not final conductor sizing. Actual AC impedance, conductor temperature, terminals, load characteristics, and applicable code requirements can change the result. Verify with approved tables and project conditions.</p>
   </div>
@@ -233,13 +234,14 @@ document.getElementById("solveOhm").addEventListener("click",()=>{
 });
 document.getElementById("clearOhm").addEventListener("click",()=>{["v","i","r","p"].forEach(id=>document.getElementById(id).value="");document.getElementById("ohmResult").innerHTML=""});
 document.getElementById("solveDrop").addEventListener("click",()=>{
- const amps=num("amps"),feet=num("feet"),volts=num("sysv"),k=Number(document.getElementById("phase").value),factor=Number(document.getElementById("temp").value),wire=document.getElementById("wire").value;
+ const amps=num("amps"),feet=num("feet"),volts=num("sysv"),k=Number(document.getElementById("phase").value),material=document.getElementById("material").value,temp=document.getElementById("temp").value,wire=document.getElementById("wire").value;
+ const factor=material==="cu"?(temp==="cool"?12.9:14.0):(temp==="cool"?21.2:23.0);
  const areas={"14":4110,"12":6530,"10":10380,"8":16510,"6":26240,"4":41740,"3":52620,"2":66360,"1":83690,"0":105600,"-1":133100,"-2":167800,"-3":211600,"250":250000,"300":300000,"350":350000,"500":500000};
  const area=areas[wire],box=document.getElementById("dropResult");
  if([amps,feet,volts].some(x=>x===null||!Number.isFinite(x)||x<=0)){box.innerHTML='<div class="notice">Enter positive current, length, and system voltage.</div>';return;}
- // Simplified copper K-method: VD = K × I × length × circuit factor / CM.
- const vd=factor*amps*feet*k/area,pct=vd/volts*100;
- box.innerHTML='<div class="result"><b>Estimated drop: '+fmt(vd)+' V</b><p>Approx. voltage at load: '+fmt(volts-vd)+' V</p><p>Voltage drop: '+fmt(pct)+'%</p><small>Simplified K-method estimate only. This does not determine code compliance or final conductor size.</small></div>';
+ // Simplified K-method: VD = K × I × one-way length × circuit factor / circular mil area.
+ const vd=factor*amps*feet*k/area,pct=vd/volts*100,matLabel=material==="cu"?"Copper":"Aluminum";
+ box.innerHTML='<div class="result"><b>Estimated drop: '+fmt(vd)+' V</b><p>Approx. voltage at load: '+fmt(volts-vd)+' V</p><p>Voltage drop: '+fmt(pct)+'%</p><p>Material: '+matLabel+' · Conductor: '+document.getElementById("wire").selectedOptions[0].text+'</p><small>Simplified K-method estimate only. Uses approximate resistance constants and does not account for all AC impedance, terminal temperature limits, installation conditions, or code sizing rules. Verify with approved tables and project conditions.</small></div>';
 });
 </script>
 </body>
