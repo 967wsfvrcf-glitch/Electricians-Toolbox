@@ -66,7 +66,7 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
    <select id="emtsize"><option value="0.5">1/2 inch EMT</option><option value="0.75" selected>3/4 inch EMT</option><option value="1">1 inch EMT</option></select>
    <p class="muted">Size selection is recorded for your workflow. Bend geometry and take-up can vary by bender and shoe; enter the manufacturer's take-up for stub-ups.</p>
    <label for="bendtype">Bend type</label>
-   <select id="bendtype"><option value="offset">Two-bend offset</option><option value="stub">90° stub-up</option><option value="kick">Kick bend</option></select>
+   <select id="bendtype"><option value="offset">Two-bend offset</option><option value="stub">90° stub-up</option><option value="kick">Kick bend</option><option value="saddle3">3-point saddle</option><option value="saddle4">4-point saddle</option></select>
    <div id="offsetFields">
     <div class="row"><div><label for="offsetHeight">Offset height (inches)</label><input id="offsetHeight" type="number" min="0.01" step="any" placeholder="e.g. 4"></div>
     <div><label for="offsetAngle">Bend angle (each bend)</label><select id="offsetAngle"><option value="10">10°</option><option value="15">15°</option><option value="22.5">22.5°</option><option value="30" selected>30°</option><option value="45">45°</option><option value="60">60°</option></select></div></div>
@@ -86,6 +86,22 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
     <button class="btn" id="solveKick">Calculate kick mark</button>
     <div id="kickResult" aria-live="polite"></div>
     <p class="muted">This estimates the distance from the obstruction/contact point to the bend mark using rise ÷ sin(angle). Actual mark placement depends on how you measure the kick and the bender's geometry.</p>
+   </div>
+   <div id="saddle3Fields" class="hidden">
+    <div class="row"><div><label for="s3Height">Obstacle height (inches)</label><input id="s3Height" type="number" min="0.01" step="any" placeholder="e.g. 2"></div>
+    <div><label for="s3Width">Obstacle width (inches)</label><input id="s3Width" type="number" min="0.01" step="any" placeholder="e.g. 4"></div></div>
+    <label for="s3Angle">Center bend angle</label><select id="s3Angle"><option value="22.5">22.5°</option><option value="30" selected>30°</option><option value="45">45°</option></select>
+    <button class="btn" id="solveSaddle3">Calculate 3-point saddle</button>
+    <div id="saddle3Result" aria-live="polite"></div>
+    <p class="muted">Uses a center bend angle with two outer bends at half that angle in the opposite direction. The outer mark spacing is a geometric estimate; verify your preferred field method and bender.</p>
+   </div>
+   <div id="saddle4Fields" class="hidden">
+    <div class="row"><div><label for="s4Height">Obstacle height (inches)</label><input id="s4Height" type="number" min="0.01" step="any" placeholder="e.g. 2"></div>
+    <div><label for="s4Width">Obstacle width (inches)</label><input id="s4Width" type="number" min="0.01" step="any" placeholder="e.g. 8"></div></div>
+    <label for="s4Angle">Bend angle (each bend)</label><select id="s4Angle"><option value="10">10°</option><option value="15">15°</option><option value="22.5">22.5°</option><option value="30" selected>30°</option><option value="45">45°</option></select>
+    <button class="btn" id="solveSaddle4">Calculate 4-point saddle</button>
+    <div id="saddle4Result" aria-live="polite"></div>
+    <p class="muted">Estimates rise geometry and mark spacing. The two parallel offset pairs must be laid out around the actual obstacle; account for conduit clearance and verify with a test bend.</p>
    </div>
    <div class="notice"><b>Field check:</b> These calculations provide starting measurements, not a guarantee of bend accuracy. Account for bender-specific geometry, conduit springback, spacing, and job conditions. Measure the actual result before cutting or installing.</div>
   </div>
@@ -142,10 +158,12 @@ const num=id=>{const s=document.getElementById(id).value.trim();return s===""?nu
 const fmt=n=>Number.isFinite(n)?n.toLocaleString("en-US",{maximumFractionDigits:4}):"—";
 const bendType=document.getElementById("bendtype");
 bendType.addEventListener("change",()=>{
- const isOffset=bendType.value==="offset", isStub=bendType.value==="stub", isKick=bendType.value==="kick";
+ const isOffset=bendType.value==="offset", isStub=bendType.value==="stub", isKick=bendType.value==="kick", isS3=bendType.value==="saddle3", isS4=bendType.value==="saddle4";
  document.getElementById("offsetFields").classList.toggle("hidden",!isOffset);
  document.getElementById("stubFields").classList.toggle("hidden",!isStub);
  document.getElementById("kickFields").classList.toggle("hidden",!isKick);
+ document.getElementById("saddle3Fields").classList.toggle("hidden",!isS3);
+ document.getElementById("saddle4Fields").classList.toggle("hidden",!isS4);
 });
 document.getElementById("solveOffset").addEventListener("click",()=>{
  const h=num("offsetHeight"),a=Number(document.getElementById("offsetAngle").value),box=document.getElementById("offsetResult");
@@ -169,6 +187,18 @@ document.getElementById("solveKick").addEventListener("click",()=>{
  if(h===null||!Number.isFinite(h)||h<=0){box.innerHTML='<div class="notice">Enter a kick height greater than zero.</div>';return;}
  const spacing=h/Math.sin(a*Math.PI/180), size=document.getElementById("emtsize").selectedOptions[0].text;
  box.innerHTML='<div class="result"><b>Estimated mark distance: '+fmt(spacing)+' in</b><p>Conduit: '+size+'</p><div class="row"><p>Rise<br><strong>'+fmt(h)+' in</strong></p><p>Angle<br><strong>'+a+'°</strong></p><p>Multiplier<br><strong>'+fmt(1/Math.sin(a*Math.PI/180))+'</strong></p></div><small>Use this as a geometric starting estimate. Measure from the correct reference point for your bending method and verify the result with a test bend.</small></div>';
+});
+document.getElementById("solveSaddle3").addEventListener("click",()=>{
+ const h=num("s3Height"),w=num("s3Width"),a=Number(document.getElementById("s3Angle").value),box=document.getElementById("saddle3Result");
+ if(h===null||w===null||!Number.isFinite(h)||!Number.isFinite(w)||h<=0||w<=0){box.innerHTML='<div class="notice">Enter positive obstacle height and width values.</div>';return;}
+ const outer=a/2, centerTravel=h/Math.sin(a*Math.PI/180), outerSpacing=(h/2)/Math.sin(outer*Math.PI/180), size=document.getElementById("emtsize").selectedOptions[0].text;
+ box.innerHTML='<div class="result"><b>3-point saddle layout</b><p>Conduit: '+size+'</p><div class="row"><p>Center mark<br><strong>At obstacle center</strong></p><p>Outer mark spacing<br><strong>'+fmt(outerSpacing)+' in each side</strong></p><p>Center bend<br><strong>'+a+'°</strong></p><p>Outer bends<br><strong>'+outer+'° each</strong></p></div><small>Obstacle width entered: '+fmt(w)+' in. Center travel for the rise is approximately '+fmt(centerTravel)+' in along the bend geometry. Common practice may use different angle conventions and shrink compensation; confirm the layout with a trusted bending method before using it in the field.</small></div>';
+});
+document.getElementById("solveSaddle4").addEventListener("click",()=>{
+ const h=num("s4Height"),w=num("s4Width"),a=Number(document.getElementById("s4Angle").value),box=document.getElementById("saddle4Result");
+ if(h===null||w===null||!Number.isFinite(h)||!Number.isFinite(w)||h<=0||w<=0){box.innerHTML='<div class="notice">Enter positive obstacle height and width values.</div>';return;}
+ const multiplier=1/Math.sin(a*Math.PI/180), spacing=h*multiplier, size=document.getElementById("emtsize").selectedOptions[0].text;
+ box.innerHTML='<div class="result"><b>4-point saddle layout</b><p>Conduit: '+size+'</p><div class="row"><p>Each offset rise<br><strong>'+fmt(h)+' in</strong></p><p>Mark spacing per pair<br><strong>'+fmt(spacing)+' in</strong></p><p>Bend angle<br><strong>'+a+'°</strong></p><p>Multiplier<br><strong>'+fmt(multiplier)+'</strong></p></div><p>Set the inner marks around the obstacle width ('+fmt(w)+' in), allowing for needed clearance and your chosen reference points.</p><small>This is a starting layout calculation, not a complete clearance- or shrink-compensated layout. Verify mark locations using your preferred field method and test bend.</small></div>';
 });
 document.getElementById("solveOhm").addEventListener("click",()=>{
  let v=num("v"),i=num("i"),r=num("r"),p=num("p");const a=[v,i,r,p].filter(x=>x!==null);
