@@ -130,15 +130,15 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
   </div>
  </section>
  <section id="voltage" class="hidden">
-  <button class="back" data-home>← Home</button><div class="eyebrow">Electrical calculations</div><h2>Voltage Drop</h2><p class="intro">A preliminary copper-conductor estimate using a simplified resistance model.</p>
+  <button class="back" data-home>← Home</button><div class="eyebrow">Electrical calculations</div><h2>Voltage Drop</h2><p class="intro">Estimate circuit voltage drop using conductor material, size, length, current, and circuit type. This is a planning estimate, not final conductor sizing.</p>
   <div class="card">
    <label for="phase">Circuit type</label><select id="phase"><option value="2">Single-phase / DC two-wire loop</option><option value="1.732">Three-phase</option></select>
    <div class="row"><div><label for="amps">Load current (A)</label><input id="amps" type="number" min="0" step="any" placeholder="e.g. 20"></div><div><label for="feet">One-way length (ft)</label><input id="feet" type="number" min="0" step="any" placeholder="e.g. 100"></div></div>
    <label for="material">Conductor material</label><select id="material"><option value="cu">Copper</option><option value="al">Aluminum</option></select>
    <label for="wire">Conductor size</label><select id="wire"><option value="14">14 AWG</option><option value="12">12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option><option value="4">4 AWG</option><option value="3">3 AWG</option><option value="2">2 AWG</option><option value="1">1 AWG</option><option value="0">1/0 AWG</option><option value="-1">2/0 AWG</option><option value="-2">3/0 AWG</option><option value="-3">4/0 AWG</option><option value="250">250 kcmil</option><option value="300">300 kcmil</option><option value="350">350 kcmil</option><option value="500">500 kcmil</option></select>
-   <div class="row"><div><label for="sysv">System voltage (V)</label><input id="sysv" type="number" min="1" step="any" placeholder="e.g. 120"></div><div><label for="temp">Conductor temperature estimate</label><select id="temp"><option value="cool">Approx. 20°C</option><option value="warm">Approx. warmer conductor</option></select></div></div>
+   <div class="row"><div><label for="sysv">System voltage (V)</label><input id="sysv" type="number" min="1" step="any" placeholder="e.g. 120"></div><div><label for="temp">Resistance estimate</label><select id="temp"><option value="cool">Lower resistance estimate (about 20°C)</option><option value="warm">Higher resistance estimate (warmer conductor)</option></select></div></div>
    <button class="btn" id="solveDrop">Estimate drop</button><div id="dropResult" aria-live="polite"></div>
-   <p class="muted">This is a rough estimate, not final conductor sizing. Actual AC impedance, conductor temperature, terminals, load characteristics, and applicable code requirements can change the result. Verify with approved tables and project conditions.</p>
+   <p class="muted">Model assumptions: simplified K-method using one-way length and a circuit factor of 2 for single-phase/DC two-wire circuits or √3 for three-phase. Actual AC impedance, conductor temperature, terminals, load characteristics, and applicable code requirements can change the result. Verify with approved tables and project conditions.</p>
   </div>
  </section>
  <section id="fill" class="hidden">
@@ -241,7 +241,7 @@ document.getElementById("solveDrop").addEventListener("click",()=>{
  if([amps,feet,volts].some(x=>x===null||!Number.isFinite(x)||x<=0)){box.innerHTML='<div class="notice">Enter positive current, length, and system voltage.</div>';return;}
  // Simplified K-method: VD = K × I × one-way length × circuit factor / circular mil area.
  const vd=factor*amps*feet*k/area,pct=vd/volts*100,matLabel=material==="cu"?"Copper":"Aluminum";
- box.innerHTML='<div class="result"><b>Estimated drop: '+fmt(vd)+' V</b><p>Approx. voltage at load: '+fmt(volts-vd)+' V</p><p>Voltage drop: '+fmt(pct)+'%</p><p>Material: '+matLabel+' · Conductor: '+document.getElementById("wire").selectedOptions[0].text+'</p><small>Simplified K-method estimate only. Uses approximate resistance constants and does not account for all AC impedance, terminal temperature limits, installation conditions, or code sizing rules. Verify with approved tables and project conditions.</small></div>';
+ box.innerHTML='<div class="result"><b>Estimated drop: '+fmt(vd)+' V</b><p>Approx. voltage at load: '+fmt(volts-vd)+' V</p><p>Voltage drop: '+fmt(pct)+'%</p><p>Material: '+matLabel+' · Conductor: '+document.getElementById("wire").selectedOptions[0].text+'</p><small>Calculation: K × current × one-way length × circuit factor ÷ conductor circular-mil area. K is an approximate resistance constant for the selected material and resistance estimate. This does not account for all AC impedance, terminal temperature limits, installation conditions, or code sizing rules. Verify with approved tables and project conditions.</small></div>';
 });
 </script>
 </body>
