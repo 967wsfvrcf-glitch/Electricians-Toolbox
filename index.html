@@ -262,6 +262,8 @@ function refreshFillRaceSizes(){
  const desired=racewayAreas[type][previous]!==undefined?previous:(racewayAreas[type]["3/4"]!==undefined?"3/4":Object.keys(racewayAreas[type])[0]);
  [...sel.options].forEach(o=>{if(o.dataset.trade===desired)sel.value=o.value;});
 }
+// Initialize trade-size options so every raceway option has its trade-size key before the first lookup.
+refreshFillRaceSizes();
 document.getElementById("fillRaceType").addEventListener("change",refreshFillRaceSizes);
 document.getElementById("applyFillLookup").addEventListener("click",()=>{
  const race=document.getElementById("fillRaceSize"), type=document.getElementById("fillRaceType").value, insulation=document.getElementById("fillInsulation").value, wire=document.getElementById("fillWireSize").value;
