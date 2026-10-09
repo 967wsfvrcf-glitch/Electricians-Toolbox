@@ -59,8 +59,27 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
   <div class="card"><h3>Build status</h3><p class="muted">Foundation preview · US customary units · Target reference edition: 2026 NEC. This is an early build; not all tools are implemented yet.</p></div>
  </section>
  <section id="conduit" class="hidden">
-  <button class="back" data-home>← Home</button><div class="eyebrow">Conduit tools</div><h2>Conduit Bending</h2><p class="intro">Choose a bend type. Marking instructions will be added with bender-specific references.</p>
-  <div class="card"><label for="bendtype">Bend type</label><select id="bendtype"><option value="offset">Two-bend offset</option><option value="stub">90° stub-up</option><option value="kick">Kick</option><option value="saddle">Saddle</option><option value="rolling">Rolling offset</option></select><div class="notice">Bender arrow, star, take-up, and shoe geometry vary by tool and bend type. This preview intentionally avoids inventing universal bender marks.</div><p class="muted">The first verified bending module will calculate geometry, mark spacing, and bend sequence separately, with your bender's reference details identified.</p></div>
+  <button class="back" data-home>← Home</button><div class="eyebrow">Conduit tools · First working module</div><h2>Conduit Bending</h2>
+  <p class="intro">Calculate common EMT bend marks. Confirm results against your bender's markings and the actual conduit before making a production bend.</p>
+  <div class="card">
+   <label for="bendtype">Bend type</label>
+   <select id="bendtype"><option value="offset">Two-bend offset</option><option value="stub">90° stub-up</option></select>
+   <div id="offsetFields">
+    <div class="row"><div><label for="offsetHeight">Offset height (inches)</label><input id="offsetHeight" type="number" min="0.01" step="any" placeholder="e.g. 4"></div>
+    <div><label for="offsetAngle">Bend angle (each bend)</label><select id="offsetAngle"><option value="10">10°</option><option value="15">15°</option><option value="22.5">22.5°</option><option value="30" selected>30°</option><option value="45">45°</option><option value="60">60°</option></select></div></div>
+    <button class="btn" id="solveOffset">Calculate offset marks</button>
+    <div id="offsetResult" aria-live="polite"></div>
+   </div>
+   <div id="stubFields" class="hidden">
+    <div class="row"><div><label for="stubHeight">Finished stub height (inches)</label><input id="stubHeight" type="number" min="0.01" step="any" placeholder="e.g. 12"></div>
+    <div><label for="takeup">Bender take-up (inches)</label><input id="takeup" type="number" min="0" step="any" placeholder="e.g. 5"></div></div>
+    <button class="btn" id="solveStub">Calculate stub mark</button>
+    <div id="stubResult" aria-live="polite"></div>
+    <p class="muted">Enter the take-up printed on your bender or provided by its manufacturer. It varies by bender and conduit size.</p>
+   </div>
+   <div class="notice"><b>Field check:</b> These calculations provide starting measurements, not a guarantee of bend accuracy. Account for bender-specific geometry, conduit springback, spacing, and job conditions. Measure the actual result before cutting or installing.</div>
+  </div>
+  <div class="card"><h3>Offset angle guide</h3><p class="muted">Larger bend angles shorten mark spacing but generally create more shrink and can be harder to pull through crowded runs. Choose an angle that suits the obstruction and the available space.</p></div>
  </section>
  <section id="ohms" class="hidden">
   <button class="back" data-home>← Home</button><div class="eyebrow">Electrical calculations</div><h2>Ohm's Law & Power</h2><p class="intro">Enter any two values to solve for voltage, current, resistance, and DC power where mathematically possible.</p>
@@ -111,6 +130,28 @@ document.querySelectorAll("[data-nav]").forEach(b=>b.addEventListener("click",()
 document.querySelectorAll("[data-home]").forEach(b=>b.addEventListener("click",()=>showPage("home")));
 const num=id=>{const s=document.getElementById(id).value.trim();return s===""?null:Number(s)};
 const fmt=n=>Number.isFinite(n)?n.toLocaleString("en-US",{maximumFractionDigits:4}):"—";
+const bendType=document.getElementById("bendtype");
+bendType.addEventListener("change",()=>{
+ const isOffset=bendType.value==="offset";
+ document.getElementById("offsetFields").classList.toggle("hidden",!isOffset);
+ document.getElementById("stubFields").classList.toggle("hidden",isOffset);
+});
+document.getElementById("solveOffset").addEventListener("click",()=>{
+ const h=num("offsetHeight"),a=Number(document.getElementById("offsetAngle").value),box=document.getElementById("offsetResult");
+ if(h===null||!Number.isFinite(h)||h<=0){box.innerHTML='<div class="notice">Enter an offset height greater than zero.</div>';return;}
+ const rad=a*Math.PI/180, multiplier=1/Math.sin(rad), spacing=h*multiplier;
+ // Common field rule-of-thumb shrink factors, shown as estimates rather than guaranteed bender geometry.
+ const shrinkPerInch={10:0.015,15:0.035,22.5:0.0625,30:0.125,45:0.1875,60:0.25};
+ const shrink=h*shrinkPerInch[a];
+ box.innerHTML='<div class="result"><b>Mark spacing: '+fmt(spacing)+' in</b><div class="row"><p>Offset height<br><strong>'+fmt(h)+' in</strong></p><p>Multiplier<br><strong>'+fmt(multiplier)+'</strong></p><p>Angle<br><strong>'+a+'° each</strong></p><p>Estimated shrink<br><strong>'+fmt(shrink)+' in</strong></p></div><small>Measure between the two bend marks. Shrink is a common rule-of-thumb estimate and varies with technique and bender. Verify with your preferred field method.</small></div>';
+});
+document.getElementById("solveStub").addEventListener("click",()=>{
+ const h=num("stubHeight"),t=num("takeup"),box=document.getElementById("stubResult");
+ if(h===null||t===null||!Number.isFinite(h)||!Number.isFinite(t)||h<=0||t<0){box.innerHTML='<div class="notice">Enter a stub height greater than zero and a non-negative take-up.</div>';return;}
+ if(h<=t){box.innerHTML='<div class="notice">The entered stub height is less than or equal to the take-up. Check your measurements and bender reference.</div>';return;}
+ const mark=h-t;
+ box.innerHTML='<div class="result"><b>Mark from conduit end: '+fmt(mark)+' in</b><p>Finished stub target: '+fmt(h)+' in</p><p>Bender take-up used: '+fmt(t)+' in</p><small>Measure the desired stub height and subtract the take-up value for your bender. Confirm with a test bend because measuring conventions can vary.</small></div>';
+});
 document.getElementById("solveOhm").addEventListener("click",()=>{
  let v=num("v"),i=num("i"),r=num("r"),p=num("p");const a=[v,i,r,p].filter(x=>x!==null);
  const box=document.getElementById("ohmResult");
