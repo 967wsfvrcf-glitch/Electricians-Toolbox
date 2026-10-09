@@ -153,14 +153,22 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
   <div class="card"><h3>Important limits</h3><p>These are preliminary table values, not automatically the final allowable ampacity. Base conditions, correction/adjustment factors, terminal temperature ratings, overcurrent rules, installation conditions, and the locally adopted code matter. Verify the official table for the code edition adopted on your job.</p></div>
  </section>
 <section id="fill" class="hidden">
-  <button class="back" data-home>← Home</button><div class="eyebrow">Raceway planning</div><h2>Conduit Fill</h2><p class="intro">Calculate fill from published area values you enter. Use the same area units for the raceway and conductor.</p>
+  <button class="back" data-home>← Home</button><div class="eyebrow">Raceway planning</div><h2>Conduit Fill</h2><p class="intro">Choose a common raceway and insulated conductor to fill the area fields automatically, or enter verified areas manually.</p>
+  <div class="card">
+   <h3>Quick area lookup</h3>
+   <label for="fillRaceType">Raceway type</label><select id="fillRaceType"><option value="emt">EMT</option><option value="pvc40">PVC Schedule 40</option><option value="pvc80">PVC Schedule 80</option><option value="imc">IMC</option><option value="rmc">Rigid metal conduit (RMC)</option></select>
+   <label for="fillRaceSize">Trade size</label><select id="fillRaceSize"><option value="0.304">1/2 in</option><option value="0.533" selected>3/4 in</option><option value="0.864">1 in</option><option value="1.496">1-1/4 in</option><option value="2.036">1-1/2 in</option><option value="3.356">2 in</option><option value="5.858">2-1/2 in</option><option value="8.846">3 in</option><option value="11.545">3-1/2 in</option><option value="14.753">4 in</option></select>
+   <label for="fillInsulation">Conductor insulation</label><select id="fillInsulation"><option value="thhn">THHN / THWN-2</option><option value="xhhw">XHHW-2</option><option value="thw">THW / THHW / THW-2</option></select>
+   <label for="fillWireSize">Conductor size</label><select id="fillWireSize"><option value="14">14 AWG</option><option value="12" selected>12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option><option value="4">4 AWG</option><option value="3">3 AWG</option><option value="2">2 AWG</option><option value="1">1 AWG</option><option value="1/0">1/0 AWG</option><option value="2/0">2/0 AWG</option><option value="3/0">3/0 AWG</option><option value="4/0">4/0 AWG</option><option value="250">250 kcmil</option><option value="300">300 kcmil</option><option value="350">350 kcmil</option><option value="400">400 kcmil</option><option value="500">500 kcmil</option></select>
+   <button class="btn" id="applyFillLookup">Use lookup values</button><p class="muted" id="fillLookupNote">Lookup values are approximate reference areas; verify against the exact raceway and conductor manufacturer data and applicable code edition.</p>
+  </div>
   <div class="card">
    <label for="fillRaceArea">Raceway internal area (square inches)</label><input id="fillRaceArea" type="number" min="0.0001" step="any" inputmode="decimal" placeholder="Enter internal area">
    <label for="fillCondArea">One conductor's area (square inches)</label><input id="fillCondArea" type="number" min="0.0001" step="any" inputmode="decimal" placeholder="Enter conductor area">
    <label for="fillCount">Number of conductors</label><input id="fillCount" type="number" min="1" step="1" inputmode="numeric" value="3">
    <button class="btn" id="solveFill">Calculate conduit fill</button><div id="fillResult" aria-live="polite"></div>
   </div>
-  <div class="card"><h3>How the limit is selected</h3><p>For general raceway fill calculations, the commonly used limits are 53% for one conductor, 31% for two conductors, and 40% for more than two conductors. Confirm the applicable NEC edition, raceway type, conductor configuration, and any exceptions for your installation.</p><p class="muted">This calculator does not look up raceway or conductor areas automatically. Enter areas from verified manufacturer data or the applicable code tables. It is a planning aid, not a substitute for checking the adopted code.</p></div>
+  <div class="card"><h3>How the limit is selected</h3><p>For general raceway fill calculations, the commonly used limits are 53% for one conductor, 31% for two conductors, and 40% for more than two conductors. Confirm the applicable NEC edition, raceway type, conductor configuration, and any exceptions for your installation.</p><p class="muted">Raceway area lookup is available for common trade sizes. Conductor areas are reference values for listed insulation types; actual dimensions and code tables govern. This is a planning aid, not a substitute for checking the adopted code.</p></div>
  </section>
  <section id="code" class="hidden">
   <button class="back" data-home>← Home</button><div class="eyebrow">Code library</div><h2>NEC Reference</h2><p class="intro">Target edition: 2026 National Electrical Code (NFPA 70), subject to adoption and local amendments.</p>
@@ -232,6 +240,35 @@ document.getElementById("solveSaddle3").addEventListener("click",()=>{
  if(h===null||w===null||!Number.isFinite(h)||!Number.isFinite(w)||h<=0||w<=0){box.innerHTML='<div class="notice">Enter positive obstacle height and width values.</div>';return;}
  const outer=a/2, centerTravel=h/Math.sin(a*Math.PI/180), outerSpacing=(h/2)/Math.sin(outer*Math.PI/180), size=document.getElementById("emtsize").selectedOptions[0].text;
  box.innerHTML='<div class="result"><b>3-point saddle — preliminary layout</b><p>Conduit: '+size+'</p><div class="row"><p>Center mark<br><strong>At obstacle center</strong></p><p>Outer mark distance<br><strong>'+fmt(outerSpacing)+' in from center</strong></p><p>Left outer mark<br><strong>Center − '+fmt(outerSpacing)+' in</strong></p><p>Right outer mark<br><strong>Center + '+fmt(outerSpacing)+' in</strong></p><p>Center bend<br><strong>'+a+'°</strong></p><p>Outer bends<br><strong>'+outer+'° each</strong></p></div><p><b>Suggested sequence:</b> mark the obstacle center, measure the same calculated distance to each side for the outer marks, then follow your chosen saddle method and bender instructions for the bend order and orientation.</p><small>Obstacle width entered: '+fmt(w)+' in. This simplified model does not fully compensate for conduit clearance, shrink, bender geometry, or every field method. Treat marks as estimates and verify with a trusted reference and test bend before installation.</small></div>';
+});
+// Conduit-fill reference areas in square inches. Values are approximate reference data; verify against product and adopted code.
+const racewayAreas={
+ emt:{"1/2":0.304,"3/4":0.533,"1":0.864,"1-1/4":1.496,"1-1/2":2.036,"2":3.356,"2-1/2":5.858,"3":8.846,"3-1/2":11.545,"4":14.753},
+ pvc40:{"1/2":0.285,"3/4":0.508,"1":0.832,"1-1/4":1.453,"1-1/2":1.986,"2":3.291,"2-1/2":4.695,"3":7.268,"4":12.554},
+ pvc80:{"1/2":0.217,"3/4":0.409,"1":0.688,"1-1/4":1.237,"1-1/2":1.711,"2":2.874,"2-1/2":4.119,"3":6.442,"4":11.258},
+ imc:{"1/2":0.342,"3/4":0.586,"1":0.959,"1-1/4":1.647,"1-1/2":2.225,"2":3.630,"2-1/2":5.135,"3":7.922,"4":13.457},
+ rmc:{"1/2":0.314,"3/4":0.549,"1":0.887,"1-1/4":1.526,"1-1/2":2.071,"2":3.408,"2-1/2":4.866,"3":7.499,"4":12.882}
+};
+const fillRaceLabels={"1/2":"1/2 in","3/4":"3/4 in","1":"1 in","1-1/4":"1-1/4 in","1-1/2":"1-1/2 in","2":"2 in","2-1/2":"2-1/2 in","3":"3 in","3-1/2":"3-1/2 in","4":"4 in"};
+const fillWireAreas={
+ thhn:{"14":0.0097,"12":0.0133,"10":0.0211,"8":0.0366,"6":0.0507,"4":0.0824,"3":0.0973,"2":0.1158,"1":0.1562,"1/0":0.1855,"2/0":0.2223,"3/0":0.2679,"4/0":0.3237,"250":0.3970,"300":0.4608,"350":0.5242,"400":0.5863,"500":0.7073},
+ xhhw:{"14":0.0139,"12":0.0181,"10":0.0243,"8":0.0437,"6":0.0590,"4":0.0814,"3":0.0962,"2":0.1146,"1":0.1534,"1/0":0.1825,"2/0":0.2190,"3/0":0.2642,"4/0":0.3197,"250":0.3904,"300":0.4536,"350":0.5166,"400":0.5782,"500":0.6984},
+ thw:{"14":0.0139,"12":0.0181,"10":0.0243,"8":0.0437,"6":0.0726,"4":0.0973,"3":0.1134,"2":0.1333,"1":0.1901,"1/0":0.2223,"2/0":0.2624,"3/0":0.3117,"4/0":0.3718,"250":0.4596,"300":0.5281,"350":0.5958,"400":0.6619,"500":0.7901}
+};
+const fillWireLabels={"14":"14 AWG","12":"12 AWG","10":"10 AWG","8":"8 AWG","6":"6 AWG","4":"4 AWG","3":"3 AWG","2":"2 AWG","1":"1 AWG","1/0":"1/0 AWG","2/0":"2/0 AWG","3/0":"3/0 AWG","4/0":"4/0 AWG","250":"250 kcmil","300":"300 kcmil","350":"350 kcmil","400":"400 kcmil","500":"500 kcmil"};
+function refreshFillRaceSizes(){
+ const type=document.getElementById("fillRaceType").value, sel=document.getElementById("fillRaceSize"), previous=sel.options[sel.selectedIndex]?.dataset.trade || "3/4";
+ sel.innerHTML=Object.entries(racewayAreas[type]).map(([trade,area])=>`<option value="${area}" data-trade="${trade}">${fillRaceLabels[trade]}</option>`).join("");
+ const desired=racewayAreas[type][previous]!==undefined?previous:(racewayAreas[type]["3/4"]!==undefined?"3/4":Object.keys(racewayAreas[type])[0]);
+ [...sel.options].forEach(o=>{if(o.dataset.trade===desired)sel.value=o.value;});
+}
+document.getElementById("fillRaceType").addEventListener("change",refreshFillRaceSizes);
+document.getElementById("applyFillLookup").addEventListener("click",()=>{
+ const race=document.getElementById("fillRaceSize"), type=document.getElementById("fillRaceType").value, insulation=document.getElementById("fillInsulation").value, wire=document.getElementById("fillWireSize").value;
+ const trade=race.options[race.selectedIndex].dataset.trade, raceArea=racewayAreas[type][trade], condArea=fillWireAreas[insulation][wire];
+ if(!raceArea||!condArea){document.getElementById("fillLookupNote").textContent="No reference value available for this combination. Enter verified area values manually.";return;}
+ document.getElementById("fillRaceArea").value=raceArea;document.getElementById("fillCondArea").value=condArea;
+ document.getElementById("fillLookupNote").textContent=`Loaded ${document.getElementById("fillRaceType").selectedOptions[0].text} ${fillRaceLabels[trade]} area (${raceArea} in²) and ${fillWireLabels[wire]} ${document.getElementById("fillInsulation").selectedOptions[0].text} area (${condArea} in²). Verify exact product data and applicable code before use.`;
 });
 document.getElementById("solveFill").addEventListener("click",()=>{
  const race=num("fillRaceArea"), cond=num("fillCondArea"), count=num("fillCount"), box=document.getElementById("fillResult");
