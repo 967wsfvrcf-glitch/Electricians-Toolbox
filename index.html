@@ -153,8 +153,14 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
   <div class="card"><h3>Important limits</h3><p>These are preliminary table values, not automatically the final allowable ampacity. Base conditions, correction/adjustment factors, terminal temperature ratings, overcurrent rules, installation conditions, and the locally adopted code matter. Verify the official table for the code edition adopted on your job.</p></div>
  </section>
 <section id="fill" class="hidden">
-  <button class="back" data-home>← Home</button><div class="eyebrow">Raceway planning</div><h2>Conduit Fill</h2><p class="intro">The fill module is planned here; a compliant calculator needs verified raceway internal areas and conductor areas for the selected types and sizes.</p>
-  <div class="card"><h3>Planned inputs</h3><ul><li>Raceway type and trade size</li><li>Conductor type, insulation, and gauge</li><li>Number of each conductor</li><li>Applicable fill percentage and NEC table reference</li></ul><div class="notice">No fill result is shown yet because the reference tables have not been populated and validated. We won't guess code table values.</div></div>
+  <button class="back" data-home>← Home</button><div class="eyebrow">Raceway planning</div><h2>Conduit Fill</h2><p class="intro">Calculate fill from published area values you enter. Use the same area units for the raceway and conductor.</p>
+  <div class="card">
+   <label for="fillRaceArea">Raceway internal area (square inches)</label><input id="fillRaceArea" type="number" min="0.0001" step="any" inputmode="decimal" placeholder="Enter internal area">
+   <label for="fillCondArea">One conductor's area (square inches)</label><input id="fillCondArea" type="number" min="0.0001" step="any" inputmode="decimal" placeholder="Enter conductor area">
+   <label for="fillCount">Number of conductors</label><input id="fillCount" type="number" min="1" step="1" inputmode="numeric" value="3">
+   <button class="btn" id="solveFill">Calculate conduit fill</button><div id="fillResult" aria-live="polite"></div>
+  </div>
+  <div class="card"><h3>How the limit is selected</h3><p>For general raceway fill calculations, the commonly used limits are 53% for one conductor, 31% for two conductors, and 40% for more than two conductors. Confirm the applicable NEC edition, raceway type, conductor configuration, and any exceptions for your installation.</p><p class="muted">This calculator does not look up raceway or conductor areas automatically. Enter areas from verified manufacturer data or the applicable code tables. It is a planning aid, not a substitute for checking the adopted code.</p></div>
  </section>
  <section id="code" class="hidden">
   <button class="back" data-home>← Home</button><div class="eyebrow">Code library</div><h2>NEC Reference</h2><p class="intro">Target edition: 2026 National Electrical Code (NFPA 70), subject to adoption and local amendments.</p>
@@ -226,6 +232,14 @@ document.getElementById("solveSaddle3").addEventListener("click",()=>{
  if(h===null||w===null||!Number.isFinite(h)||!Number.isFinite(w)||h<=0||w<=0){box.innerHTML='<div class="notice">Enter positive obstacle height and width values.</div>';return;}
  const outer=a/2, centerTravel=h/Math.sin(a*Math.PI/180), outerSpacing=(h/2)/Math.sin(outer*Math.PI/180), size=document.getElementById("emtsize").selectedOptions[0].text;
  box.innerHTML='<div class="result"><b>3-point saddle — preliminary layout</b><p>Conduit: '+size+'</p><div class="row"><p>Center mark<br><strong>At obstacle center</strong></p><p>Outer mark distance<br><strong>'+fmt(outerSpacing)+' in from center</strong></p><p>Left outer mark<br><strong>Center − '+fmt(outerSpacing)+' in</strong></p><p>Right outer mark<br><strong>Center + '+fmt(outerSpacing)+' in</strong></p><p>Center bend<br><strong>'+a+'°</strong></p><p>Outer bends<br><strong>'+outer+'° each</strong></p></div><p><b>Suggested sequence:</b> mark the obstacle center, measure the same calculated distance to each side for the outer marks, then follow your chosen saddle method and bender instructions for the bend order and orientation.</p><small>Obstacle width entered: '+fmt(w)+' in. This simplified model does not fully compensate for conduit clearance, shrink, bender geometry, or every field method. Treat marks as estimates and verify with a trusted reference and test bend before installation.</small></div>';
+});
+document.getElementById("solveFill").addEventListener("click",()=>{
+ const race=num("fillRaceArea"), cond=num("fillCondArea"), count=num("fillCount"), box=document.getElementById("fillResult");
+ if(race===null||cond===null||count===null||!Number.isFinite(race)||!Number.isFinite(cond)||!Number.isFinite(count)||race<=0||cond<=0||count<1||!Number.isInteger(count)){
+  box.innerHTML='<div class="notice">Enter positive area values and a whole-number conductor quantity of at least 1.</div>';return;
+ }
+ const limit=count===1?0.53:count===2?0.31:0.40, total=cond*count, allowed=race*limit, pct=total/race*100, ok=total<=allowed;
+ box.innerHTML='<div class="result"><b>'+ (ok?'Within entered fill limit':'Exceeds entered fill limit') +'</b><div class="row"><p>Total conductor area<br><strong>'+fmt(total)+' in²</strong></p><p>Raceway area<br><strong>'+fmt(race)+' in²</strong></p><p>Calculated fill<br><strong>'+fmt(pct)+'%</strong></p><p>Applicable limit used<br><strong>'+fmt(limit*100)+'%</strong></p><p>Maximum conductor area<br><strong>'+fmt(allowed)+' in²</strong></p><p>Remaining area to limit<br><strong>'+fmt(allowed-total)+' in²</strong></p></div><small>Based only on the areas and conductor count entered. Confirm all area values and applicable code requirements before installation.</small></div>';
 });
 document.getElementById("lookupAmp").addEventListener("click",()=>{
  const material=document.getElementById("ampMaterial").value,size=document.getElementById("ampSize").value,box=document.getElementById("ampResult");
