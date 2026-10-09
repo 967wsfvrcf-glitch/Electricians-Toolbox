@@ -119,6 +119,18 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
    </div>
    <div class="notice">Diagrams illustrate the general idea only. Follow your bender's instructions for hook, arrow, star, or notch alignment; reference points differ between tools.</div>
   </div>
+  <div class="card"><h3>Saddle bend diagrams</h3><p class="muted">Schematic layouts for understanding the bend order. Mark spacing and angles depend on your chosen method; use the calculator results as preliminary estimates.</p>
+   <label for="saddleGuide">Saddle guide</label><select id="saddleGuide"><option value="s3">3-point saddle</option><option value="s4">4-point saddle</option></select>
+   <div id="s3Diagram" class="guide-diagram">
+    <svg viewBox="0 0 320 160" role="img" aria-label="Schematic three point saddle with two outer bends and a center bend"><line x1="16" y1="118" x2="74" y2="118" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><line x1="74" y1="118" x2="145" y2="58" stroke="#36b3a8" stroke-width="5" stroke-linecap="round"/><line x1="145" y1="58" x2="175" y2="58" stroke="#36b3a8" stroke-width="5" stroke-linecap="round"/><line x1="175" y1="58" x2="246" y2="118" stroke="#36b3a8" stroke-width="5" stroke-linecap="round"/><line x1="246" y1="118" x2="304" y2="118" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><rect x="135" y="85" width="50" height="28" rx="4" fill="none" stroke="#e3a43b" stroke-dasharray="4 3" stroke-width="2"/><line x1="74" y1="98" x2="74" y2="135" stroke="#e3a43b" stroke-width="2"/><line x1="160" y1="38" x2="160" y2="76" stroke="#e3a43b" stroke-width="2"/><line x1="246" y1="98" x2="246" y2="135" stroke="#e3a43b" stroke-width="2"/><text x="74" y="91" fill="currentColor" font-size="10" text-anchor="middle">1</text><text x="160" y="28" fill="currentColor" font-size="10" text-anchor="middle">2 · center</text><text x="246" y="91" fill="currentColor" font-size="10" text-anchor="middle">3</text><text x="160" y="151" fill="currentColor" font-size="10" text-anchor="middle">Obstacle (schematic)</text></svg>
+    <p><b>General sequence:</b> Mark the obstacle center and the two outer bend locations using your verified layout. Make the center bend, then the two outer bends in the appropriate opposing direction for your method. Check alignment and clearance before finalizing.</p>
+   </div>
+   <div id="s4Diagram" class="guide-diagram hidden">
+    <svg viewBox="0 0 320 160" role="img" aria-label="Schematic four point saddle made from two offset pairs"><path d="M14 118 L58 118 L88 72 L130 72 L160 118 L202 118 L232 72 L274 72 L304 118" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><line x1="58" y1="96" x2="58" y2="135" stroke="#e3a43b" stroke-width="2"/><line x1="130" y1="52" x2="130" y2="91" stroke="#e3a43b" stroke-width="2"/><line x1="202" y1="96" x2="202" y2="135" stroke="#e3a43b" stroke-width="2"/><line x1="274" y1="52" x2="274" y2="91" stroke="#e3a43b" stroke-width="2"/><text x="58" y="89" fill="currentColor" font-size="10" text-anchor="middle">1</text><text x="130" y="42" fill="currentColor" font-size="10" text-anchor="middle">2</text><text x="202" y="89" fill="currentColor" font-size="10" text-anchor="middle">3</text><text x="274" y="42" fill="currentColor" font-size="10" text-anchor="middle">4</text><text x="166" y="151" fill="currentColor" font-size="10" text-anchor="middle">Obstacle span (schematic)</text></svg>
+    <p><b>General sequence:</b> Lay out four marks around the obstruction using the chosen offset method. Bend the first and second marks as one offset pair, then the third and fourth as the second pair. Keep the offsets aligned and allow for the needed clearance.</p>
+   </div>
+   <div class="notice"><b>Field caution:</b> These illustrations show the concept, not exact bend geometry or clearance. Confirm angle convention, mark spacing, shrink, and sequence against a trusted conduit-bending reference and your bender instructions before installing.</div>
+  </div>
  </section>
  <section id="ohms" class="hidden">
   <button class="back" data-home>← Home</button><div class="eyebrow">Electrical calculations</div><h2>Ohm's Law & Power</h2><p class="intro">Enter any two values to solve for voltage, current, resistance, and DC power where mathematically possible.</p>
@@ -177,6 +189,11 @@ bendType.addEventListener("change",()=>{
  document.getElementById("kickFields").classList.toggle("hidden",!isKick);
  document.getElementById("saddle3Fields").classList.toggle("hidden",!isS3);
  document.getElementById("saddle4Fields").classList.toggle("hidden",!isS4);
+});
+document.getElementById("saddleGuide").addEventListener("change",()=>{
+ const is3=document.getElementById("saddleGuide").value==="s3";
+ document.getElementById("s3Diagram").classList.toggle("hidden",!is3);
+ document.getElementById("s4Diagram").classList.toggle("hidden",is3);
 });
 document.getElementById("visualGuide").addEventListener("change",()=>{
  const isOffset=document.getElementById("visualGuide").value==="offset";
