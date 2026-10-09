@@ -52,6 +52,7 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
    <button class="tile" data-page="conduit"><span class="ico">〰️</span><strong>Conduit Bending</strong><span>Offsets, stubs, kicks & saddles</span></button>
    <button class="tile" data-page="ohms"><span class="ico">⚡</span><strong>Ohm's Law</strong><span>Voltage, current, resistance & power</span></button>
    <button class="tile" data-page="voltage"><span class="ico">📉</span><strong>Voltage Drop</strong><span>Single- and three-phase estimate</span></button>
+   <button class="tile" data-page="ampacity"><span class="ico">🔌</span><strong>Wire Ampacity</strong><span>Preliminary conductor reference</span></button>
    <button class="tile" data-page="fill"><span class="ico">🧰</span><strong>Conduit Fill</strong><span>Raceway and conductor planning</span></button>
    <button class="tile" data-page="code"><span class="ico">📘</span><strong>NEC Reference</strong><span>2026 edition planning & code topics</span></button>
    <button class="tile" data-page="quick"><span class="ico">📋</span><strong>Quick References</strong><span>Units, formulas & field notes</span></button>
@@ -215,6 +216,15 @@ document.getElementById("solveSaddle3").addEventListener("click",()=>{
  if(h===null||w===null||!Number.isFinite(h)||!Number.isFinite(w)||h<=0||w<=0){box.innerHTML='<div class="notice">Enter positive obstacle height and width values.</div>';return;}
  const outer=a/2, centerTravel=h/Math.sin(a*Math.PI/180), outerSpacing=(h/2)/Math.sin(outer*Math.PI/180), size=document.getElementById("emtsize").selectedOptions[0].text;
  box.innerHTML='<div class="result"><b>3-point saddle — preliminary layout</b><p>Conduit: '+size+'</p><div class="row"><p>Center mark<br><strong>At obstacle center</strong></p><p>Outer mark distance<br><strong>'+fmt(outerSpacing)+' in from center</strong></p><p>Left outer mark<br><strong>Center − '+fmt(outerSpacing)+' in</strong></p><p>Right outer mark<br><strong>Center + '+fmt(outerSpacing)+' in</strong></p><p>Center bend<br><strong>'+a+'°</strong></p><p>Outer bends<br><strong>'+outer+'° each</strong></p></div><p><b>Suggested sequence:</b> mark the obstacle center, measure the same calculated distance to each side for the outer marks, then follow your chosen saddle method and bender instructions for the bend order and orientation.</p><small>Obstacle width entered: '+fmt(w)+' in. This simplified model does not fully compensate for conduit clearance, shrink, bender geometry, or every field method. Treat marks as estimates and verify with a trusted reference and test bend before installation.</small></div>';
+});
+document.getElementById("lookupAmp").addEventListener("click",()=>{
+ const material=document.getElementById("ampMaterial").value,size=document.getElementById("ampSize").value,box=document.getElementById("ampResult");
+ // Preliminary 2023 NEC Table 310.16 reference values. 60/75/90 C ampacities in amperes.
+ const cu={"14":[15,20,25],"12":[20,25,30],"10":[30,35,40],"8":[40,50,55],"6":[55,65,75],"4":[70,85,95],"3":[85,100,115],"2":[95,115,130],"1":[110,130,145],"0":[125,150,170],"-1":[145,175,195],"-2":[165,200,225],"-3":[195,230,260],"250":[215,255,290],"300":[240,285,320],"350":[260,310,350],"500":[320,380,430]};
+ const al={"14":[null,null,null],"12":[15,20,25],"10":[25,30,35],"8":[30,40,45],"6":[40,50,55],"4":[55,65,75],"3":[65,75,85],"2":[75,90,100],"1":[85,100,115],"0":[100,120,135],"-1":[115,135,150],"-2":[130,155,175],"-3":[150,180,205],"250":[170,205,230],"300":[190,230,255],"350":[210,250,280],"500":[260,310,350]};
+ const vals=(material==="cu"?cu:al)[size],label=document.getElementById("ampSize").selectedOptions[0].text;
+ if(!vals){box.innerHTML='<div class="notice">No preliminary value is available for this selection. Check the official adopted code table.</div>';return;}
+ box.innerHTML='<div class="result"><b>'+label+' · '+(material==="cu"?"Copper":"Aluminum / copper-clad aluminum")+'</b><div class="row"><p>60°C<br><strong>'+(vals[0]===null?"—":vals[0]+" A")+'</strong></p><p>75°C<br><strong>'+(vals[1]===null?"—":vals[1]+" A")+'</strong></p><p>90°C<br><strong>'+(vals[2]===null?"—":vals[2]+" A")+'</strong></p></div><small>Preliminary 2023 Table 310.16 values only. Not final allowable ampacity. Apply the required correction/adjustment factors and terminal/overcurrent limits; confirm against the official code edition adopted for your job.</small></div>';
 });
 document.getElementById("solveOhm").addEventListener("click",()=>{
  let v=num("v"),i=num("i"),r=num("r"),p=num("p");const a=[v,i,r,p].filter(x=>x!==null);
