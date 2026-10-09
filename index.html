@@ -176,7 +176,7 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
  </section>
  <section id="code" class="hidden">
   <button class="back" data-home>← Home</button><div class="eyebrow">Code library</div><h2>NEC Reference</h2><p class="intro">Target edition: 2026 National Electrical Code (NFPA 70), subject to adoption and local amendments.</p>
-  <div class="card"><h3>Reference library roadmap</h3><div class="listrow"><span class="ico">🔎</span><div><b>Search by topic</b><div class="muted">Wiring methods, grounding, overcurrent, motors, boxes, and more.</div></div></div><div class="listrow"><span class="ico">📑</span><div><b>Article and table index</b><div class="muted">Show exact reference identifiers and edition notes.</div></div></div><div class="listrow"><span class="ico">🗺️</span><div><b>Local adoption</b><div class="muted">Record jurisdiction and effective edition.</div></div></div><div class="notice">The full NEC is copyrighted. The app can provide original explanations, limited reference metadata, and links to authorized resources; it will not reproduce the entire code text without appropriate rights.</div></div>
+  <div class="card"><h3>Search common code topics</h3><label for="necSearch">Topic, article number, or keyword</label><input id="necSearch" type="search" placeholder="Try: grounding, boxes, 310, motors" autocomplete="off"><p class="muted">Search this quick index of common NEC article areas.</p><div id="necResults" aria-live="polite"></div><div class="notice">This is a navigation aid, not the code text. Article organization or numbering may vary by edition; verify the applicable adopted NEC, local amendments, and AHJ requirements. The full NEC is copyrighted and should be consulted through an authorized copy.</div></div>
  </section>
  <section id="quick" class="hidden">
   <button class="back" data-home>← Home</button><div class="eyebrow">Field reference</div><h2>Quick References</h2><div class="card"><h3>Core formulas</h3><p><b>Ohm's law</b><br>V = I × R &nbsp; · &nbsp; I = V ÷ R &nbsp; · &nbsp; R = V ÷ I</p><p><b>DC power</b><br>P = V × I &nbsp; · &nbsp; P = I²R &nbsp; · &nbsp; P = V² ÷ R</p><p><b>Single-phase real power</b><br>P = V × I × power factor</p><p><b>Balanced three-phase real power</b><br>P = √3 × line voltage × line current × power factor</p><p class="muted">AC power formulas require the appropriate RMS values and assumptions. Use the correct formula for the circuit and load.</p></div><div class="card"><h3>Next reference packs</h3><ul><li>Conduit bend multipliers and geometry</li><li>Wire and cable identification</li><li>Motor and transformer tables</li><li>Grounding and bonding references</li><li>Unit conversion and job notes</li></ul></div>
@@ -284,6 +284,40 @@ document.getElementById("solveFill").addEventListener("click",()=>{
  const limit=count===1?0.53:count===2?0.31:0.40, total=cond*count, allowed=race*limit, pct=total/race*100, ok=total<=allowed;
  box.innerHTML='<div class="result"><b>'+ (ok?'Within entered fill limit':'Exceeds entered fill limit') +'</b><div class="row"><p>Total conductor area<br><strong>'+fmt(total)+' in²</strong></p><p>Raceway area<br><strong>'+fmt(race)+' in²</strong></p><p>Calculated fill<br><strong>'+fmt(pct)+'%</strong></p><p>Applicable limit used<br><strong>'+fmt(limit*100)+'%</strong></p><p>Maximum conductor area<br><strong>'+fmt(allowed)+' in²</strong></p><p>Remaining area to limit<br><strong>'+fmt(allowed-total)+' in²</strong></p></div><small>Based only on the areas and conductor count entered. Confirm all area values and applicable code requirements before installation.</small></div>';
 });
+// Searchable NEC topic index: article references and descriptions are navigation aids, not code text.
+const necTopics=[
+ {ref:"Article 90",title:"Introduction and scope",keywords:"scope purpose administration definitions how to use code"},
+ {ref:"Article 100",title:"Definitions",keywords:"definitions terms service equipment grounded grounding"},
+ {ref:"Article 110",title:"Requirements for electrical installations",keywords:"installation working space clearances terminals equipment labels"},
+ {ref:"Article 200",title:"Use and identification of grounded conductors",keywords:"neutral grounded conductor identification white gray"},
+ {ref:"Article 210",title:"Branch circuits",keywords:"branch circuit receptacle outlets gfci afci load"},
+ {ref:"Article 215",title:"Feeders",keywords:"feeder ampacity load sizing"},
+ {ref:"Article 220",title:"Branch-circuit, feeder, and service load calculations",keywords:"load calculation demand service feeder"},
+ {ref:"Article 230",title:"Services",keywords:"service entrance service conductors disconnect"},
+ {ref:"Article 240",title:"Overcurrent protection",keywords:"breaker fuse overcurrent protection conductor"},
+ {ref:"Article 250",title:"Grounding and bonding",keywords:"grounding bonding electrode egc gec ground rod"},
+ {ref:"Article 300",title:"Wiring methods and materials — general",keywords:"wiring methods cables conductors raceways installation"},
+ {ref:"Article 310",title:"Conductors for general wiring",keywords:"wire ampacity insulation temperature conductor sizes table 310.16"},
+ {ref:"Article 314",title:"Outlet, device, pull, and junction boxes; conduit bodies",keywords:"box fill junction box pull box device box cubic inches"},
+ {ref:"Article 334",title:"Nonmetallic-sheathed cable: Type NM",keywords:"romex nm cable residential"},
+ {ref:"Article 358",title:"Electrical metallic tubing (EMT)",keywords:"emt conduit raceway tubing bends"},
+ {ref:"Article 404",title:"Switches",keywords:"switch disconnect switching"},
+ {ref:"Article 406",title:"Receptacles, cord connectors, and attachment plugs",keywords:"outlet receptacle plug gfci tamper resistant"},
+ {ref:"Article 408",title:"Switchboards, switchgear, and panelboards",keywords:"panel panelboard breaker directory"},
+ {ref:"Article 422",title:"Appliances",keywords:"appliance dishwasher dryer water heater"},
+ {ref:"Article 430",title:"Motors, motor circuits, and controllers",keywords:"motor overload short circuit controller fla"},
+ {ref:"Article 440",title:"Air-conditioning and refrigerating equipment",keywords:"hvac condenser compressor refrigeration"},
+ {ref:"Article 450",title:"Transformers and transformer vaults",keywords:"transformer primary secondary overcurrent"},
+ {ref:"Article 680",title:"Swimming pools, fountains, and similar installations",keywords:"pool spa bonding equipotential"}
+];
+function renderNecTopics(){
+ const input=document.getElementById("necSearch"),out=document.getElementById("necResults"); if(!input||!out)return;
+ const q=input.value.trim().toLowerCase();
+ const hits=necTopics.filter(t=>(t.ref+" "+t.title+" "+t.keywords).toLowerCase().includes(q));
+ out.innerHTML=hits.length?hits.map(t=>`<div class="listrow"><span class="ico">📘</span><div><b>${t.ref} — ${t.title}</b><div class="muted">Search terms: ${t.keywords}</div></div></div>`).join(""):'<div class="notice">No matching topic. Try a broader keyword or article number.</div>';
+}
+document.getElementById("necSearch").addEventListener("input",renderNecTopics);
+renderNecTopics();
 document.getElementById("lookupAmp").addEventListener("click",()=>{
  const material=document.getElementById("ampMaterial").value,size=document.getElementById("ampSize").value,box=document.getElementById("ampResult");
  // Preliminary 2023 NEC Table 310.16 reference values. 60/75/90 C ampacities in amperes.
