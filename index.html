@@ -200,6 +200,12 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
    <button class="btn" id="solveTrouble">Build troubleshooting steps</button>
    <div id="troubleResult" aria-live="polite"></div>
   </div>
+  <div class="card" id="readingInterpreterCard"><h3>Interpret a voltage reading</h3><p class="muted">Enter a measured value and the expected nominal value for the same two test points. This gives a basic comparison only; it cannot confirm a fault or prove a circuit safe.</p>
+   <label for="readingPoint">What are you measuring?</label><select id="readingPoint"><option value="ll">Line-to-line (L-L)</option><option value="ln">Line-to-neutral (L-N)</option><option value="lg">Line-to-ground (L-G)</option><option value="ng">Neutral-to-ground (N-G)</option><option value="dc">DC positive-to-negative</option></select>
+   <div class="row"><div><label for="readingExpected">Expected voltage (V)</label><input id="readingExpected" type="number" min="0.1" step="any" placeholder="e.g. 208"></div><div><label for="readingMeasured">Measured voltage (V)</label><input id="readingMeasured" type="number" min="0" step="any" placeholder="e.g. 204"></div></div>
+   <label for="readingLoad">Condition during measurement</label><select id="readingLoad"><option value="unknown">Unknown / not recorded</option><option value="idle">Load off or idle</option><option value="running">Load running</option><option value="start">During startup / switching</option></select>
+   <button class="btn" id="interpretReading" type="button">Interpret reading</button><div id="readingResult" aria-live="polite"></div>
+  </div>
   <div class="card" id="savedTroubleCard"><h3>Saved diagnostic reports</h3><p class="muted">Reports are saved only on this device in this browser. They are not uploaded anywhere.</p><div id="savedTroubleList" aria-live="polite"></div><button class="btn secondary" id="clearTroubleHistory" type="button">Clear saved reports</button></div>
   <div class="notice"><b>Stop-work conditions:</b> If there is smoke, burning odor, arcing, water in electrical equipment, damaged conductors, or suspected shock/tingle voltage, keep clear and follow site emergency and lockout/tagout procedures. Do not open energized equipment or take live measurements unless qualified, authorized, and following the required electrical-safety procedures.</div>
  </section>
@@ -490,6 +496,30 @@ function renderSavedTroubleReports(){
  target.querySelectorAll('[data-copy-saved]').forEach(btn=>btn.addEventListener('click',()=>{const id=Number(btn.getAttribute('data-copy-saved'));const item=saved.find(x=>Number(x.id)===id);if(!item)return;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(item.report).then(()=>{btn.textContent="Copied";}).catch(()=>window.prompt("Copy saved report:",item.report));}else{window.prompt("Copy saved report:",item.report);}}));
 }
 document.getElementById("clearTroubleHistory").addEventListener("click",()=>{if(confirm("Delete all saved diagnostic reports from this device?")){localStorage.removeItem("electricianToolboxSavedTroubleshooting");renderSavedTroubleReports();}});
+
+// Basic offline voltage comparison helper. It compares user-entered values only and does not diagnose faults.
+document.getElementById("interpretReading").addEventListener("click",()=>{
+ const point=document.getElementById("readingPoint").value;
+ const expected=parseFloat(document.getElementById("readingExpected").value);
+ const measured=parseFloat(document.getElementById("readingMeasured").value);
+ const load=document.getElementById("readingLoad").selectedOptions[0].text;
+ const out=document.getElementById("readingResult");
+ const labels={ll:"line-to-line",ln:"line-to-neutral",lg:"line-to-ground",ng:"neutral-to-ground",dc:"DC positive-to-negative"};
+ const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ if(!Number.isFinite(expected)||expected<=0||!Number.isFinite(measured)||measured<0){out.innerHTML='<p class="notice">Enter a positive expected voltage and a measured voltage of zero or greater.</p>';return;}
+ const diff=measured-expected, pct=diff/expected*100, abs=Math.abs(pct);
+ let summary;
+ if(abs<=5) summary="The measured value is within 5% of the nominal value you entered. That comparison alone does not confirm correct operation or compliance.";
+ else if(pct<0) summary="The measured value is more than 5% below the nominal value you entered. Confirm the system and test points, meter setup, load condition, and equipment specifications before narrowing causes.";
+ else summary="The measured value is more than 5% above the nominal value you entered. Confirm the system and test points, meter setup, load condition, and equipment specifications before narrowing causes.";
+ let extra="";
+ if(point==="ng") extra="Neutral-to-ground voltage is context-dependent and this value alone cannot establish neutral integrity or safety.";
+ if(point==="lg") extra="Line-to-ground readings depend on system grounding and configuration; this reading alone does not establish a safe or correct supply.";
+ if(point==="ln"||point==="ll") extra="Compare with the confirmed system configuration and equipment nameplate; make sure the expected and measured values use the same pair of test points.";
+ if(point==="dc") extra="For DC equipment, confirm polarity, ripple/measurement method, and the manufacturer's specified operating range.";
+ if(load==="During startup / switching") extra+=(extra?" ":"")+"Because the reading was taken during startup or switching, note whether the change is brief or sustained and follow the equipment's approved diagnostic procedure.";
+ out.innerHTML='<div class="result"><b>Basic comparison</b><p>Test point: '+esc(labels[point])+'.</p><p>Difference: '+(diff>0?'+':'')+diff.toFixed(2)+' V ('+(pct>0?'+':'')+pct.toFixed(1)+'%).</p><p>'+esc(summary)+'</p><p>'+esc(extra)+'</p><p>Load condition: '+esc(load)+'.</p></div><div class="notice">Electrical measurements can be hazardous. Only qualified and authorized people should measure energized circuits using the required PPE, properly rated instruments, and site procedures. Stop if there is arcing, burning odor, shock/tingle, water, or damaged equipment. This tool does not determine a fault or prove safety.</div>';
+});
 renderSavedTroubleReports();
 
 </script>
