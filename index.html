@@ -52,6 +52,7 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
    <button class="tile" data-page="conduit"><span class="ico">〰️</span><strong>Conduit Bending</strong><span>Offsets, stubs, kicks & saddles</span></button>
    <button class="tile" data-page="ohms"><span class="ico">⚡</span><strong>Ohm's Law</strong><span>Voltage, current, resistance & power</span></button>
    <button class="tile" data-page="voltage"><span class="ico">📉</span><strong>Voltage Drop</strong><span>Single- and three-phase estimate</span></button>
+   <button class="tile" data-page="loadcalc"><span class="ico">📊</span><strong>Electrical Load</strong><span>Total connected VA and estimated current</span></button>
    <button class="tile" data-page="transformer"><span class="ico">🔄</span><strong>Transformer Current</strong><span>Estimate primary and secondary current from kVA</span></button>
    <button class="tile" data-page="ampacity"><span class="ico">🔌</span><strong>Wire Ampacity</strong><span>Preliminary conductor reference</span></button>
    <button class="tile" data-page="fill"><span class="ico">🧰</span><strong>Conduit Fill</strong><span>Raceway and conductor planning</span></button>
@@ -253,6 +254,19 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
   <div class="card" id="savedTroubleCard"><h3>Saved diagnostic reports</h3><p class="muted">Reports are saved only on this device in this browser. They are not uploaded anywhere.</p><div id="savedTroubleList" aria-live="polite"></div><button class="btn secondary" id="clearTroubleHistory" type="button">Clear saved reports</button></div>
   <div class="notice"><b>Stop-work conditions:</b> If there is smoke, burning odor, arcing, water in electrical equipment, damaged conductors, or suspected shock/tingle voltage, keep clear and follow site emergency and lockout/tagout procedures. Do not open energized equipment or take live measurements unless qualified, authorized, and following the required electrical-safety procedures.</div>
  </section>
+ <section id="loadcalc" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Power calculations · Offline</div><h2>Electrical Load Calculator</h2>
+  <p class="intro">Add equipment apparent loads in volt-amperes (VA) and quantities to estimate total connected load and current for one selected system voltage and phase.</p>
+  <div class="card">
+   <div class="row"><div><label for="loadPhase">System</label><select id="loadPhase"><option value="1">Single-phase</option><option value="3">Three-phase</option></select></div><div><label for="loadVoltage">System voltage (V)</label><input id="loadVoltage" type="number" min="1" step="any" placeholder="e.g. 208"></div></div>
+   <p class="muted">Enter apparent power (VA) per item, not watts unless power factor is 1. For three-phase calculations, voltage is line-to-line. All loads are assumed to use the same system voltage and phase.</p>
+   <div class="row"><div><label for="loadName1">Load 1 name (optional)</label><input id="loadName1" placeholder="e.g. lighting"></div><div><label for="loadVa1">VA per item</label><input id="loadVa1" type="number" min="0" step="any" placeholder="e.g. 1200"></div></div><label for="loadQty1">Quantity</label><input id="loadQty1" type="number" min="0" step="1" value="1">
+   <div class="row"><div><label for="loadName2">Load 2 name (optional)</label><input id="loadName2" placeholder="e.g. heater"></div><div><label for="loadVa2">VA per item</label><input id="loadVa2" type="number" min="0" step="any" placeholder="e.g. 3000"></div></div><label for="loadQty2">Quantity</label><input id="loadQty2" type="number" min="0" step="1" value="1">
+   <div class="row"><div><label for="loadName3">Load 3 name (optional)</label><input id="loadName3" placeholder="e.g. equipment"></div><div><label for="loadVa3">VA per item</label><input id="loadVa3" type="number" min="0" step="any" placeholder="e.g. 750"></div></div><label for="loadQty3">Quantity</label><input id="loadQty3" type="number" min="0" step="1" value="1">
+   <button class="btn" id="calculateLoad" type="button">Calculate connected load</button><div id="loadCalcResult" aria-live="polite"></div>
+  </div>
+  <div class="notice"><b>Important:</b> This is a connected-load estimate only. It does not apply NEC demand factors, continuous-load rules, motor calculations, noncoincident loads, feeder/service requirements, or phase balancing. Do not use it alone to size conductors, breakers, feeders, or services. Verify nameplates and the adopted code.</div>
+ </section>
  <section id="transformer" class="hidden">
   <button class="back" data-home>← Home</button><div class="eyebrow">Power calculations · Offline</div><h2>Transformer Current Calculator</h2>
   <p class="intro">Estimate full-load primary and secondary current from transformer kVA and voltage. Select the phase arrangement that matches the calculation.</p>
@@ -278,7 +292,7 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
  <button data-nav="code"><span>▤</span>NEC & refs</button>
 </nav>
 <script>
-const pages=["home","conduit","ohms","voltage","transformer","ampacity","fill","boxfill","code","trouble","quick","about"];
+const pages=["home","conduit","ohms","voltage","transformer","loadcalc","ampacity","fill","boxfill","code","trouble","quick","about"];
 function showPage(id){pages.forEach(p=>document.getElementById(p).classList.toggle("hidden",p!==id));document.querySelectorAll("[data-nav]").forEach(b=>b.classList.toggle("active",b.dataset.nav===id||(id==="voltage"||id==="transformer"||id==="ampacity"||id==="fill"||id==="boxfill"||id==="trouble"||id==="quick")&&b.dataset.nav==="ohms"||(id==="about")&&b.dataset.nav==="home"));window.scrollTo({top:0,behavior:"instant"});}
 document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
 document.querySelectorAll("[data-nav]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.nav)));
@@ -654,6 +668,24 @@ document.getElementById("calculatePhaseBalance").addEventListener("click",()=>{
  out.innerHTML='<div class="result"><b>Calculated results</b><p>Average line-to-line voltage: '+fmt(avg)+' V</p><p>Largest deviation from average: '+fmt(maxDev)+' V</p><p>Voltage imbalance: <b>'+fmt(imbalance)+'%</b></p><p>'+interpretation+'</p></div><div class="notice">This calculation uses maximum deviation from the average of the three line-to-line readings. Thresholds and acceptable operating conditions vary by equipment and standard; this result alone does not diagnose the cause or establish safety. Verify readings with suitable rated instruments and qualified procedures.</div>';
 });
 renderSavedTroubleReports();
+
+
+// Offline connected-load estimator. This does not perform code sizing.
+document.getElementById("calculateLoad").addEventListener("click",()=>{
+ const phase=Number(document.getElementById("loadPhase").value), voltage=Number(document.getElementById("loadVoltage").value), out=document.getElementById("loadCalcResult");
+ if(!Number.isFinite(voltage)||voltage<=0){out.innerHTML='<p class="notice">Enter a valid system voltage greater than zero.</p>';return;}
+ let totalVA=0, lines=[];
+ for(let i=1;i<=3;i++){
+  const raw=document.getElementById("loadVa"+i).value, qtyRaw=document.getElementById("loadQty"+i).value;
+  if(raw.trim()==="") continue;
+  const va=Number(raw), qty=Number(qtyRaw), name=document.getElementById("loadName"+i).value.trim()||("Load "+i);
+  if(!Number.isFinite(va)||va<0||!Number.isInteger(qty)||qty<0){out.innerHTML='<p class="notice">Enter VA as zero or greater and quantity as a whole number of zero or greater.</p>';return;}
+  const row=va*qty; totalVA+=row; if(row>0) lines.push(name+': '+row.toLocaleString(undefined,{maximumFractionDigits:2})+' VA');
+ }
+ if(totalVA<=0){out.innerHTML='<p class="notice">Enter at least one positive VA value and quantity.</p>';return;}
+ const amps=totalVA/(phase===3?Math.sqrt(3)*voltage:voltage), safe=x=>String(x).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+ out.innerHTML='<div class="result"><p><b>'+totalVA.toLocaleString(undefined,{maximumFractionDigits:2})+' VA</b></p><p>Total connected apparent load</p><p>Estimated current: <b>'+amps.toFixed(2)+' A</b></p><p>Formula: '+(phase===3?'VA ÷ (√3 × line-to-line voltage)':'VA ÷ voltage')+'</p><p>'+lines.map(safe).join('<br>')+'</p></div><div class="notice">Estimate only. All loads are assumed to share the selected voltage and phase. Demand factors, power factor conversions, continuous-load rules, motor rules, and code sizing requirements are not included.</div>';
+});
 
 </script>
 </body>
