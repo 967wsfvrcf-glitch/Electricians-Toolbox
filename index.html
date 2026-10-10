@@ -53,6 +53,7 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
    <button class="tile" data-page="ohms"><span class="ico">⚡</span><strong>Ohm's Law</strong><span>Voltage, current, resistance & power</span></button>
    <button class="tile" data-page="voltage"><span class="ico">📉</span><strong>Voltage Drop</strong><span>Single- and three-phase estimate</span></button>
    <button class="tile" data-page="loadcalc"><span class="ico">📊</span><strong>Electrical Load</strong><span>Total connected VA and estimated current</span></button>
+   <button class="tile" data-page="breakerhelper"><span class="ico">🛡️</span><strong>Breaker & Conductor Helper</strong><span>Guided preliminary sizing checks</span></button>
    <button class="tile" data-page="transformer"><span class="ico">🔄</span><strong>Transformer Current</strong><span>Estimate primary and secondary current from kVA</span></button>
    <button class="tile" data-page="ampacity"><span class="ico">🔌</span><strong>Wire Ampacity</strong><span>Preliminary conductor reference</span></button>
    <button class="tile" data-page="fill"><span class="ico">🧰</span><strong>Conduit Fill</strong><span>Raceway and conductor planning</span></button>
@@ -267,6 +268,19 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
   </div>
   <div class="notice"><b>Important:</b> This is a connected-load estimate only. It does not apply NEC demand factors, continuous-load rules, motor calculations, noncoincident loads, feeder/service requirements, or phase balancing. Do not use it alone to size conductors, breakers, feeders, or services. Verify nameplates and the adopted code.</div>
  </section>
+ <section id="breakerhelper" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Guided sizing aid · Offline</div><h2>Breaker & Conductor Helper</h2>
+  <p class="intro">Organize the key inputs for a preliminary conductor and overcurrent-protection review. This tool does not select a code-compliant breaker or wire size by itself.</p>
+  <div class="card">
+   <label for="bhLoad">Calculated load current (A)</label><input id="bhLoad" type="number" min="0.01" step="any" placeholder="e.g. 16">
+   <label for="bhKind">Load type</label><select id="bhKind"><option value="general">General load</option><option value="continuous">Continuous load (expected maximum current for 3 hours or more)</option><option value="motor">Motor circuit</option><option value="hvac">Air-conditioning / refrigeration equipment</option><option value="welder">Welder or other special load</option></select>
+   <div class="row"><div><label for="bhBase">Base conductor ampacity (A)</label><input id="bhBase" type="number" min="0.1" step="any" placeholder="From verified applicable table"></div><div><label for="bhCorrection">Combined correction/adjustment (%)</label><input id="bhCorrection" type="number" min="0.1" max="100" step="any" value="100"></div></div>
+   <div class="row"><div><label for="bhTerminal">Applicable terminal ampacity limit (A)</label><input id="bhTerminal" type="number" min="0.1" step="any" placeholder="Use verified terminal limit"></div><div><label for="bhOcpd">Proposed breaker/fuse rating (A)</label><input id="bhOcpd" type="number" min="0.1" step="any" placeholder="Optional"></div></div>
+   <label for="bhNotes">Conductor, installation, and equipment notes (optional)</label><textarea id="bhNotes" rows="3" placeholder="e.g. copper THHN, 75°C terminals, 4 current-carrying conductors, 35°C ambient"></textarea>
+   <button class="btn" id="bhCalculate" type="button">Review inputs</button><div id="bhResult" aria-live="polite"></div>
+  </div>
+  <div class="notice"><b>Important:</b> Enter ampacity and factors only after verifying the adopted NEC edition, conductor type, insulation rating, terminal ratings, ambient temperature, number of current-carrying conductors, and installation conditions. Motor, HVAC, welding, and other special loads use additional rules. This helper does not determine a permitted overcurrent-device size, conductor size, or code compliance.</div>
+ </section>
  <section id="transformer" class="hidden">
   <button class="back" data-home>← Home</button><div class="eyebrow">Power calculations · Offline</div><h2>Transformer Current Calculator</h2>
   <p class="intro">Estimate full-load primary and secondary current from transformer kVA and voltage. Select the phase arrangement that matches the calculation.</p>
@@ -292,11 +306,31 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
  <button data-nav="code"><span>▤</span>NEC & refs</button>
 </nav>
 <script>
-const pages=["home","conduit","ohms","voltage","transformer","loadcalc","ampacity","fill","boxfill","code","trouble","quick","about"];
-function showPage(id){pages.forEach(p=>document.getElementById(p).classList.toggle("hidden",p!==id));document.querySelectorAll("[data-nav]").forEach(b=>b.classList.toggle("active",b.dataset.nav===id||(id==="voltage"||id==="transformer"||id==="ampacity"||id==="fill"||id==="boxfill"||id==="trouble"||id==="quick")&&b.dataset.nav==="ohms"||(id==="about")&&b.dataset.nav==="home"));window.scrollTo({top:0,behavior:"instant"});}
+const pages=["home","conduit","ohms","voltage","transformer","loadcalc","breakerhelper","ampacity","fill","boxfill","code","trouble","quick","about"];
+function showPage(id){pages.forEach(p=>document.getElementById(p).classList.toggle("hidden",p!==id));document.querySelectorAll("[data-nav]").forEach(b=>b.classList.toggle("active",b.dataset.nav===id||(id==="voltage"||id==="transformer"||id==="loadcalc"||id==="breakerhelper"||id==="ampacity"||id==="fill"||id==="boxfill"||id==="trouble"||id==="quick")&&b.dataset.nav==="ohms"||(id==="about")&&b.dataset.nav==="home"));window.scrollTo({top:0,behavior:"instant"});}
 document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
 document.querySelectorAll("[data-nav]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.nav)));
 document.querySelectorAll("[data-home]").forEach(b=>b.addEventListener("click",()=>showPage("home")));
+document.getElementById("bhCalculate").addEventListener("click",()=>{
+ const load=Number(document.getElementById("bhLoad").value),kind=document.getElementById("bhKind").value,base=Number(document.getElementById("bhBase").value),factor=Number(document.getElementById("bhCorrection").value),terminalRaw=document.getElementById("bhTerminal").value,ocpdRaw=document.getElementById("bhOcpd").value,notes=document.getElementById("bhNotes").value.trim(),out=document.getElementById("bhResult");
+ if(!Number.isFinite(load)||load<=0){out.innerHTML='<div class="notice">Enter a load current greater than zero.</div>';return;}
+ if(!Number.isFinite(base)||base<=0||!Number.isFinite(factor)||factor<=0||factor>100){out.innerHTML='<div class="notice">Enter a verified base ampacity greater than zero and a combined factor above 0% and no greater than 100%.</div>';return;}
+ const terminal=terminalRaw.trim()===""?null:Number(terminalRaw),ocpd=ocpdRaw.trim()===""?null:Number(ocpdRaw);
+ if((terminal!==null&&(!Number.isFinite(terminal)||terminal<=0))||(ocpd!==null&&(!Number.isFinite(ocpd)||ocpd<=0))){out.innerHTML='<div class="notice">Terminal limit and proposed breaker/fuse rating must be positive values, or left blank.</div>';return;}
+ const adjusted=base*factor/100,effective=terminal===null?adjusted:Math.min(adjusted,terminal),continuous=kind==="continuous",required=load*(continuous?1.25:1);
+ let message='';
+ if(kind==="motor") message='Motor circuits require separate checks for motor-table current, branch-circuit short-circuit/ground-fault protection, overload protection, conductor sizing, and equipment instructions. Do not use this general comparison to select motor protection.';
+ else if(kind==="hvac") message='For HVAC/refrigeration equipment, check the nameplate minimum circuit ampacity (MCA) and maximum overcurrent protection (MOCP), plus applicable equipment instructions and code rules. Do not use this general comparison as the final selection.';
+ else if(kind==="welder") message='Welders and other special loads have specific calculation and duty-cycle rules. Verify the applicable code article before selecting conductors or protection.';
+ else message=continuous?'For a continuous load, this helper shows a preliminary 125% comparison only. Confirm whether the load qualifies, whether equipment is listed for 100% operation, and all applicable exceptions and rules.':'This is only a preliminary comparison. Verify load classification, applicable continuous-load treatment, standard overcurrent-device rules, and all code-specific exceptions.';
+ const fmt=n=>n.toLocaleString(undefined,{maximumFractionDigits:2});
+ let checks='<p>Entered load current: <b>'+fmt(load)+' A</b></p><p>Preliminary current comparison: <b>'+fmt(required)+' A</b>'+(continuous?' (125% of entered current)':'')+'</p><p>Adjusted conductor ampacity from your inputs: <b>'+fmt(adjusted)+' A</b></p><p>Comparison value after optional terminal limit: <b>'+fmt(effective)+' A</b></p>';
+ if(effective<required) checks+='<p><b>Flag:</b> The entered ampacity values are below the preliminary current comparison. Recheck inputs and the applicable sizing rules.</p>';
+ else checks+='<p>The entered ampacity values meet this limited numerical comparison; that does <b>not</b> establish code compliance.</p>';
+ if(ocpd!==null) checks+='<p>Proposed protective-device rating entered: <b>'+fmt(ocpd)+' A</b>. This tool does not determine whether that rating is permitted.</p>';
+ out.innerHTML='<div class="result"><h3>Preliminary review</h3>'+checks+'<p>'+esc(message)+'</p>'+(notes?'<p><b>Your notes:</b> '+esc(notes)+'</p>':'')+'</div><div class="notice">Do not upsize a breaker to resolve tripping. Confirm the adopted code, equipment nameplate, conductor identification, terminal ratings, installation conditions, and manufacturer instructions with a qualified person.</div>';
+});
+
 document.getElementById("calcTransformer").addEventListener("click",()=>{
  const kva=num("xfKva"),pv=num("xfPrimaryV"),sv=num("xfSecondaryV"),phase=Number(document.getElementById("xfPhase").value),out=document.getElementById("xfResult");
  if([kva,pv,sv].some(v=>v===null||!Number.isFinite(v)||v<=0)){out.innerHTML='<div class="notice">Enter positive values for kVA and both voltages.</div>';return;}
