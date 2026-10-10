@@ -55,6 +55,7 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
    <button class="tile" data-page="transformer"><span class="ico">🔄</span><strong>Transformer Current</strong><span>Estimate primary and secondary current from kVA</span></button>
    <button class="tile" data-page="ampacity"><span class="ico">🔌</span><strong>Wire Ampacity</strong><span>Preliminary conductor reference</span></button>
    <button class="tile" data-page="fill"><span class="ico">🧰</span><strong>Conduit Fill</strong><span>Raceway and conductor planning</span></button>
+   <button class="tile" data-page="boxfill"><span class="ico">📦</span><strong>Box Fill</strong><span>Calculate box volume allowances</span></button>
    <button class="tile" data-page="code"><span class="ico">📘</span><strong>NEC Reference</strong><span>2026 edition planning & code topics</span></button>
    <button class="tile" data-page="trouble"><span class="ico">🩺</span><strong>Troubleshooting Guide</strong><span>Guided diagnosis for common field problems</span></button>
    <button class="tile" data-page="quick"><span class="ico">📋</span><strong>Quick References</strong><span>Units, formulas & field notes</span></button>
@@ -184,6 +185,27 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
   </div>
   <div class="card"><h3>How the limit is selected</h3><p>For general raceway fill calculations, the commonly used limits are 53% for one conductor, 31% for two conductors, and 40% for more than two conductors. Confirm the applicable NEC edition, raceway type, conductor configuration, and any exceptions for your installation.</p><p class="muted">Raceway area lookup is available for common trade sizes. Conductor areas are reference values for listed insulation types; actual dimensions and code tables govern. This is a planning aid, not a substitute for checking the adopted code.</p></div>
  </section>
+ <section id="boxfill" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Electrical calculations · NEC 314.16 reference</div><h2>Box Fill Calculator</h2>
+  <p class="intro">Estimate box-fill volume allowances for common insulated conductors, equipment grounds, internal clamps, and device yokes. Verify the marked box volume and the applicable NEC edition before installation.</p>
+  <div class="card">
+   <h3>Insulated conductors</h3>
+   <p class="muted">Enter the number of conductors of each size that count toward box fill. Include conductors entering, leaving, or spliced in the box as applicable. Do not count pigtails that originate and terminate entirely inside the box when the code exception applies.</p>
+   <div class="row"><div><label for="bf14">14 AWG count</label><input id="bf14" type="number" min="0" step="1" value="0"></div><div><label for="bf12">12 AWG count</label><input id="bf12" type="number" min="0" step="1" value="0"></div></div>
+   <div class="row"><div><label for="bf10">10 AWG count</label><input id="bf10" type="number" min="0" step="1" value="0"></div><div><label for="bf8">8 AWG count</label><input id="bf8" type="number" min="0" step="1" value="0"></div></div>
+   <div class="row"><div><label for="bf6">6 AWG count</label><input id="bf6" type="number" min="0" step="1" value="0"></div><div><label for="bfOther">Other sizes</label><select id="bfOther"><option value="none">None entered</option><option value="manual">I need to check another size</option></select></div></div>
+   <div id="bfOtherNote" class="muted hidden">This starter calculator does not include allowances for 18, 16, or larger-than-6 AWG conductors. Verify the applicable volume allowance and calculate those separately before relying on the result.</div>
+  </div>
+  <div class="card">
+   <h3>Other allowances</h3>
+   <div class="row"><div><label for="bfGroundSize">Largest equipment grounding conductor size</label><select id="bfGroundSize"><option value="none">No grounds entered</option><option value="14">14 AWG</option><option value="12">12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option></select></div><div><label for="bfGroundCount">Number of equipment grounding conductors</label><input id="bfGroundCount" type="number" min="0" step="1" value="0"></div></div>
+   <div class="row"><div><label for="bfClamp">Internal cable clamps</label><select id="bfClamp"><option value="0">None / external clamps</option><option value="1">One or more internal clamps</option></select></div><div><label for="bfYokes">Device yokes (switches/receptacles)</label><input id="bfYokes" type="number" min="0" step="1" value="0"></div></div>
+   <label for="bfYokeSize">Largest conductor connected to a device yoke</label><select id="bfYokeSize"><option value="14">14 AWG</option><option value="12" selected>12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option></select>
+   <label for="bfBoxVolume">Box marked volume (cubic inches)</label><input id="bfBoxVolume" type="number" min="0.1" step="any" placeholder="e.g. 18">
+   <button class="btn" id="calcBoxFill">Calculate box fill</button><div id="bfResult" aria-live="polite"></div>
+  </div>
+  <div class="notice"><b>Important:</b> This is a preliminary helper for common sizes, not a complete NEC compliance determination. It assumes the standard Table 314.16(B) volume allowances for listed sizes and simplified ground/clamp/yoke rules. Verify all applicable allowances, fittings, luminaire studs, internal barriers, conductor sizes, box markings, and exceptions in the locally adopted NEC. Never use a passing calculation as proof that an installation is otherwise safe or compliant.</div>
+ </section>
  <section id="code" class="hidden">
   <button class="back" data-home>← Home</button><div class="eyebrow">Code library</div><h2>NEC Reference</h2><p class="intro">Target edition: 2026 National Electrical Code (NFPA 70), subject to adoption and local amendments.</p>
   <div class="card"><h3>Search common code topics</h3><label for="necSearch">Topic, article number, or keyword</label><input id="necSearch" type="search" placeholder="Try: grounding, boxes, 310, motors" autocomplete="off"><p class="muted">Search article numbers or job topics to see a plain-English rule summary, a field example, and what to verify in your adopted code.</p><div id="necResults" aria-live="polite"></div><div class="notice">These are original educational summaries, not verbatim NEC text or a substitute for the complete standard. Confirm the edition adopted by your jurisdiction, local amendments, equipment instructions, and AHJ requirements before relying on a rule.</div></div>
@@ -256,8 +278,8 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
  <button data-nav="code"><span>▤</span>NEC & refs</button>
 </nav>
 <script>
-const pages=["home","conduit","ohms","voltage","transformer","ampacity","fill","code","trouble","quick","about"];
-function showPage(id){pages.forEach(p=>document.getElementById(p).classList.toggle("hidden",p!==id));document.querySelectorAll("[data-nav]").forEach(b=>b.classList.toggle("active",b.dataset.nav===id||(id==="voltage"||id==="transformer"||id==="ampacity"||id==="fill"||id==="trouble"||id==="quick")&&b.dataset.nav==="ohms"||(id==="about")&&b.dataset.nav==="home"));window.scrollTo({top:0,behavior:"instant"});}
+const pages=["home","conduit","ohms","voltage","transformer","ampacity","fill","boxfill","code","trouble","quick","about"];
+function showPage(id){pages.forEach(p=>document.getElementById(p).classList.toggle("hidden",p!==id));document.querySelectorAll("[data-nav]").forEach(b=>b.classList.toggle("active",b.dataset.nav===id||(id==="voltage"||id==="transformer"||id==="ampacity"||id==="fill"||id==="boxfill"||id==="trouble"||id==="quick")&&b.dataset.nav==="ohms"||(id==="about")&&b.dataset.nav==="home"));window.scrollTo({top:0,behavior:"instant"});}
 document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
 document.querySelectorAll("[data-nav]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.nav)));
 document.querySelectorAll("[data-home]").forEach(b=>b.addEventListener("click",()=>showPage("home")));
@@ -353,6 +375,23 @@ document.getElementById("solveFill").addEventListener("click",()=>{
  }
  const limit=count===1?0.53:count===2?0.31:0.40, total=cond*count, allowed=race*limit, pct=total/race*100, ok=total<=allowed;
  box.innerHTML='<div class="result"><b>'+ (ok?'Within entered fill limit':'Exceeds entered fill limit') +'</b><div class="row"><p>Total conductor area<br><strong>'+fmt(total)+' in²</strong></p><p>Raceway area<br><strong>'+fmt(race)+' in²</strong></p><p>Calculated fill<br><strong>'+fmt(pct)+'%</strong></p><p>Applicable limit used<br><strong>'+fmt(limit*100)+'%</strong></p><p>Maximum conductor area<br><strong>'+fmt(allowed)+' in²</strong></p><p>Remaining area to limit<br><strong>'+fmt(allowed-total)+' in²</strong></p></div><small>Based only on the areas and conductor count entered. Confirm all area values and applicable code requirements before installation.</small></div>';
+});
+
+// Box fill helper: common Table 314.16(B) allowances in cubic inches.
+const boxFillAllowance={"14":2.0,"12":2.25,"10":2.5,"8":3.0,"6":5.0};
+document.getElementById("bfOther").addEventListener("change",()=>document.getElementById("bfOtherNote").classList.toggle("hidden",document.getElementById("bfOther").value!=="manual"));
+document.getElementById("calcBoxFill").addEventListener("click",()=>{
+ const out=document.getElementById("bfResult"), sizes=["14","12","10","8","6"], counts={}; let total=0, conductorCount=0;
+ for(const size of sizes){const n=num("bf"+size); if(n===null||!Number.isInteger(n)||n<0){out.innerHTML='<div class="notice">Enter a whole-number count of zero or greater for each conductor size.</div>';return;} counts[size]=n; total+=n*boxFillAllowance[size]; conductorCount+=n;}
+ const gCount=num("bfGroundCount"), yokes=num("bfYokes"), volume=num("bfBoxVolume"), gSize=document.getElementById("bfGroundSize").value, ySize=document.getElementById("bfYokeSize").value;
+ if([gCount,yokes].some(v=>v===null||!Number.isInteger(v)||v<0)||volume===null||!Number.isFinite(volume)||volume<=0){out.innerHTML='<div class="notice">Enter non-negative whole-number counts and a positive marked box volume.</div>';return;}
+ if((gCount===0&&gSize!=="none")||(gCount>0&&gSize==="none")){out.innerHTML='<div class="notice">Select the largest equipment grounding conductor size when grounds are present, or select “No grounds entered” when the count is zero.</div>';return;}
+ if(gCount>0){const base=boxFillAllowance[gSize]; if(!base){out.innerHTML='<div class="notice">This grounding-conductor size is not supported by this starter calculator. Verify its volume allowance manually.</div>';return;} total+=base*(1+Math.max(0,gCount-4)*0.25);}
+ if(Number(document.getElementById("bfClamp").value)===1){const largest=sizes.filter(sz=>counts[sz]>0).sort((a,b)=>Number(a)-Number(b))[0]; if(!largest){out.innerHTML='<div class="notice">For internal clamps, enter at least one insulated conductor size so the allowance can be based on the largest conductor.</div>';return;} total+=boxFillAllowance[largest];}
+ if(yokes>0){total+=yokes*2*boxFillAllowance[ySize];}
+ const fits=total<=volume, pct=total/volume*100;
+ let note=''; if(document.getElementById("bfOther").value==="manual") note='<p class="notice">You indicated another conductor size may be present. This result is incomplete until that size and its allowance are included.</p>';
+ out.innerHTML='<div class="result"><h3>'+(fits?'Calculated allowance is within marked volume':'Calculated allowance exceeds marked volume')+'</h3><div class="row"><p>Required volume allowance<br><strong>'+fmt(total)+' in³</strong></p><p>Marked box volume<br><strong>'+fmt(volume)+' in³</strong></p><p>Volume used<br><strong>'+fmt(pct)+'%</strong></p><p>Remaining volume<br><strong>'+fmt(volume-total)+' in³</strong></p></div><p>Insulated conductors counted: '+conductorCount+'. Grounding conductors: '+gCount+'. Device yokes: '+yokes+'.</p><p class="muted">Device yokes use two allowances per yoke based on the selected conductor size. Grounds are modeled as one allowance for up to four conductors plus 1/4 allowance for each additional ground. Verify the exact rule and exceptions for your installation.</p>'+note+'</div>';
 });
 // Original plain-English field summaries. These are not verbatim NEC text.
 const necTopics=[
