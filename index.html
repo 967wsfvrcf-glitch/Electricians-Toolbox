@@ -52,6 +52,7 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
    <button class="tile" data-page="conduit"><span class="ico">〰️</span><strong>Conduit Bending</strong><span>Offsets, stubs, kicks & saddles</span></button>
    <button class="tile" data-page="ohms"><span class="ico">⚡</span><strong>Ohm's Law</strong><span>Voltage, current, resistance & power</span></button>
    <button class="tile" data-page="voltage"><span class="ico">📉</span><strong>Voltage Drop</strong><span>Single- and three-phase estimate</span></button>
+   <button class="tile" data-page="transformer"><span class="ico">🔄</span><strong>Transformer Current</strong><span>Estimate primary and secondary current from kVA</span></button>
    <button class="tile" data-page="ampacity"><span class="ico">🔌</span><strong>Wire Ampacity</strong><span>Preliminary conductor reference</span></button>
    <button class="tile" data-page="fill"><span class="ico">🧰</span><strong>Conduit Fill</strong><span>Raceway and conductor planning</span></button>
    <button class="tile" data-page="code"><span class="ico">📘</span><strong>NEC Reference</strong><span>2026 edition planning & code topics</span></button>
@@ -222,6 +223,17 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
   <div class="card" id="savedTroubleCard"><h3>Saved diagnostic reports</h3><p class="muted">Reports are saved only on this device in this browser. They are not uploaded anywhere.</p><div id="savedTroubleList" aria-live="polite"></div><button class="btn secondary" id="clearTroubleHistory" type="button">Clear saved reports</button></div>
   <div class="notice"><b>Stop-work conditions:</b> If there is smoke, burning odor, arcing, water in electrical equipment, damaged conductors, or suspected shock/tingle voltage, keep clear and follow site emergency and lockout/tagout procedures. Do not open energized equipment or take live measurements unless qualified, authorized, and following the required electrical-safety procedures.</div>
  </section>
+ <section id="transformer" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Power calculations · Offline</div><h2>Transformer Current Calculator</h2>
+  <p class="intro">Estimate full-load primary and secondary current from transformer kVA and voltage. Select the phase arrangement that matches the calculation.</p>
+  <div class="card">
+   <label for="xfPhase">System</label><select id="xfPhase"><option value="1">Single-phase</option><option value="3">Three-phase</option></select>
+   <label for="xfKva">Transformer rating (kVA)</label><input id="xfKva" type="number" min="0.001" step="any" placeholder="e.g. 45">
+   <div class="row"><div><label for="xfPrimaryV">Primary voltage (V)</label><input id="xfPrimaryV" type="number" min="0.001" step="any" placeholder="e.g. 480"></div><div><label for="xfSecondaryV">Secondary voltage (V)</label><input id="xfSecondaryV" type="number" min="0.001" step="any" placeholder="e.g. 208"></div></div>
+   <button class="btn" id="calcTransformer">Calculate current</button><div id="xfResult" aria-live="polite"></div>
+  </div>
+  <div class="notice"><b>Important:</b> These are ideal full-load current estimates using the entered kVA and voltage. They do not determine conductor ampacity, overcurrent protection, grounding/bonding, tap rules, inrush, or code compliance. Verify the nameplate, wiring configuration, applicable NEC edition, and manufacturer instructions.</div>
+ </section>
  <section id="quick" class="hidden">
   <button class="back" data-home>← Home</button><div class="eyebrow">Field reference</div><h2>Quick References</h2><div class="card"><h3>Core formulas</h3><p><b>Ohm's law</b><br>V = I × R &nbsp; · &nbsp; I = V ÷ R &nbsp; · &nbsp; R = V ÷ I</p><p><b>DC power</b><br>P = V × I &nbsp; · &nbsp; P = I²R &nbsp; · &nbsp; P = V² ÷ R</p><p><b>Single-phase real power</b><br>P = V × I × power factor</p><p><b>Balanced three-phase real power</b><br>P = √3 × line voltage × line current × power factor</p><p class="muted">AC power formulas require the appropriate RMS values and assumptions. Use the correct formula for the circuit and load.</p></div><div class="card"><h3>Next reference packs</h3><ul><li>Conduit bend multipliers and geometry</li><li>Wire and cable identification</li><li>Motor and transformer tables</li><li>Grounding and bonding references</li><li>Unit conversion and job notes</li></ul></div>
  </section>
@@ -236,11 +248,17 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
  <button data-nav="code"><span>▤</span>NEC & refs</button>
 </nav>
 <script>
-const pages=["home","conduit","ohms","voltage","ampacity","fill","code","trouble","quick","about"];
-function showPage(id){pages.forEach(p=>document.getElementById(p).classList.toggle("hidden",p!==id));document.querySelectorAll("[data-nav]").forEach(b=>b.classList.toggle("active",b.dataset.nav===id||(id==="voltage"||id==="ampacity"||id==="fill"||id==="trouble"||id==="quick")&&b.dataset.nav==="ohms"||(id==="about")&&b.dataset.nav==="home"));window.scrollTo({top:0,behavior:"instant"});}
+const pages=["home","conduit","ohms","voltage","transformer","ampacity","fill","code","trouble","quick","about"];
+function showPage(id){pages.forEach(p=>document.getElementById(p).classList.toggle("hidden",p!==id));document.querySelectorAll("[data-nav]").forEach(b=>b.classList.toggle("active",b.dataset.nav===id||(id==="voltage"||id==="transformer"||id==="ampacity"||id==="fill"||id==="trouble"||id==="quick")&&b.dataset.nav==="ohms"||(id==="about")&&b.dataset.nav==="home"));window.scrollTo({top:0,behavior:"instant"});}
 document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
 document.querySelectorAll("[data-nav]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.nav)));
 document.querySelectorAll("[data-home]").forEach(b=>b.addEventListener("click",()=>showPage("home")));
+document.getElementById("calcTransformer").addEventListener("click",()=>{
+ const kva=num("xfKva"),pv=num("xfPrimaryV"),sv=num("xfSecondaryV"),phase=Number(document.getElementById("xfPhase").value),out=document.getElementById("xfResult");
+ if([kva,pv,sv].some(v=>v===null||!Number.isFinite(v)||v<=0)){out.innerHTML='<div class="notice">Enter positive values for kVA and both voltages.</div>';return;}
+ const factor=phase===3?Math.sqrt(3):1,ip=kva*1000/(factor*pv),isec=kva*1000/(factor*sv),label=phase===3?'three-phase line current':'single-phase current';
+ out.innerHTML='<div class="result"><h3>Estimated full-load current</h3><p>Primary '+label+': <b>'+fmt(ip)+' A</b></p><p>Secondary '+label+': <b>'+fmt(isec)+' A</b></p><p class="muted">Formula: I = kVA × 1000 ÷ voltage'+(phase===3?' ÷ √3':'')+'.</p></div>';
+});
 const num=id=>{const s=document.getElementById(id).value.trim();return s===""?null:Number(s)};
 const fmt=n=>Number.isFinite(n)?n.toLocaleString("en-US",{maximumFractionDigits:4}):"—";
 const bendType=document.getElementById("bendtype");
