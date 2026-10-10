@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10151d">
+<meta name="description" content="Electrician's Toolbox — field calculations and references">
+<title>Electrician's Toolbox</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1017;--panel:#141d28;--panel2:#1a2634;--line:#2b3a4b;--text:#f3f6fa;--muted:#a8b6c6;--accent:#ffbd59;--good:#69d6a5;--warn:#ffd080}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}
+header{padding:calc(18px + env(safe-area-inset-top)) 18px 16px;background:linear-gradient(145deg,#182534,#10151d);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:13px;background:var(--accent);color:#171b21;display:grid;place-items:center;font-weight:900;font-size:21px}
+h1{font-size:21px;margin:0;letter-spacing:-.4px}header p{margin:3px 0 0;color:var(--muted);font-size:13px}
+main{max-width:850px;margin:auto;padding:18px 15px 105px}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:var(--accent);font-weight:800;margin:5px 0 8px}
+h2{font-size:24px;letter-spacing:-.5px;margin:0 0 7px}h3{font-size:17px;margin:0 0 8px}
+.intro{color:var(--muted);margin:0 0 18px}
+.notice{background:#292315;border:1px solid #5a4827;color:#ffe3ac;border-radius:12px;padding:12px 13px;font-size:13px;margin:15px 0 20px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.tile{min-height:116px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:14px;color:var(--text);display:flex;flex-direction:column;gap:7px}
+.tile:active,.tile:hover{border-color:var(--accent);background:var(--panel2)}
+.tile .ico{font-size:24px}.tile strong{font-size:15px}.tile span:last-child{color:var(--muted);font-size:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px;margin:12px 0}
+label{display:block;color:var(--muted);font-size:13px;margin:12px 0 5px}
+input,select{width:100%;background:#0c121a;color:var(--text);border:1px solid #354658;border-radius:10px;padding:12px;min-height:46px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{border:0;border-radius:10px;background:var(--accent);color:#1c2026;font-weight:800;padding:12px 15px;min-height:46px;width:100%;margin-top:14px}
+.btn.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+.result{border:1px solid #426b5a;background:#12261f;border-radius:12px;padding:13px;margin-top:14px}
+.result b{color:var(--good);font-size:20px}.result small{display:block;color:#b8d8ca;margin-top:4px}
+.muted{color:var(--muted);font-size:13px}.hidden{display:none!important}
+.back{background:transparent;border:1px solid var(--line);color:var(--text);padding:8px 12px;border-radius:9px;margin-bottom:14px}
+.listrow{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding:13px 0}.listrow:last-child{border-bottom:0}.listrow .ico{font-size:22px}
+.bottom{position:fixed;bottom:0;left:0;right:0;padding:9px 12px calc(9px + env(safe-area-inset-bottom));background:#101720ee;backdrop-filter:blur(12px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);gap:5px;z-index:4}
+.bottom button{border:0;border-radius:10px;background:transparent;color:var(--muted);font-size:11px;padding:7px 2px;display:flex;flex-direction:column;align-items:center;gap:3px}.bottom button span{font-size:19px}.bottom button.active{background:var(--panel2);color:var(--accent)}
+ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px}
+@media(min-width:620px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}main{padding-top:25px}.tile{min-height:130px}}
+.guide-diagram{margin-top:12px}.guide-diagram svg{width:100%;height:auto;max-height:190px;display:block}.guide-diagram p{line-height:1.5}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="logo">ET</div><div><h1>Electrician's Toolbox</h1><p>Field calculations · references · jobsite tools</p></div></div>
+</header>
+<main>
+ <section id="home">
+  <div class="eyebrow">Field toolkit</div><h2>What do you need to work out?</h2>
+  <p class="intro">Fast, practical tools for the electrical jobsite. More modules will be added and verified in stages.</p>
+  <div class="grid">
+   <button class="tile" data-page="breakerhelper"><span class="ico">🛡️</span><strong>NEW: Breaker & Conductor Helper</strong><span>Guided preliminary sizing checks</span></button>
+   <button class="tile" data-page="conduit"><span class="ico">〰️</span><strong>Conduit Bending</strong><span>Offsets, stubs, kicks & saddles</span></button>
+   <button class="tile" data-page="ohms"><span class="ico">⚡</span><strong>Ohm's Law</strong><span>Voltage, current, resistance & power</span></button>
+   <button class="tile" data-page="voltage"><span class="ico">📉</span><strong>Voltage Drop</strong><span>Single- and three-phase estimate</span></button>
+   <button class="tile" data-page="loadcalc"><span class="ico">📊</span><strong>Electrical Load</strong><span>Total connected VA and estimated current</span></button>
+   <button class="tile" data-page="transformer"><span class="ico">🔄</span><strong>Transformer Current</strong><span>Estimate primary and secondary current from kVA</span></button>
+   <button class="tile" data-page="ampacity"><span class="ico">🔌</span><strong>Wire Ampacity</strong><span>Preliminary conductor reference</span></button>
+   <button class="tile" data-page="fill"><span class="ico">🧰</span><strong>Conduit Fill</strong><span>Raceway and conductor planning</span></button>
+   <button class="tile" data-page="boxfill"><span class="ico">📦</span><strong>Box Fill</strong><span>Calculate box volume allowances</span></button>
+   <button class="tile" data-page="code"><span class="ico">📘</span><strong>NEC Reference</strong><span>2026 edition planning & code topics</span></button>
+   <button class="tile" data-page="trouble"><span class="ico">🩺</span><strong>Troubleshooting Guide</strong><span>Guided diagnosis for common field problems</span></button>
+   <button class="tile" data-page="quick"><span class="ico">📋</span><strong>Quick References</strong><span>Units, formulas & field notes</span></button>
+  </div>
+  <div class="notice"><b>Code & safety note:</b> This foundation is not an authority having jurisdiction (AHJ) determination. Confirm calculations, equipment instructions, adopted code edition, local amendments, and job conditions before installation. Never work energized unless specifically qualified and authorized under applicable procedures.</div>
+  <div class="card"><h3>Build status</h3><p class="muted">Foundation preview · US customary units · Target reference edition: 2026 NEC. This is an early build; not all tools are implemented yet.</p></div>
+ </section>
+ <section id="conduit" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Conduit tools · First working module</div><h2>Conduit Bending</h2>
+  <p class="intro">Calculate common EMT bend marks. Confirm results against your bender's markings and the actual conduit before making a production bend.</p>
+  <div class="card">
+   <label for="emtsize">EMT conduit size</label>
+   <select id="emtsize"><option value="0.5">1/2 inch EMT</option><option value="0.75" selected>3/4 inch EMT</option><option value="1">1 inch EMT</option></select>
+   <p class="muted">Size selection is recorded for your workflow. Bend geometry and take-up can vary by bender and shoe; enter the manufacturer's take-up for stub-ups.</p>
+   <label for="bendtype">Bend type</label>
+   <select id="bendtype"><option value="offset">Two-bend offset</option><option value="stub">90° stub-up</option><option value="kick">Kick bend</option><option value="saddle3">3-point saddle</option></select>
+   <div id="offsetFields">
+    <div class="row"><div><label for="offsetHeight">Offset height (inches)</label><input id="offsetHeight" type="number" min="0.01" step="any" placeholder="e.g. 4"></div>
+    <div><label for="offsetAngle">Bend angle (each bend)</label><select id="offsetAngle"><option value="10">10°</option><option value="15">15°</option><option value="22.5">22.5°</option><option value="30" selected>30°</option><option value="45">45°</option><option value="60">60°</option></select></div></div>
+    <button class="btn" id="solveOffset">Calculate offset marks</button>
+    <div id="offsetResult" aria-live="polite"></div>
+   </div>
+   <div id="stubFields" class="hidden">
+    <div class="row"><div><label for="stubHeight">Finished stub height (inches)</label><input id="stubHeight" type="number" min="0.01" step="any" placeholder="e.g. 12"></div>
+    <div><label for="takeup">Bender take-up (inches)</label><input id="takeup" type="number" min="0" step="any" placeholder="e.g. 5"></div></div>
+    <button class="btn" id="solveStub">Calculate stub mark</button>
+    <div id="stubResult" aria-live="polite"></div>
+    <p class="muted">Enter the take-up printed on your bender or provided by its manufacturer. It varies by bender and conduit size.</p>
+   </div>
+   <div id="kickFields" class="hidden">
+    <div class="row"><div><label for="kickHeight">Rise / kick height (inches)</label><input id="kickHeight" type="number" min="0.01" step="any" placeholder="e.g. 2"></div>
+    <div><label for="kickAngle">Kick angle</label><select id="kickAngle"><option value="10">10°</option><option value="15">15°</option><option value="22.5">22.5°</option><option value="30" selected>30°</option><option value="45">45°</option></select></div></div>
+    <button class="btn" id="solveKick">Calculate kick mark</button>
+    <div id="kickResult" aria-live="polite"></div>
+    <p class="muted">This estimates the distance from the obstruction/contact point to the bend mark using rise ÷ sin(angle). Actual mark placement depends on how you measure the kick and the bender's geometry.</p>
+   </div>
+   <div id="saddle3Fields" class="hidden">
+    <div class="row"><div><label for="s3Height">Obstacle height (inches)</label><input id="s3Height" type="number" min="0.01" step="any" placeholder="e.g. 2"></div>
+    <div><label for="s3Width">Obstacle width (inches)</label><input id="s3Width" type="number" min="0.01" step="any" placeholder="e.g. 4"></div></div>
+    <label for="s3Angle">Center bend angle</label><select id="s3Angle"><option value="30">30°</option><option value="45" selected>45°</option><option value="60">60°</option></select>
+    <button class="btn" id="solveSaddle3">Calculate 3-point saddle</button>
+    <div id="saddle3Result" aria-live="polite"></div>
+    <p class="muted">Enter the obstacle's rise and width. The calculator lays out a center mark and two symmetric outer marks using a simplified geometric model. Verify the method against a trusted field reference and your bender before using the marks on an installation.</p>
+   </div>
+   <div class="notice"><b>Field check:</b> These calculations provide starting measurements, not a guarantee of bend accuracy. Account for bender-specific geometry, conduit springback, spacing, and job conditions. Measure the actual result before cutting or installing.</div>
+  </div>
+  <div class="card"><h3>Offset angle guide</h3><p class="muted">Larger bend angles shorten mark spacing but generally create more shrink and can be harder to pull through crowded runs. Choose an angle that suits the obstruction and the available space.</p></div>
+  <div class="card"><h3>Visual bend guides</h3><p class="muted">Choose a guide to see the reference marks and bending sequence. Diagrams are schematic and not to scale.</p>
+   <label for="visualGuide">Guide</label><select id="visualGuide"><option value="offset">Two-bend offset</option><option value="stub">90° stub-up</option></select>
+   <div id="offsetDiagram" class="guide-diagram" aria-label="Schematic two-bend offset diagram">
+    <svg viewBox="0 0 320 150" role="img" aria-label="Conduit offset with two bend marks"><line x1="20" y1="105" x2="300" y2="105" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><line x1="90" y1="105" x2="155" y2="45" stroke="#36b3a8" stroke-width="5" stroke-linecap="round"/><line x1="155" y1="45" x2="220" y2="45" stroke="#36b3a8" stroke-width="5" stroke-linecap="round"/><line x1="90" y1="82" x2="90" y2="125" stroke="#e3a43b" stroke-width="2"/><line x1="220" y1="25" x2="220" y2="67" stroke="#e3a43b" stroke-width="2"/><text x="90" y="140" fill="currentColor" font-size="11" text-anchor="middle">Mark 1</text><text x="220" y="18" fill="currentColor" font-size="11" text-anchor="middle">Mark 2</text><text x="155" y="34" fill="currentColor" font-size="11" text-anchor="middle">Offset rise</text><path d="M104 105 A18 18 0 0 0 101 93" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M207 45 A18 18 0 0 0 220 58" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    <p><b>Sequence:</b> Mark the calculated spacing, bend the first angle, then rotate the conduit 180° and make the second bend to bring the run back parallel.</p>
+   </div>
+   <div id="stubDiagram" class="guide-diagram hidden" aria-label="Schematic 90 degree stub-up diagram">
+    <svg viewBox="0 0 320 150" role="img" aria-label="Conduit stub-up with take-up mark"><path d="M45 120 L45 55 Q45 35 65 35 L280 35" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><line x1="24" y1="120" x2="68" y2="120" stroke="#e3a43b" stroke-width="2"/><line x1="24" y1="70" x2="68" y2="70" stroke="#e3a43b" stroke-width="2"/><line x1="45" y1="73" x2="45" y2="117" stroke="#36b3a8" stroke-width="2" stroke-dasharray="4 3"/><text x="80" y="98" fill="currentColor" font-size="11">Mark = desired height − take-up</text><text x="80" y="136" fill="currentColor" font-size="11">Measure from conduit end</text></svg>
+    <p><b>Sequence:</b> Use the take-up for your actual bender, mark from the conduit end, align the mark with the bender's reference, and bend to 90° while checking the finished height.</p>
+   </div>
+   <div class="notice">Diagrams illustrate the general idea only. Follow your bender's instructions for hook, arrow, star, or notch alignment; reference points differ between tools.</div>
+  </div>
+  <div class="card"><h3>Saddle bend diagrams</h3><p class="muted">Schematic layouts for understanding the bend order. Mark spacing and angles depend on your chosen method; use the calculator results as preliminary estimates.</p>
+   <label for="saddleGuide">Saddle guide</label><select id="saddleGuide"><option value="s3">3-point saddle</option></select>
+   <div id="s3Diagram" class="guide-diagram">
+    <svg viewBox="0 0 320 160" role="img" aria-label="Schematic three point saddle with two outer bends and a center bend"><line x1="16" y1="118" x2="74" y2="118" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><line x1="74" y1="118" x2="145" y2="58" stroke="#36b3a8" stroke-width="5" stroke-linecap="round"/><line x1="145" y1="58" x2="175" y2="58" stroke="#36b3a8" stroke-width="5" stroke-linecap="round"/><line x1="175" y1="58" x2="246" y2="118" stroke="#36b3a8" stroke-width="5" stroke-linecap="round"/><line x1="246" y1="118" x2="304" y2="118" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><rect x="135" y="85" width="50" height="28" rx="4" fill="none" stroke="#e3a43b" stroke-dasharray="4 3" stroke-width="2"/><line x1="74" y1="98" x2="74" y2="135" stroke="#e3a43b" stroke-width="2"/><line x1="160" y1="38" x2="160" y2="76" stroke="#e3a43b" stroke-width="2"/><line x1="246" y1="98" x2="246" y2="135" stroke="#e3a43b" stroke-width="2"/><text x="74" y="91" fill="currentColor" font-size="10" text-anchor="middle">1</text><text x="160" y="28" fill="currentColor" font-size="10" text-anchor="middle">2 · center</text><text x="246" y="91" fill="currentColor" font-size="10" text-anchor="middle">3</text><text x="160" y="151" fill="currentColor" font-size="10" text-anchor="middle">Obstacle (schematic)</text></svg>
+    <p><b>General sequence:</b> Mark the obstacle center and the two outer bend locations using your verified layout. Make the center bend, then the two outer bends in the appropriate opposing direction for your method. Check alignment and clearance before finalizing.</p>
+   </div>
+   <div class="notice"><b>Field caution:</b> These illustrations show the concept, not exact bend geometry or clearance. Confirm angle convention, mark spacing, shrink, and sequence against a trusted conduit-bending reference and your bender instructions before installing.</div>
+  </div>
+ </section>
+ <section id="ohms" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Electrical calculations</div><h2>Ohm's Law & Power</h2><p class="intro">Enter any two values to solve for voltage, current, resistance, and DC power where mathematically possible.</p>
+  <div class="card">
+   <div class="row"><div><label for="v">Voltage (V)</label><input id="v" type="number" min="0" step="any" placeholder="e.g. 120"></div><div><label for="i">Current (A)</label><input id="i" type="number" min="0" step="any" placeholder="e.g. 10"></div></div>
+   <div class="row"><div><label for="r">Resistance (Ω)</label><input id="r" type="number" min="0" step="any" placeholder="e.g. 12"></div><div><label for="p">Power (W)</label><input id="p" type="number" min="0" step="any" placeholder="e.g. 1200"></div></div>
+   <button class="btn" id="solveOhm">Calculate</button><button class="btn secondary" id="clearOhm">Clear fields</button><div id="ohmResult" aria-live="polite"></div>
+   <p class="muted">For DC resistive circuits. AC calculations involving impedance, power factor, harmonics, or non-linear loads require additional information.</p>
+  </div>
+ </section>
+ <section id="voltage" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Electrical calculations</div><h2>Voltage Drop</h2><p class="intro">Estimate circuit voltage drop using conductor material, size, length, current, and circuit type. This is a planning estimate, not final conductor sizing.</p>
+  <div class="card">
+   <label for="phase">Circuit type</label><select id="phase"><option value="2">Single-phase / DC two-wire loop</option><option value="1.732">Three-phase</option></select>
+   <div class="row"><div><label for="amps">Load current (A)</label><input id="amps" type="number" min="0" step="any" placeholder="e.g. 20"></div><div><label for="feet">One-way length (ft)</label><input id="feet" type="number" min="0" step="any" placeholder="e.g. 100"></div></div>
+   <label for="material">Conductor material</label><select id="material"><option value="cu">Copper</option><option value="al">Aluminum</option></select>
+   <label for="wire">Conductor size</label><select id="wire"><option value="14">14 AWG</option><option value="12">12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option><option value="4">4 AWG</option><option value="3">3 AWG</option><option value="2">2 AWG</option><option value="1">1 AWG</option><option value="0">1/0 AWG</option><option value="-1">2/0 AWG</option><option value="-2">3/0 AWG</option><option value="-3">4/0 AWG</option><option value="250">250 kcmil</option><option value="300">300 kcmil</option><option value="350">350 kcmil</option><option value="500">500 kcmil</option></select>
+   <div class="row"><div><label for="sysv">System voltage (V)</label><input id="sysv" type="number" min="1" step="any" placeholder="e.g. 120"></div><div><label for="temp">Resistance estimate</label><select id="temp"><option value="cool">Lower resistance estimate (about 20°C)</option><option value="warm">Higher resistance estimate (warmer conductor)</option></select></div></div>
+   <button class="btn" id="solveDrop">Estimate drop</button><div id="dropResult" aria-live="polite"></div>
+   <p class="muted">Model assumptions: simplified K-method using one-way length and a circuit factor of 2 for single-phase/DC two-wire circuits or √3 for three-phase. Actual AC impedance, conductor temperature, terminals, load characteristics, and applicable code requirements can change the result. Verify with approved tables and project conditions.</p>
+  </div>
+ </section>
+ <section id="ampacity" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Electrical reference</div><h2>Wire Ampacity Reference</h2>
+  <p class="intro">Preliminary lookup of common conductor ampacity values. This starter reference uses 2023 NEC Table 310.16 values and has not been validated against the 2026 NEC.</p>
+  <div class="card">
+   <label for="ampMaterial">Conductor material</label><select id="ampMaterial"><option value="cu">Copper</option><option value="al">Aluminum / copper-clad aluminum</option></select>
+   <label for="ampSize">Conductor size</label><select id="ampSize"><option value="14">14 AWG</option><option value="12" selected>12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option><option value="4">4 AWG</option><option value="3">3 AWG</option><option value="2">2 AWG</option><option value="1">1 AWG</option><option value="0">1/0 AWG</option><option value="-1">2/0 AWG</option><option value="-2">3/0 AWG</option><option value="-3">4/0 AWG</option><option value="250">250 kcmil</option><option value="300">300 kcmil</option><option value="350">350 kcmil</option><option value="500">500 kcmil</option></select>
+   <label for="ampInsulation">Conductor insulation temperature rating</label><select id="ampInsulation"><option value="0">60°C</option><option value="1" selected>75°C</option><option value="2">90°C</option></select>
+   <label for="ampTerminal">Equipment terminal temperature rating</label><select id="ampTerminal"><option value="0">60°C</option><option value="1" selected>75°C</option><option value="2">90°C</option></select>
+   <label for="ampFactor">Combined correction / adjustment factor (%)</label><input id="ampFactor" type="number" min="1" max="100" step="any" value="100" placeholder="Use verified factor, e.g. 80">
+   <p class="muted">Enter a verified combined factor from the applicable code tables when correction or adjustment is required. Leave at 100% only when no reduction applies.</p>
+   <button class="btn" id="lookupAmp">Calculate ampacity reference</button><div id="ampResult" aria-live="polite"></div>
+  </div>
+  <div class="card">
+   <h3>Correction & adjustment factor helper</h3>
+   <p class="muted">Enter the percentages you have verified from the applicable NEC edition and installation conditions. This helper combines factors; it does not select code-table values for you.</p>
+   <div class="row"><div><label for="ambientFactor">Ambient temperature factor (%)</label><input id="ambientFactor" type="number" min="1" max="150" step="any" value="100" placeholder="Verified factor"></div><div><label for="cccFactor">Current-carrying conductor adjustment (%)</label><input id="cccFactor" type="number" min="1" max="150" step="any" value="100" placeholder="Verified factor"></div></div>
+   <label for="otherFactor">Other applicable factor (%) — optional</label><input id="otherFactor" type="number" min="1" max="150" step="any" value="100" placeholder="100 if none applies">
+   <button class="btn secondary" id="combineAmpFactors">Combine factors and use above</button><div id="factorResult" aria-live="polite"></div>
+   <p class="muted">Combined factor = each verified factor multiplied together. Do not enter 100% unless that factor truly does not reduce ampacity. Check special rules, conductor bundling, raceway/cable conditions, and whether a factor is applicable before using this helper.</p>
+  </div>
+  <div class="card"><h3>Important limits</h3><p>These are preliminary table values, not automatically the final allowable ampacity. Base conditions, correction/adjustment factors, terminal temperature ratings, overcurrent rules, installation conditions, and the locally adopted code matter. Verify the official table for the code edition adopted on your job.</p></div>
+ </section>
+<section id="fill" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Raceway planning</div><h2>Conduit Fill</h2><p class="intro">Choose a common raceway and insulated conductor to fill the area fields automatically, or enter verified areas manually.</p>
+  <div class="card">
+   <h3>Quick area lookup</h3>
+   <label for="fillRaceType">Raceway type</label><select id="fillRaceType"><option value="emt">EMT</option><option value="pvc40">PVC Schedule 40</option><option value="pvc80">PVC Schedule 80</option><option value="imc">IMC</option><option value="rmc">Rigid metal conduit (RMC)</option></select>
+   <label for="fillRaceSize">Trade size</label><select id="fillRaceSize"><option value="0.304">1/2 in</option><option value="0.533" selected>3/4 in</option><option value="0.864">1 in</option><option value="1.496">1-1/4 in</option><option value="2.036">1-1/2 in</option><option value="3.356">2 in</option><option value="5.858">2-1/2 in</option><option value="8.846">3 in</option><option value="11.545">3-1/2 in</option><option value="14.753">4 in</option></select>
+   <label for="fillInsulation">Conductor insulation</label><select id="fillInsulation"><option value="thhn">THHN / THWN-2</option><option value="xhhw">XHHW-2</option><option value="thw">THW / THHW / THW-2</option></select>
+   <label for="fillWireSize">Conductor size</label><select id="fillWireSize"><option value="14">14 AWG</option><option value="12" selected>12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option><option value="4">4 AWG</option><option value="3">3 AWG</option><option value="2">2 AWG</option><option value="1">1 AWG</option><option value="1/0">1/0 AWG</option><option value="2/0">2/0 AWG</option><option value="3/0">3/0 AWG</option><option value="4/0">4/0 AWG</option><option value="250">250 kcmil</option><option value="300">300 kcmil</option><option value="350">350 kcmil</option><option value="400">400 kcmil</option><option value="500">500 kcmil</option></select>
+   <button class="btn" id="applyFillLookup">Use lookup values</button><p class="muted" id="fillLookupNote">Lookup values are approximate reference areas; verify against the exact raceway and conductor manufacturer data and applicable code edition.</p>
+  </div>
+  <div class="card">
+   <label for="fillRaceArea">Raceway internal area (square inches)</label><input id="fillRaceArea" type="number" min="0.0001" step="any" inputmode="decimal" placeholder="Enter internal area">
+   <label for="fillCondArea">One conductor's area (square inches)</label><input id="fillCondArea" type="number" min="0.0001" step="any" inputmode="decimal" placeholder="Enter conductor area">
+   <label for="fillCount">Number of conductors</label><input id="fillCount" type="number" min="1" step="1" inputmode="numeric" value="3">
+   <button class="btn" id="solveFill">Calculate conduit fill</button><div id="fillResult" aria-live="polite"></div>
+  </div>
+  <div class="card"><h3>How the limit is selected</h3><p>For general raceway fill calculations, the commonly used limits are 53% for one conductor, 31% for two conductors, and 40% for more than two conductors. Confirm the applicable NEC edition, raceway type, conductor configuration, and any exceptions for your installation.</p><p class="muted">Raceway area lookup is available for common trade sizes. Conductor areas are reference values for listed insulation types; actual dimensions and code tables govern. This is a planning aid, not a substitute for checking the adopted code.</p></div>
+ </section>
+ <section id="boxfill" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Electrical calculations · NEC 314.16 reference</div><h2>Box Fill Calculator</h2>
+  <p class="intro">Estimate box-fill volume allowances for common insulated conductors, equipment grounds, internal clamps, and device yokes. Verify the marked box volume and the applicable NEC edition before installation.</p>
+  <div class="card">
+   <h3>Insulated conductors</h3>
+   <p class="muted">Enter the number of conductors of each size that count toward box fill. Include conductors entering, leaving, or spliced in the box as applicable. Do not count pigtails that originate and terminate entirely inside the box when the code exception applies.</p>
+   <div class="row"><div><label for="bf14">14 AWG count</label><input id="bf14" type="number" min="0" step="1" value="0"></div><div><label for="bf12">12 AWG count</label><input id="bf12" type="number" min="0" step="1" value="0"></div></div>
+   <div class="row"><div><label for="bf10">10 AWG count</label><input id="bf10" type="number" min="0" step="1" value="0"></div><div><label for="bf8">8 AWG count</label><input id="bf8" type="number" min="0" step="1" value="0"></div></div>
+   <div class="row"><div><label for="bf6">6 AWG count</label><input id="bf6" type="number" min="0" step="1" value="0"></div><div><label for="bfOther">Other sizes</label><select id="bfOther"><option value="none">None entered</option><option value="manual">I need to check another size</option></select></div></div>
+   <div id="bfOtherNote" class="muted hidden">This starter calculator does not include allowances for 18, 16, or larger-than-6 AWG conductors. Verify the applicable volume allowance and calculate those separately before relying on the result.</div>
+  </div>
+  <div class="card">
+   <h3>Other allowances</h3>
+   <div class="row"><div><label for="bfGroundSize">Largest equipment grounding conductor size</label><select id="bfGroundSize"><option value="none">No grounds entered</option><option value="14">14 AWG</option><option value="12">12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option></select></div><div><label for="bfGroundCount">Number of equipment grounding conductors</label><input id="bfGroundCount" type="number" min="0" step="1" value="0"></div></div>
+   <div class="row"><div><label for="bfClamp">Internal cable clamps</label><select id="bfClamp"><option value="0">None / external clamps</option><option value="1">One or more internal clamps</option></select></div><div><label for="bfYokes">Device yokes (switches/receptacles)</label><input id="bfYokes" type="number" min="0" step="1" value="0"></div></div>
+   <label for="bfYokeSize">Largest conductor connected to a device yoke</label><select id="bfYokeSize"><option value="14">14 AWG</option><option value="12" selected>12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option></select>
+   <label for="bfBoxVolume">Box marked volume (cubic inches)</label><input id="bfBoxVolume" type="number" min="0.1" step="any" placeholder="e.g. 18">
+   <button class="btn" id="calcBoxFill">Calculate box fill</button><div id="bfResult" aria-live="polite"></div>
+  </div>
+  <div class="notice"><b>Important:</b> This is a preliminary helper for common sizes, not a complete NEC compliance determination. It assumes the standard Table 314.16(B) volume allowances for listed sizes and simplified ground/clamp/yoke rules. Verify all applicable allowances, fittings, luminaire studs, internal barriers, conductor sizes, box markings, and exceptions in the locally adopted NEC. Never use a passing calculation as proof that an installation is otherwise safe or compliant.</div>
+ </section>
+ <section id="code" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Code library</div><h2>NEC Reference</h2><p class="intro">Target edition: 2026 National Electrical Code (NFPA 70), subject to adoption and local amendments.</p>
+  <div class="card"><h3>Search common code topics</h3><label for="necSearch">Topic, article number, or keyword</label><input id="necSearch" type="search" placeholder="Try: grounding, boxes, 310, motors" autocomplete="off"><p class="muted">Search article numbers or job topics to see a plain-English rule summary, a field example, and what to verify in your adopted code.</p><div id="necResults" aria-live="polite"></div><div class="notice">These are original educational summaries, not verbatim NEC text or a substitute for the complete standard. Confirm the edition adopted by your jurisdiction, local amendments, equipment instructions, and AHJ requirements before relying on a rule.</div></div>
+ </section>
+ <section id="trouble" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Guided field diagnosis · Offline</div><h2>Troubleshooting Guide</h2>
+  <p class="intro">Describe the symptom and use the guided questions to narrow common causes. This is a built-in decision guide, not a live AI service, and it does not replace qualified diagnosis.</p>
+  <div class="card">
+   <label for="troubleType">What problem are you seeing?</label>
+   <select id="troubleType"><option value="breaker">Breaker trips</option><option value="dead">Circuit or receptacle has no power</option><option value="voltage">Voltage reading is unexpected</option><option value="motor">Motor or equipment won't start</option><option value="gfci">GFCI trips or won't reset</option><option value="lights">Lights flicker or dim</option></select>
+   <label for="troubleWhen">When does it happen?</label>
+   <select id="troubleWhen"><option value="always">Every time / won't operate at all</option><option value="load">Only when a load turns on</option><option value="intermittent">Intermittently</option><option value="recent">Started after recent work or a change</option></select>
+   <label for="troubleQuickAnswer">Quick diagnostic answer</label>
+   <select id="troubleQuickAnswer"><option value="unknown">Not sure yet</option></select>
+   <p class="muted">Choose the closest answer. The next question and report will use this clue.</p>
+   <label for="troubleSystem">System type (if known)</label>
+   <select id="troubleSystem"><option value="unknown">Not sure</option><option value="120">120 V single-phase</option><option value="208">208 V system</option><option value="240">240 V single-phase</option><option value="277">277 V system</option><option value="480">480 V three-phase</option><option value="dc">DC system</option></select>
+   <label for="troubleNotes">What have you observed? (optional)</label><textarea id="troubleNotes" rows="3" placeholder="Example: 208 V at the panel, equipment won't start, breaker stays on."></textarea>
+   <label for="troubleMeasurements">Exact measurements and where you took them (optional)</label><textarea id="troubleMeasurements" rows="2" placeholder="Example: L1-L2 = 208 V at disconnect; L1-ground = 120 V. State whether equipment was isolated."></textarea>
+   <label for="troubleEquipment">Equipment nameplate, fault code, or recent work (optional)</label><textarea id="troubleEquipment" rows="2" placeholder="Example: 3-phase motor, nameplate 208-230 V; overload shows trip; replaced disconnect yesterday."></textarea>
+   <label for="troubleFollowup">Answer to the last diagnostic question (optional)</label><textarea id="troubleFollowup" rows="2" placeholder="Example: It affects several rooms and only happens when the compressor starts."></textarea>
+   <p class="muted">After you build a report, use the “Most useful next question” above to guide what you enter here, then build the report again.</p>
+   <button class="btn" id="solveTrouble">Build troubleshooting steps</button>
+   <div id="troubleResult" aria-live="polite"></div>
+  </div>
+  <div class="card" id="readingInterpreterCard"><h3>Interpret a voltage reading</h3><p class="muted">Enter a measured value and the expected nominal value for the same two test points. This gives a basic comparison only; it cannot confirm a fault or prove a circuit safe.</p>
+   <label for="readingPoint">What are you measuring?</label><select id="readingPoint"><option value="ll">Line-to-line (L-L)</option><option value="ln">Line-to-neutral (L-N)</option><option value="lg">Line-to-ground (L-G)</option><option value="ng">Neutral-to-ground (N-G)</option><option value="dc">DC positive-to-negative</option></select>
+   <div class="row"><div><label for="readingExpected">Expected voltage (V)</label><input id="readingExpected" type="number" min="0.1" step="any" placeholder="e.g. 208"></div><div><label for="readingMeasured">Measured voltage (V)</label><input id="readingMeasured" type="number" min="0" step="any" placeholder="e.g. 204"></div></div>
+   <label for="readingLoad">Condition during measurement</label><select id="readingLoad"><option value="unknown">Unknown / not recorded</option><option value="idle">Load off or idle</option><option value="running">Load running</option><option value="start">During startup / switching</option></select>
+   <button class="btn" id="interpretReading" type="button">Interpret reading</button><div id="readingResult" aria-live="polite"></div>
+  </div>
+  <div class="card" id="phaseBalanceCard"><h3>Three-phase voltage imbalance</h3><p class="muted">Enter three line-to-line voltage readings taken at the same location and operating condition. This calculates the maximum deviation from the average; compare the result with the equipment manufacturer's limit and applicable guidance.</p>
+   <div class="row"><div><label for="phaseVab">L1–L2 (V)</label><input id="phaseVab" type="number" min="0" step="any" placeholder="e.g. 208"></div><div><label for="phaseVbc">L2–L3 (V)</label><input id="phaseVbc" type="number" min="0" step="any" placeholder="e.g. 205"></div></div>
+   <label for="phaseVca">L3–L1 (V)</label><input id="phaseVca" type="number" min="0" step="any" placeholder="e.g. 207">
+   <button class="btn" id="calculatePhaseBalance" type="button">Calculate voltage imbalance</button><div id="phaseBalanceResult" aria-live="polite"></div>
+  </div>
+  <div class="card" id="motorTroubleCard"><h3>Motor troubleshooting</h3><p class="muted">Use this offline guide to organize symptoms and nameplate details for common motor problems. It provides possibilities, not a confirmed diagnosis. Follow the manufacturer's procedures and site electrical-safety rules.</p>
+   <label for="motorType">Motor / equipment type</label><select id="motorType"><option value="3phase">Three-phase AC motor</option><option value="single">Single-phase AC motor</option><option value="dc">DC motor</option><option value="unknown">Unknown / other</option></select>
+   <label for="motorSymptom">Main symptom</label><select id="motorSymptom"><option value="nostart">Won't start</option><option value="hums">Hums or buzzes but won't start</option><option value="trip">Breaker or overload trips</option><option value="hot">Runs hot</option><option value="lowtorque">Runs but lacks torque / runs slowly</option><option value="noise">Unusual noise or vibration</option><option value="starts-stops">Starts and stops intermittently</option></select>
+   <label for="motorWhen">When does it happen?</label><select id="motorWhen"><option value="immediate">Immediately on start command</option><option value="startup">During startup</option><option value="running">After running for a while</option><option value="load">Only under load</option><option value="intermittent">Intermittently / unknown</option></select>
+   <div class="row"><div><label for="motorNameplateV">Nameplate voltage (V, if known)</label><input id="motorNameplateV" type="number" min="0" step="any" placeholder="e.g. 208-230"></div><div><label for="motorMeasuredV">Measured supply voltage (V, if known)</label><input id="motorMeasuredV" type="number" min="0" step="any" placeholder="e.g. 208"></div></div>
+   <label for="motorDetails">Nameplate amps, fault codes, overload setting, and other observations (optional)</label><textarea id="motorDetails" rows="3" placeholder="Example: 3-phase, 208-230 V, 7.2 A; overload trips after 20 seconds; no visible damage."></textarea>
+   <button class="btn" id="buildMotorTrouble" type="button">Build motor diagnostic guide</button><div id="motorTroubleResult" aria-live="polite"></div>
+  </div>
+  <div class="card" id="savedTroubleCard"><h3>Saved diagnostic reports</h3><p class="muted">Reports are saved only on this device in this browser. They are not uploaded anywhere.</p><div id="savedTroubleList" aria-live="polite"></div><button class="btn secondary" id="clearTroubleHistory" type="button">Clear saved reports</button></div>
+  <div class="notice"><b>Stop-work conditions:</b> If there is smoke, burning odor, arcing, water in electrical equipment, damaged conductors, or suspected shock/tingle voltage, keep clear and follow site emergency and lockout/tagout procedures. Do not open energized equipment or take live measurements unless qualified, authorized, and following the required electrical-safety procedures.</div>
+ </section>
+ <section id="loadcalc" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Power calculations · Offline</div><h2>Electrical Load Calculator</h2>
+  <p class="intro">Add equipment apparent loads in volt-amperes (VA) and quantities to estimate total connected load and current for one selected system voltage and phase.</p>
+  <div class="card">
+   <div class="row"><div><label for="loadPhase">System</label><select id="loadPhase"><option value="1">Single-phase</option><option value="3">Three-phase</option></select></div><div><label for="loadVoltage">System voltage (V)</label><input id="loadVoltage" type="number" min="1" step="any" placeholder="e.g. 208"></div></div>
+   <p class="muted">Enter apparent power (VA) per item, not watts unless power factor is 1. For three-phase calculations, voltage is line-to-line. All loads are assumed to use the same system voltage and phase.</p>
+   <div class="row"><div><label for="loadName1">Load 1 name (optional)</label><input id="loadName1" placeholder="e.g. lighting"></div><div><label for="loadVa1">VA per item</label><input id="loadVa1" type="number" min="0" step="any" placeholder="e.g. 1200"></div></div><label for="loadQty1">Quantity</label><input id="loadQty1" type="number" min="0" step="1" value="1">
+   <div class="row"><div><label for="loadName2">Load 2 name (optional)</label><input id="loadName2" placeholder="e.g. heater"></div><div><label for="loadVa2">VA per item</label><input id="loadVa2" type="number" min="0" step="any" placeholder="e.g. 3000"></div></div><label for="loadQty2">Quantity</label><input id="loadQty2" type="number" min="0" step="1" value="1">
+   <div class="row"><div><label for="loadName3">Load 3 name (optional)</label><input id="loadName3" placeholder="e.g. equipment"></div><div><label for="loadVa3">VA per item</label><input id="loadVa3" type="number" min="0" step="any" placeholder="e.g. 750"></div></div><label for="loadQty3">Quantity</label><input id="loadQty3" type="number" min="0" step="1" value="1">
+   <button class="btn" id="calculateLoad" type="button">Calculate connected load</button><div id="loadCalcResult" aria-live="polite"></div>
+  </div>
+  <div class="notice"><b>Important:</b> This is a connected-load estimate only. It does not apply NEC demand factors, continuous-load rules, motor calculations, noncoincident loads, feeder/service requirements, or phase balancing. Do not use it alone to size conductors, breakers, feeders, or services. Verify nameplates and the adopted code.</div>
+ </section>
+ <section id="breakerhelper" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Guided sizing aid · Offline</div><h2>Breaker & Conductor Helper</h2>
+  <p class="intro">Organize the key inputs for a preliminary conductor and overcurrent-protection review. This tool does not select a code-compliant breaker or wire size by itself.</p>
+  <div class="card">
+   <label for="bhLoad">Calculated load current (A)</label><input id="bhLoad" type="number" min="0.01" step="any" placeholder="e.g. 16">
+   <label for="bhKind">Load type</label><select id="bhKind"><option value="general">General load</option><option value="continuous">Continuous load (expected maximum current for 3 hours or more)</option><option value="motor">Motor circuit</option><option value="hvac">Air-conditioning / refrigeration equipment</option><option value="welder">Welder or other special load</option></select>
+   <div class="row"><div><label for="bhBase">Base conductor ampacity (A)</label><input id="bhBase" type="number" min="0.1" step="any" placeholder="From verified applicable table"></div><div><label for="bhCorrection">Combined correction/adjustment (%)</label><input id="bhCorrection" type="number" min="0.1" max="100" step="any" value="100"></div></div>
+   <div class="row"><div><label for="bhTerminal">Applicable terminal ampacity limit (A)</label><input id="bhTerminal" type="number" min="0.1" step="any" placeholder="Use verified terminal limit"></div><div><label for="bhOcpd">Proposed breaker/fuse rating (A)</label><input id="bhOcpd" type="number" min="0.1" step="any" placeholder="Optional"></div></div>
+   <label for="bhNotes">Conductor, installation, and equipment notes (optional)</label><textarea id="bhNotes" rows="3" placeholder="e.g. copper THHN, 75°C terminals, 4 current-carrying conductors, 35°C ambient"></textarea>
+   <button class="btn" id="bhCalculate" type="button" onclick="(function(){var g=function(id){var e=document.getElementById(id);if(!e)return null;var v=String(e.value||'').trim().replace(/\s/g,'').replace(',','.');if(!v)return null;var n=Number(v);return Number.isFinite(n)?n:null;};var load=g('bhLoad'),base=g('bhBase'),factor=g('bhCorrection'),kind=document.getElementById('bhKind').value,out=document.getElementById('bhResult');if(!out)return;if(load===null||load<=0){out.innerHTML='<div class=&quot;notice&quot;>Enter a load current greater than zero, such as 16 A.</div>';return;}if(base===null||base<=0){out.innerHTML='<div class=&quot;notice&quot;>Enter a verified base conductor ampacity greater than zero.</div>';return;}if(factor===null||factor<=0||factor>100){out.innerHTML='<div class=&quot;notice&quot;>Enter a combined correction/adjustment factor above 0% and no greater than 100%.</div>';return;}var required=load*(kind==='continuous'?1.25:1),adjusted=base*factor/100,fmt=function(n){return n.toLocaleString(undefined,{maximumFractionDigits:2});};out.innerHTML='<div class=&quot;result&quot;><h3>Preliminary review</h3><p>Entered load current: <b>'+fmt(load)+' A</b></p><p>Preliminary current comparison: <b>'+fmt(required)+' A</b></p><p>Adjusted conductor ampacity from your inputs: <b>'+fmt(adjusted)+' A</b></p><p>'+(adjusted<required?'<b>Flag:</b> Entered ampacity is below the preliminary comparison.':'The entered values meet this limited numerical comparison; this does not establish code compliance.')+'</p><p>This is a preliminary aid only. Verify the adopted code, installation conditions, terminal ratings, equipment instructions, and applicable exceptions with a qualified person.</p></div>';})()">Review inputs</button><div id="bhResult" aria-live="polite"></div>
+  </div>
+  <div class="notice"><b>Important:</b> Enter ampacity and factors only after verifying the adopted NEC edition, conductor type, insulation rating, terminal ratings, ambient temperature, number of current-carrying conductors, and installation conditions. Motor, HVAC, welding, and other special loads use additional rules. This helper does not determine a permitted overcurrent-device size, conductor size, or code compliance.</div>
+ </section>
+ <section id="transformer" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Power calculations · Offline</div><h2>Transformer Current Calculator</h2>
+  <p class="intro">Estimate full-load primary and secondary current from transformer kVA and voltage. Select the phase arrangement that matches the calculation.</p>
+  <div class="card">
+   <label for="xfPhase">System</label><select id="xfPhase"><option value="1">Single-phase</option><option value="3">Three-phase</option></select>
+   <label for="xfKva">Transformer rating (kVA)</label><input id="xfKva" type="number" min="0.001" step="any" placeholder="e.g. 45">
+   <div class="row"><div><label for="xfPrimaryV">Primary voltage (V)</label><input id="xfPrimaryV" type="number" min="0.001" step="any" placeholder="e.g. 480"></div><div><label for="xfSecondaryV">Secondary voltage (V)</label><input id="xfSecondaryV" type="number" min="0.001" step="any" placeholder="e.g. 208"></div></div>
+   <button class="btn" id="calcTransformer">Calculate current</button><div id="xfResult" aria-live="polite"></div>
+  </div>
+  <div class="notice"><b>Important:</b> These are ideal full-load current estimates using the entered kVA and voltage. They do not determine conductor ampacity, overcurrent protection, grounding/bonding, tap rules, inrush, or code compliance. Verify the nameplate, wiring configuration, applicable NEC edition, and manufacturer instructions.</div>
+ </section>
+ <section id="quick" class="hidden">
+  <button class="back" data-home>← Home</button><div class="eyebrow">Field reference</div><h2>Quick References</h2><div class="card"><h3>Core formulas</h3><p><b>Ohm's law</b><br>V = I × R &nbsp; · &nbsp; I = V ÷ R &nbsp; · &nbsp; R = V ÷ I</p><p><b>DC power</b><br>P = V × I &nbsp; · &nbsp; P = I²R &nbsp; · &nbsp; P = V² ÷ R</p><p><b>Single-phase real power</b><br>P = V × I × power factor</p><p><b>Balanced three-phase real power</b><br>P = √3 × line voltage × line current × power factor</p><p class="muted">AC power formulas require the appropriate RMS values and assumptions. Use the correct formula for the circuit and load.</p></div><div class="card"><h3>Next reference packs</h3><ul><li>Conduit bend multipliers and geometry</li><li>Wire and cable identification</li><li>Motor and transformer tables</li><li>Grounding and bonding references</li><li>Unit conversion and job notes</li></ul></div>
+ </section>
+ <section id="about" class="hidden">
+  <div class="eyebrow">Project</div><h2>About this toolbox</h2><div class="card"><p>This is the first foundation preview for an electrician's field app.</p><p><b>Standards target:</b> 2026 NEC; US customary units.</p><p><b>Design goals:</b> phone-first, fast, readable outdoors, and honest about assumptions.</p><p class="muted">Not a substitute for qualified electrical judgment, manufacturer instructions, or applicable laws and codes.</p></div>
+ </section>
+</main>
+<nav class="bottom" aria-label="Main navigation">
+ <button class="active" data-nav="home"><span>⌂</span>Home</button>
+ <button data-nav="conduit"><span>〰</span>Conduit</button>
+ <button data-nav="ohms"><span>⚡</span>Calculators</button>
+ <button data-nav="code"><span>▤</span>NEC & refs</button>
+</nav>
+<script>
+const pages=["home","conduit","ohms","voltage","transformer","loadcalc","breakerhelper","ampacity","fill","boxfill","code","trouble","quick","about"];
+function showPage(id){pages.forEach(p=>document.getElementById(p).classList.toggle("hidden",p!==id));document.querySelectorAll("[data-nav]").forEach(b=>b.classList.toggle("active",b.dataset.nav===id||(id==="voltage"||id==="transformer"||id==="loadcalc"||id==="breakerhelper"||id==="ampacity"||id==="fill"||id==="boxfill"||id==="trouble"||id==="quick")&&b.dataset.nav==="ohms"||(id==="about")&&b.dataset.nav==="home"));window.scrollTo({top:0,behavior:"instant"});}
+document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+document.querySelectorAll("[data-nav]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.nav)));
+document.querySelectorAll("[data-home]").forEach(b=>b.addEventListener("click",()=>showPage("home")));
+document.getElementById("bhCalculate").addEventListener("click",()=>{
+ const readNumber=id=>{const el=document.getElementById(id);if(!el)return null;const raw=String(el.value??"").trim().replace(/\s/g,"").replace(",", ".");if(raw==="")return null;const parsed=Number(raw);if(Number.isFinite(parsed))return parsed;const native=el.valueAsNumber;return Number.isFinite(native)?native:null;};
+ const load=readNumber("bhLoad"),kind=document.getElementById("bhKind").value,base=readNumber("bhBase"),factor=readNumber("bhCorrection"),terminalRaw=document.getElementById("bhTerminal").value,ocpdRaw=document.getElementById("bhOcpd").value,notes=document.getElementById("bhNotes").value.trim(),out=document.getElementById("bhResult");
+ if(load===null||!Number.isFinite(load)||load<=0){out.innerHTML='<div class="notice">The calculator could not read the load current. Tap the field, clear it, type 16, then tap Review inputs again. If this message persists, refresh the page so the latest version loads.</div>';return;}
+ if(base===null||!Number.isFinite(base)||base<=0||factor===null||!Number.isFinite(factor)||factor<=0||factor>100){out.innerHTML='<div class="notice">Enter a verified base ampacity greater than zero and a combined factor above 0% and no greater than 100%.</div>';return;}
+ const terminal=terminalRaw.trim()===""?null:Number(terminalRaw),ocpd=ocpdRaw.trim()===""?null:Number(ocpdRaw);
+ if((terminal!==null&&(!Number.isFinite(terminal)||terminal<=0))||(ocpd!==null&&(!Number.isFinite(ocpd)||ocpd<=0))){out.innerHTML='<div class="notice">Terminal limit and proposed breaker/fuse rating must be positive values, or left blank.</div>';return;}
+ const adjusted=base*factor/100,effective=terminal===null?adjusted:Math.min(adjusted,terminal),continuous=kind==="continuous",required=load*(continuous?1.25:1);
+ let message='';
+ if(kind==="motor") message='Motor circuits require separate checks for motor-table current, branch-circuit short-circuit/ground-fault protection, overload protection, conductor sizing, and equipment instructions. Do not use this general comparison to select motor protection.';
+ else if(kind==="hvac") message='For HVAC/refrigeration equipment, check the nameplate minimum circuit ampacity (MCA) and maximum overcurrent protection (MOCP), plus applicable equipment instructions and code rules. Do not use this general comparison as the final selection.';
+ else if(kind==="welder") message='Welders and other special loads have specific calculation and duty-cycle rules. Verify the applicable code article before selecting conductors or protection.';
+ else message=continuous?'For a continuous load, this helper shows a preliminary 125% comparison only. Confirm whether the load qualifies, whether equipment is listed for 100% operation, and all applicable exceptions and rules.':'This is only a preliminary comparison. Verify load classification, applicable continuous-load treatment, standard overcurrent-device rules, and all code-specific exceptions.';
+ const fmt=n=>n.toLocaleString(undefined,{maximumFractionDigits:2});
+ let checks='<p>Entered load current: <b>'+fmt(load)+' A</b></p><p>Preliminary current comparison: <b>'+fmt(required)+' A</b>'+(continuous?' (125% of entered current)':'')+'</p><p>Adjusted conductor ampacity from your inputs: <b>'+fmt(adjusted)+' A</b></p><p>Comparison value after optional terminal limit: <b>'+fmt(effective)+' A</b></p>';
+ if(effective<required) checks+='<p><b>Flag:</b> The entered ampacity values are below the preliminary current comparison. Recheck inputs and the applicable sizing rules.</p>';
+ else checks+='<p>The entered ampacity values meet this limited numerical comparison; that does <b>not</b> establish code compliance.</p>';
+ if(ocpd!==null) checks+='<p>Proposed protective-device rating entered: <b>'+fmt(ocpd)+' A</b>. This tool does not determine whether that rating is permitted.</p>';
+ out.innerHTML='<div class="result"><h3>Preliminary review</h3>'+checks+'<p>'+esc(message)+'</p>'+(notes?'<p><b>Your notes:</b> '+esc(notes)+'</p>':'')+'</div><div class="notice">Do not upsize a breaker to resolve tripping. Confirm the adopted code, equipment nameplate, conductor identification, terminal ratings, installation conditions, and manufacturer instructions with a qualified person.</div>';
+});
+
+document.getElementById("calcTransformer").addEventListener("click",()=>{
+ const kva=num("xfKva"),pv=num("xfPrimaryV"),sv=num("xfSecondaryV"),phase=Number(document.getElementById("xfPhase").value),out=document.getElementById("xfResult");
+ if([kva,pv,sv].some(v=>v===null||!Number.isFinite(v)||v<=0)){out.innerHTML='<div class="notice">Enter positive values for kVA and both voltages.</div>';return;}
+ const factor=phase===3?Math.sqrt(3):1,ip=kva*1000/(factor*pv),isec=kva*1000/(factor*sv),label=phase===3?'three-phase line current':'single-phase current';
+ out.innerHTML='<div class="result"><h3>Estimated full-load current</h3><p>Primary '+label+': <b>'+fmt(ip)+' A</b></p><p>Secondary '+label+': <b>'+fmt(isec)+' A</b></p><p class="muted">Formula: I = kVA × 1000 ÷ voltage'+(phase===3?' ÷ √3':'')+'.</p></div>';
+});
+const num=id=>{const s=document.getElementById(id).value.trim();return s===""?null:Number(s)};
+const fmt=n=>Number.isFinite(n)?n.toLocaleString("en-US",{maximumFractionDigits:4}):"—";
+const bendType=document.getElementById("bendtype");
+bendType.addEventListener("change",()=>{
+ const isOffset=bendType.value==="offset", isStub=bendType.value==="stub", isKick=bendType.value==="kick", isS3=bendType.value==="saddle3";
+ document.getElementById("offsetFields").classList.toggle("hidden",!isOffset);
+ document.getElementById("stubFields").classList.toggle("hidden",!isStub);
+ document.getElementById("kickFields").classList.toggle("hidden",!isKick);
+ document.getElementById("saddle3Fields").classList.toggle("hidden",!isS3);
+
+});
+document.getElementById("saddleGuide").addEventListener("change",()=>{
+ // Only the 3-point saddle guide is offered in the field-focused version.
+});
+document.getElementById("visualGuide").addEventListener("change",()=>{
+ const isOffset=document.getElementById("visualGuide").value==="offset";
+ document.getElementById("offsetDiagram").classList.toggle("hidden",!isOffset);
+ document.getElementById("stubDiagram").classList.toggle("hidden",isOffset);
+});
+document.getElementById("solveOffset").addEventListener("click",()=>{
+ const h=num("offsetHeight"),a=Number(document.getElementById("offsetAngle").value),box=document.getElementById("offsetResult");
+ if(h===null||!Number.isFinite(h)||h<=0){box.innerHTML='<div class="notice">Enter an offset height greater than zero.</div>';return;}
+ const size=document.getElementById("emtsize").selectedOptions[0].text;
+ const rad=a*Math.PI/180, multiplier=1/Math.sin(rad), spacing=h*multiplier;
+ // Common field rule-of-thumb shrink factors, shown as estimates rather than guaranteed bender geometry.
+ const shrinkPerInch={10:0.015,15:0.035,22.5:0.0625,30:0.125,45:0.1875,60:0.25};
+ const shrink=h*shrinkPerInch[a];
+ box.innerHTML='<div class="result"><b>Mark spacing: '+fmt(spacing)+' in</b><p>Conduit: '+size+'</p><div class="row"><p>Offset height<br><strong>'+fmt(h)+' in</strong></p><p>Multiplier<br><strong>'+fmt(multiplier)+'</strong></p><p>Angle<br><strong>'+a+'° each</strong></p><p>Estimated shrink<br><strong>'+fmt(shrink)+' in</strong></p></div><small>Measure between the two bend marks. Shrink is a common rule-of-thumb estimate and varies with technique and bender. Verify with your preferred field method.</small></div>';
+});
+document.getElementById("solveStub").addEventListener("click",()=>{
+ const h=num("stubHeight"),t=num("takeup"),box=document.getElementById("stubResult");
+ if(h===null||t===null||!Number.isFinite(h)||!Number.isFinite(t)||h<=0||t<0){box.innerHTML='<div class="notice">Enter a stub height greater than zero and a non-negative take-up.</div>';return;}
+ if(h<=t){box.innerHTML='<div class="notice">The entered stub height is less than or equal to the take-up. Check your measurements and bender reference.</div>';return;}
+ const mark=h-t, size=document.getElementById("emtsize").selectedOptions[0].text;
+ box.innerHTML='<div class="result"><b>Mark from conduit end: '+fmt(mark)+' in</b><p>Conduit: '+size+'</p><p>Finished stub target: '+fmt(h)+' in</p><p>Bender take-up used: '+fmt(t)+' in</p><small>Measure the desired stub height and subtract the take-up value for your bender. Confirm with a test bend because measuring conventions can vary.</small></div>';
+});
+document.getElementById("solveKick").addEventListener("click",()=>{
+ const h=num("kickHeight"),a=Number(document.getElementById("kickAngle").value),box=document.getElementById("kickResult");
+ if(h===null||!Number.isFinite(h)||h<=0){box.innerHTML='<div class="notice">Enter a kick height greater than zero.</div>';return;}
+ const spacing=h/Math.sin(a*Math.PI/180), size=document.getElementById("emtsize").selectedOptions[0].text;
+ box.innerHTML='<div class="result"><b>Estimated mark distance: '+fmt(spacing)+' in</b><p>Conduit: '+size+'</p><div class="row"><p>Rise<br><strong>'+fmt(h)+' in</strong></p><p>Angle<br><strong>'+a+'°</strong></p><p>Multiplier<br><strong>'+fmt(1/Math.sin(a*Math.PI/180))+'</strong></p></div><small>Use this as a geometric starting estimate. Measure from the correct reference point for your bending method and verify the result with a test bend.</small></div>';
+});
+document.getElementById("solveSaddle3").addEventListener("click",()=>{
+ const h=num("s3Height"),w=num("s3Width"),a=Number(document.getElementById("s3Angle").value),box=document.getElementById("saddle3Result");
+ if(h===null||w===null||!Number.isFinite(h)||!Number.isFinite(w)||h<=0||w<=0){box.innerHTML='<div class="notice">Enter positive obstacle height and width values.</div>';return;}
+ const outer=a/2, centerTravel=h/Math.sin(a*Math.PI/180), outerSpacing=(h/2)/Math.sin(outer*Math.PI/180), size=document.getElementById("emtsize").selectedOptions[0].text;
+ box.innerHTML='<div class="result"><b>3-point saddle — preliminary layout</b><p>Conduit: '+size+'</p><div class="row"><p>Center mark<br><strong>At obstacle center</strong></p><p>Outer mark distance<br><strong>'+fmt(outerSpacing)+' in from center</strong></p><p>Left outer mark<br><strong>Center − '+fmt(outerSpacing)+' in</strong></p><p>Right outer mark<br><strong>Center + '+fmt(outerSpacing)+' in</strong></p><p>Center bend<br><strong>'+a+'°</strong></p><p>Outer bends<br><strong>'+outer+'° each</strong></p></div><p><b>Suggested sequence:</b> mark the obstacle center, measure the same calculated distance to each side for the outer marks, then follow your chosen saddle method and bender instructions for the bend order and orientation.</p><small>Obstacle width entered: '+fmt(w)+' in. This simplified model does not fully compensate for conduit clearance, shrink, bender geometry, or every field method. Treat marks as estimates and verify with a trusted reference and test bend before installation.</small></div>';
+});
+// Conduit-fill reference areas in square inches. Values are approximate reference data; verify against product and adopted code.
+const racewayAreas={
+ emt:{"1/2":0.304,"3/4":0.533,"1":0.864,"1-1/4":1.496,"1-1/2":2.036,"2":3.356,"2-1/2":5.858,"3":8.846,"3-1/2":11.545,"4":14.753},
+ pvc40:{"1/2":0.285,"3/4":0.508,"1":0.832,"1-1/4":1.453,"1-1/2":1.986,"2":3.291,"2-1/2":4.695,"3":7.268,"4":12.554},
+ pvc80:{"1/2":0.217,"3/4":0.409,"1":0.688,"1-1/4":1.237,"1-1/2":1.711,"2":2.874,"2-1/2":4.119,"3":6.442,"4":11.258},
+ imc:{"1/2":0.342,"3/4":0.586,"1":0.959,"1-1/4":1.647,"1-1/2":2.225,"2":3.630,"2-1/2":5.135,"3":7.922,"4":13.457},
+ rmc:{"1/2":0.314,"3/4":0.549,"1":0.887,"1-1/4":1.526,"1-1/2":2.071,"2":3.408,"2-1/2":4.866,"3":7.499,"4":12.882}
+};
+const fillRaceLabels={"1/2":"1/2 in","3/4":"3/4 in","1":"1 in","1-1/4":"1-1/4 in","1-1/2":"1-1/2 in","2":"2 in","2-1/2":"2-1/2 in","3":"3 in","3-1/2":"3-1/2 in","4":"4 in"};
+const fillWireAreas={
+ thhn:{"14":0.0097,"12":0.0133,"10":0.0211,"8":0.0366,"6":0.0507,"4":0.0824,"3":0.0973,"2":0.1158,"1":0.1562,"1/0":0.1855,"2/0":0.2223,"3/0":0.2679,"4/0":0.3237,"250":0.3970,"300":0.4608,"350":0.5242,"400":0.5863,"500":0.7073},
+ xhhw:{"14":0.0139,"12":0.0181,"10":0.0243,"8":0.0437,"6":0.0590,"4":0.0814,"3":0.0962,"2":0.1146,"1":0.1534,"1/0":0.1825,"2/0":0.2190,"3/0":0.2642,"4/0":0.3197,"250":0.3904,"300":0.4536,"350":0.5166,"400":0.5782,"500":0.6984},
+ thw:{"14":0.0139,"12":0.0181,"10":0.0243,"8":0.0437,"6":0.0726,"4":0.0973,"3":0.1134,"2":0.1333,"1":0.1901,"1/0":0.2223,"2/0":0.2624,"3/0":0.3117,"4/0":0.3718,"250":0.4596,"300":0.5281,"350":0.5958,"400":0.6619,"500":0.7901}
+};
+const fillWireLabels={"14":"14 AWG","12":"12 AWG","10":"10 AWG","8":"8 AWG","6":"6 AWG","4":"4 AWG","3":"3 AWG","2":"2 AWG","1":"1 AWG","1/0":"1/0 AWG","2/0":"2/0 AWG","3/0":"3/0 AWG","4/0":"4/0 AWG","250":"250 kcmil","300":"300 kcmil","350":"350 kcmil","400":"400 kcmil","500":"500 kcmil"};
+function refreshFillRaceSizes(){
+ const type=document.getElementById("fillRaceType").value, sel=document.getElementById("fillRaceSize"), previous=sel.options[sel.selectedIndex]?.dataset.trade || "3/4";
+ sel.innerHTML=Object.entries(racewayAreas[type]).map(([trade,area])=>`<option value="${area}" data-trade="${trade}">${fillRaceLabels[trade]}</option>`).join("");
+ const desired=racewayAreas[type][previous]!==undefined?previous:(racewayAreas[type]["3/4"]!==undefined?"3/4":Object.keys(racewayAreas[type])[0]);
+ [...sel.options].forEach(o=>{if(o.dataset.trade===desired)sel.value=o.value;});
+}
+// Initialize trade-size options so every raceway option has its trade-size key before the first lookup.
+refreshFillRaceSizes();
+document.getElementById("fillRaceType").addEventListener("change",refreshFillRaceSizes);
+document.getElementById("applyFillLookup").addEventListener("click",()=>{
+ const race=document.getElementById("fillRaceSize"), type=document.getElementById("fillRaceType").value, insulation=document.getElementById("fillInsulation").value, wire=document.getElementById("fillWireSize").value;
+ const trade=race.options[race.selectedIndex].dataset.trade, raceArea=racewayAreas[type][trade], condArea=fillWireAreas[insulation][wire];
+ if(!raceArea||!condArea){document.getElementById("fillLookupNote").textContent="No reference value available for this combination. Enter verified area values manually.";return;}
+ document.getElementById("fillRaceArea").value=raceArea;document.getElementById("fillCondArea").value=condArea;
+ document.getElementById("fillLookupNote").textContent=`Loaded ${document.getElementById("fillRaceType").selectedOptions[0].text} ${fillRaceLabels[trade]} area (${raceArea} in²) and ${fillWireLabels[wire]} ${document.getElementById("fillInsulation").selectedOptions[0].text} area (${condArea} in²). Verify exact product data and applicable code before use.`;
+});
+document.getElementById("solveFill").addEventListener("click",()=>{
+ const race=num("fillRaceArea"), cond=num("fillCondArea"), count=num("fillCount"), box=document.getElementById("fillResult");
+ if(race===null||cond===null||count===null||!Number.isFinite(race)||!Number.isFinite(cond)||!Number.isFinite(count)||race<=0||cond<=0||count<1||!Number.isInteger(count)){
+  box.innerHTML='<div class="notice">Enter positive area values and a whole-number conductor quantity of at least 1.</div>';return;
+ }
+ const limit=count===1?0.53:count===2?0.31:0.40, total=cond*count, allowed=race*limit, pct=total/race*100, ok=total<=allowed;
+ box.innerHTML='<div class="result"><b>'+ (ok?'Within entered fill limit':'Exceeds entered fill limit') +'</b><div class="row"><p>Total conductor area<br><strong>'+fmt(total)+' in²</strong></p><p>Raceway area<br><strong>'+fmt(race)+' in²</strong></p><p>Calculated fill<br><strong>'+fmt(pct)+'%</strong></p><p>Applicable limit used<br><strong>'+fmt(limit*100)+'%</strong></p><p>Maximum conductor area<br><strong>'+fmt(allowed)+' in²</strong></p><p>Remaining area to limit<br><strong>'+fmt(allowed-total)+' in²</strong></p></div><small>Based only on the areas and conductor count entered. Confirm all area values and applicable code requirements before installation.</small></div>';
+});
+
+// Box fill helper: common Table 314.16(B) allowances in cubic inches.
+const boxFillAllowance={"14":2.0,"12":2.25,"10":2.5,"8":3.0,"6":5.0};
+document.getElementById("bfOther").addEventListener("change",()=>document.getElementById("bfOtherNote").classList.toggle("hidden",document.getElementById("bfOther").value!=="manual"));
+document.getElementById("calcBoxFill").addEventListener("click",()=>{
+ const out=document.getElementById("bfResult"), sizes=["14","12","10","8","6"], counts={}; let total=0, conductorCount=0;
+ for(const size of sizes){const n=num("bf"+size); if(n===null||!Number.isInteger(n)||n<0){out.innerHTML='<div class="notice">Enter a whole-number count of zero or greater for each conductor size.</div>';return;} counts[size]=n; total+=n*boxFillAllowance[size]; conductorCount+=n;}
+ const gCount=num("bfGroundCount"), yokes=num("bfYokes"), volume=num("bfBoxVolume"), gSize=document.getElementById("bfGroundSize").value, ySize=document.getElementById("bfYokeSize").value;
+ if([gCount,yokes].some(v=>v===null||!Number.isInteger(v)||v<0)||volume===null||!Number.isFinite(volume)||volume<=0){out.innerHTML='<div class="notice">Enter non-negative whole-number counts and a positive marked box volume.</div>';return;}
+ if((gCount===0&&gSize!=="none")||(gCount>0&&gSize==="none")){out.innerHTML='<div class="notice">Select the largest equipment grounding conductor size when grounds are present, or select “No grounds entered” when the count is zero.</div>';return;}
+ if(gCount>0){const base=boxFillAllowance[gSize]; if(!base){out.innerHTML='<div class="notice">This grounding-conductor size is not supported by this starter calculator. Verify its volume allowance manually.</div>';return;} total+=base*(1+Math.max(0,gCount-4)*0.25);}
+ if(Number(document.getElementById("bfClamp").value)===1){const largest=sizes.filter(sz=>counts[sz]>0).sort((a,b)=>Number(a)-Number(b))[0]; if(!largest){out.innerHTML='<div class="notice">For internal clamps, enter at least one insulated conductor size so the allowance can be based on the largest conductor.</div>';return;} total+=boxFillAllowance[largest];}
+ if(yokes>0){total+=yokes*2*boxFillAllowance[ySize];}
+ const fits=total<=volume, pct=total/volume*100;
+ let note=''; if(document.getElementById("bfOther").value==="manual") note='<p class="notice">You indicated another conductor size may be present. This result is incomplete until that size and its allowance are included.</p>';
+ out.innerHTML='<div class="result"><h3>'+(fits?'Calculated allowance is within marked volume':'Calculated allowance exceeds marked volume')+'</h3><div class="row"><p>Required volume allowance<br><strong>'+fmt(total)+' in³</strong></p><p>Marked box volume<br><strong>'+fmt(volume)+' in³</strong></p><p>Volume used<br><strong>'+fmt(pct)+'%</strong></p><p>Remaining volume<br><strong>'+fmt(volume-total)+' in³</strong></p></div><p>Insulated conductors counted: '+conductorCount+'. Grounding conductors: '+gCount+'. Device yokes: '+yokes+'.</p><p class="muted">Device yokes use two allowances per yoke based on the selected conductor size. Grounds are modeled as one allowance for up to four conductors plus 1/4 allowance for each additional ground. Verify the exact rule and exceptions for your installation.</p>'+note+'</div>';
+});
+// Original plain-English field summaries. These are not verbatim NEC text.
+const necTopics=[
+ {ref:"Article 90",title:"Introduction and scope",keywords:"scope purpose administration how to use code",rule:"The NEC sets minimum safety requirements for covered electrical installations. It is not a design guide for every situation, and local adoption determines which edition and amendments apply.",example:"Before relying on a section number, confirm the edition your jurisdiction has adopted.",check:"Verify local adoption, amendments, and the authority having jurisdiction (AHJ)."},
+ {ref:"Article 100",title:"Definitions",keywords:"definitions terms service equipment grounded grounding",rule:"Defined terms have specific meanings in the NEC. A familiar word can have a narrower technical meaning when used in a rule.",example:"When a requirement applies to a specific type of equipment or location, check the defined term rather than relying on everyday usage.",check:"Read the definition and any section-specific context."},
+ {ref:"110.3(B)",title:"Listed or labeled equipment",keywords:"listed labeled installation instructions manufacturer equipment",rule:"Equipment that is listed or labeled must generally be installed and used in accordance with the instructions included in its listing or labeling.",example:"A breaker, fitting, luminaire, or control may have specific permitted uses, ratings, or installation conditions.",check:"Check the product label, listing, instructions, and compatibility with the equipment it is installed in."},
+ {ref:"110.26",title:"Working space around electrical equipment",keywords:"working clearance depth width height panel access space",rule:"Certain electrical equipment needs dedicated working space so qualified people can safely examine, service, and operate it. Required dimensions depend on the equipment and conditions.",example:"A panel installed in a storage area may have its access or working space blocked by shelves or stored materials.",check:"Measure the required width, depth, and headroom for the specific installation; also check door access and dedicated-space rules."},
+ {ref:"210.8",title:"GFCI protection",keywords:"gfci ground fault receptacle kitchen bathroom garage outdoors shock",rule:"GFCI protection is required for specified receptacles and locations to reduce shock risk. The exact locations, voltage, equipment, and exceptions depend on the adopted edition and installation details.",example:"A receptacle in a location listed by the applicable section may require GFCI protection even if the connected load is small.",check:"Confirm the exact location, circuit voltage, receptacle type, equipment-specific rules, and current local amendments."},
+ {ref:"210.12",title:"AFCI protection",keywords:"afci arc fault bedroom dwelling living areas branch circuit",rule:"AFCI protection is required for specified branch circuits and areas to help reduce fire risk from arcing faults. The scope and permitted methods vary by occupancy, circuit, and edition.",example:"When adding or extending a branch circuit, check whether the work triggers AFCI requirements for that circuit and location.",check:"Verify the occupancy, area served, type of work, permitted protective device or method, and any exceptions."},
+ {ref:"210.19 / 210.20",title:"Branch-circuit conductors and overcurrent devices",keywords:"branch circuit wire size breaker load ampacity conductor sizing",rule:"Conductor sizing and overcurrent protection are related but separate checks. The load, conductor ampacity, terminal ratings, conditions of use, and specific circuit rules all matter.",example:"Do not select wire size from breaker size alone; calculate the load and apply applicable ampacity and correction rules.",check:"Check load calculation, continuous-load rules where applicable, terminal temperature, adjustment/correction factors, and conductor protection requirements."},
+ {ref:"215",title:"Feeders",keywords:"feeder sizing conductor load ampacity overcurrent",rule:"Feeder conductors and protective devices must be sized using the applicable load calculations and feeder-specific requirements. A feeder is not sized by copying a branch-circuit rule without checking applicability.",example:"For a subpanel feeder, calculate the served load and verify conductor ampacity, protection, and equipment ratings.",check:"Confirm load calculations, neutral load, grounding/bonding, voltage drop where relevant, and the adopted rules."},
+ {ref:"220",title:"Load calculations",keywords:"load calculation demand service feeder dwelling",rule:"Load calculations use prescribed methods and demand factors to estimate the load used for sizing services and feeders. Which method applies depends on the installation and loads.",example:"Adding equipment to a service may require recalculating the load rather than simply adding the nameplate amps together.",check:"Identify the permitted calculation method and account for all required loads and demand factors."},
+ {ref:"240.4",title:"Protection of conductors",keywords:"breaker fuse overcurrent protection wire ampacity conductor",rule:"Conductors generally need protection against overcurrent according to their allowable ampacity, with specific allowances and exceptions in the code.",example:"A conductor may not automatically be protected by any breaker that physically fits; the conductor, load, and applicable rule must match.",check:"Verify conductor ampacity, standard overcurrent-device rating rules, tap or small-conductor allowances, and equipment instructions."},
+ {ref:"250.4",title:"Grounding and bonding — purpose",keywords:"grounding bonding fault path shock equipment grounding conductor",rule:"Grounding and bonding perform different jobs. The equipment grounding and bonding path helps carry fault current so the overcurrent device can operate; earth itself is not a substitute for an effective fault-current path.",example:"A ground rod alone does not replace the required equipment grounding conductor back to the source.",check:"Trace the fault-current path and verify bonding, equipment grounding conductors, and grounding electrode requirements separately."},
+ {ref:"250.50",title:"Grounding electrode system",keywords:"ground rod electrode concrete encased metal water pipe grounding",rule:"Where a building has grounding electrodes covered by the applicable requirements, the grounding electrode system generally incorporates the electrodes that are present and available as required by the code.",example:"Do not assume one newly installed rod means other qualifying building electrodes can be ignored.",check:"Identify existing qualifying electrodes and confirm connections, conductor sizing, and applicable exceptions."},
+ {ref:"300.4",title:"Protection against physical damage",keywords:"nail plate drilling studs bored holes cable protection",rule:"Wiring must be protected where it is vulnerable to physical damage. The required method depends on where and how the wiring is installed.",example:"A bored hole too close to a framing edge may require an approved steel plate or equivalent protection.",check:"Check framing location, required setback, listed protection, and any raceway or cable-specific rules."},
+ {ref:"310.16",title:"Conductor ampacity table",keywords:"ampacity copper aluminum thhn thwn temperature 310 wire size",rule:"Ampacity tables give allowable current under stated conditions. The table value is only a starting point; ambient temperature, conductor count, insulation rating, terminals, and other rules can change the usable ampacity.",example:"A 90°C insulation rating does not automatically mean the circuit can be protected using the 90°C column value if equipment terminals limit the result.",check:"Use the adopted edition's table and apply terminal limits plus all required correction and adjustment factors."},
+ {ref:"314.16",title:"Box-fill calculations",keywords:"box fill junction box device box cubic inches conductor count grounds clamps yoke",rule:"Box fill rules limit how many conductors and devices may be installed in a box based on the permitted volume allowances. Different items count in specific ways, so a simple wire count may be wrong.",example:"A device yoke, internal cable clamp, and equipment grounding conductors can affect the calculation in addition to insulated conductors entering the box.",check:"Verify the box's marked volume and apply the correct allowances for conductors, devices, clamps, fittings, and grounds."},
+ {ref:"358.30",title:"EMT securing and support",keywords:"emt conduit strap support distance box fitting raceway",rule:"EMT must be securely fastened and supported according to the applicable requirements, including rules near terminations and intervals along the run.",example:"A long EMT run cannot be left unsupported simply because it is connected at both ends.",check:"Check the adopted edition for support spacing, distance from boxes or fittings, and exceptions for the specific installation."},
+ {ref:"408.4",title:"Panelboard circuit directory",keywords:"panel schedule directory breaker labels identification circuits",rule:"Panelboard circuit directories must identify circuits clearly enough to indicate their purpose or use. Vague or outdated labels can make safe isolation difficult.",example:"A directory that says only 'lights' for several different areas may not identify the specific circuit adequately.",check:"Verify the directory is legible, specific, and updated when circuits change."},
+ {ref:"430",title:"Motor circuits",keywords:"motor overload short circuit branch circuit conductor controller fla",rule:"Motor circuits have specialized rules for conductors, overload protection, short-circuit and ground-fault protection, controllers, and disconnects. These parts do not all use the same sizing method.",example:"The breaker size for a motor circuit may be determined differently from the motor overload setting and conductor ampacity.",check:"Use the applicable motor tables and sections; confirm nameplate data, service factor or temperature rise where relevant, and equipment instructions."},
+ {ref:"440",title:"Air-conditioning and refrigeration equipment",keywords:"hvac condenser compressor mca mocp nameplate",rule:"Air-conditioning and refrigeration equipment often has nameplate-specific minimum circuit ampacity and maximum overcurrent protection values that guide conductor and protective-device selection.",example:"For listed HVAC equipment, the nameplate MCA and maximum fuse/breaker rating are important inputs; do not size from running current alone.",check:"Read the equipment nameplate and instructions, and apply the applicable Article 440 requirements and local rules."}
+];
+function renderNecTopics(){
+ const input=document.getElementById("necSearch"),out=document.getElementById("necResults"); if(!input||!out)return;
+ const q=input.value.trim().toLowerCase();
+ const hits=necTopics.filter(t=>(t.ref+" "+t.title+" "+t.keywords+" "+t.rule).toLowerCase().includes(q));
+ out.innerHTML=hits.length?hits.map(t=>`<article class="card nec-entry"><h3>${t.ref} — ${t.title}</h3><p><b>Plain-English rule</b><br>${t.rule}</p><p><b>Field example</b><br>${t.example}</p><p><b>Before you apply it</b><br>${t.check}</p></article>`).join(""):'<div class="notice">No matching explanation yet. Try a broader keyword or article number.</div>';
+}
+document.getElementById("necSearch").addEventListener("input",renderNecTopics);
+renderNecTopics();
+document.getElementById("combineAmpFactors").addEventListener("click",()=>{
+ const ids=["ambientFactor","cccFactor","otherFactor"],vals=ids.map(id=>Number(document.getElementById(id).value)),box=document.getElementById("factorResult");
+ if(vals.some((v,i)=>!Number.isFinite(v)||v<=0||v>150||document.getElementById(ids[i]).value.trim()==="")){box.innerHTML='<div class="notice">Enter verified factors greater than 0% and no more than 150% in each field. Use 100% only when appropriate.</div>';return;}
+ const combined=vals.reduce((a,b)=>a*b/100,100);
+ if(!Number.isFinite(combined)||combined<=0||combined>100){box.innerHTML='<div class="notice">The combined factor is above 100%. Verify the inputs and applicable code rules before using it.</div>';return;}
+ document.getElementById("ampFactor").value=String(Math.round(combined*10000)/10000);
+ box.innerHTML='<div class="result"><b>Combined factor: '+(Math.round(combined*10000)/10000)+'%</b><p>This value has been copied into the ampacity reference factor field. Tap “Calculate ampacity reference” to see the preliminary result.</p><small>Factors were entered by you and were not verified by this app. Confirm each factor and the correct order/application against the adopted NEC edition and equipment instructions.</small></div>';
+});
+document.getElementById("lookupAmp").addEventListener("click",()=>{
+ const material=document.getElementById("ampMaterial").value,size=document.getElementById("ampSize").value,box=document.getElementById("ampResult");
+ // Preliminary 2023 NEC Table 310.16 reference values. 60/75/90 C ampacities in amperes.
+ const cu={"14":[15,20,25],"12":[20,25,30],"10":[30,35,40],"8":[40,50,55],"6":[55,65,75],"4":[70,85,95],"3":[85,100,115],"2":[95,115,130],"1":[110,130,145],"0":[125,150,170],"-1":[145,175,195],"-2":[165,200,225],"-3":[195,230,260],"250":[215,255,290],"300":[240,285,320],"350":[260,310,350],"500":[320,380,430]};
+ const al={"14":[null,null,null],"12":[15,20,25],"10":[25,30,35],"8":[30,40,45],"6":[40,50,55],"4":[55,65,75],"3":[65,75,85],"2":[75,90,100],"1":[85,100,115],"0":[100,120,135],"-1":[115,135,150],"-2":[130,155,175],"-3":[150,180,205],"250":[170,205,230],"300":[190,230,255],"350":[210,250,280],"500":[260,310,350]};
+ const vals=(material==="cu"?cu:al)[size],label=document.getElementById("ampSize").selectedOptions[0].text;
+ const ins=Number(document.getElementById("ampInsulation").value),term=Number(document.getElementById("ampTerminal").value),factor=Number(document.getElementById("ampFactor").value);
+ if(!vals){box.innerHTML='<div class="notice">No preliminary value is available for this selection. Check the official adopted code table.</div>';return;}
+ if(!Number.isFinite(factor)||factor<=0||factor>100){box.innerHTML='<div class="notice">Enter a combined correction/adjustment factor greater than 0 and no more than 100%.</div>';return;}
+ if(vals[ins]===null||vals[term]===null){box.innerHTML='<div class="notice">No preliminary value is available for that temperature rating and conductor size. Check the official adopted code table.</div>';return;}
+ const base=vals[ins], terminalLimit=vals[term], corrected=base*factor/100, result=Math.min(corrected,terminalLimit);
+ box.innerHTML='<div class="result"><b>'+label+' · '+(material==="cu"?"Copper":"Aluminum / copper-clad aluminum")+'</b><div class="row"><p>Selected insulation rating<br><strong>'+["60°C","75°C","90°C"][ins]+'</strong></p><p>Table ampacity<br><strong>'+base+' A</strong></p><p>After entered factor<br><strong>'+Math.round(corrected*100)/100+' A</strong></p><p>Selected terminal table value<br><strong>'+terminalLimit+' A</strong></p><p>Lower of these two values<br><strong>'+Math.round(result*100)/100+' A</strong></p></div><small>This is a screening estimate using preliminary 2023 Table 310.16 values and the factor you entered. It is not a final allowable ampacity: verify the adopted code edition, small-conductor and overcurrent rules, actual equipment terminal ratings, load, installation conditions, and all applicable correction/adjustment requirements.</small></div>';
+});
+document.getElementById("solveOhm").addEventListener("click",()=>{
+ let v=num("v"),i=num("i"),r=num("r"),p=num("p");const a=[v,i,r,p].filter(x=>x!==null);
+ const box=document.getElementById("ohmResult");
+ if(a.length<2||a.some(x=>!Number.isFinite(x)||x<0)){box.innerHTML='<div class="notice">Enter at least two valid non-negative values. Use a positive value for resistance when solving a resistive circuit.</div>';return;}
+ // Generate candidates from every valid pair and keep internally consistent values.
+ let c=[];
+ const add=(V,I,R,P)=>{if([V,I,R,P].every(x=>Number.isFinite(x)&&x>=0))c.push({V,I,R,P})};
+ if(v!==null&&i!==null){add(v,i,i>0?v/i:null,v*i)}
+ if(v!==null&&r!==null&&r>0){add(v,v/r,r,v*v/r)}
+ if(i!==null&&r!==null){add(i*r,i,r,i*i*r)}
+ if(p!==null&&v!==null&&v>0){add(v,p/v,v*v/p,p)}
+ if(p!==null&&i!==null&&i>0){add(p/i,i,p/(i*i),p)}
+ if(p!==null&&r!==null&&r>0){add(Math.sqrt(p*r),Math.sqrt(p/r),r,p)}
+ if(!c.length){box.innerHTML='<div class="notice">Those values do not provide a valid solvable pair. Check that resistance is above zero where required.</div>';return;}
+ const z=c[0];box.innerHTML='<div class="result"><b>Calculated values</b><div class="row"><p>Voltage<br><strong>'+fmt(z.V)+' V</strong></p><p>Current<br><strong>'+fmt(z.I)+' A</strong></p><p>Resistance<br><strong>'+fmt(z.R)+' Ω</strong></p><p>Power<br><strong>'+fmt(z.P)+' W</strong></p></div><small>Check that any additional values you entered agree with this result.</small></div>';
+});
+document.getElementById("clearOhm").addEventListener("click",()=>{["v","i","r","p"].forEach(id=>document.getElementById(id).value="");document.getElementById("ohmResult").innerHTML=""});
+document.getElementById("solveDrop").addEventListener("click",()=>{
+ const amps=num("amps"),feet=num("feet"),volts=num("sysv"),k=Number(document.getElementById("phase").value),material=document.getElementById("material").value,temp=document.getElementById("temp").value,wire=document.getElementById("wire").value;
+ const factor=material==="cu"?(temp==="cool"?12.9:14.0):(temp==="cool"?21.2:23.0);
+ const areas={"14":4110,"12":6530,"10":10380,"8":16510,"6":26240,"4":41740,"3":52620,"2":66360,"1":83690,"0":105600,"-1":133100,"-2":167800,"-3":211600,"250":250000,"300":300000,"350":350000,"500":500000};
+ const area=areas[wire],box=document.getElementById("dropResult");
+ if([amps,feet,volts].some(x=>x===null||!Number.isFinite(x)||x<=0)){box.innerHTML='<div class="notice">Enter positive current, length, and system voltage.</div>';return;}
+ // Simplified K-method: VD = K × I × one-way length × circuit factor / circular mil area.
+ const vd=factor*amps*feet*k/area,pct=vd/volts*100,matLabel=material==="cu"?"Copper":"Aluminum";
+ box.innerHTML='<div class="result"><b>Estimated drop: '+fmt(vd)+' V</b><p>Approx. voltage at load: '+fmt(volts-vd)+' V</p><p>Voltage drop: '+fmt(pct)+'%</p><p>Material: '+matLabel+' · Conductor: '+document.getElementById("wire").selectedOptions[0].text+'</p><small>Calculation: K × current × one-way length × circuit factor ÷ conductor circular-mil area. K is an approximate resistance constant for the selected material and resistance estimate. This does not account for all AC impedance, terminal temperature limits, installation conditions, or code sizing rules. Verify with approved tables and project conditions.</small></div>';
+});
+
+const troubleQuickOptions={
+ breaker:[["unknown","Not sure yet"],["instant","Trips immediately"],["delay","Trips after running for a while"],["load-specific","Trips only with one load"],["all-off","Trips even with loads switched off"]],
+ dead:[["unknown","Not sure yet"],["one-point","Only one outlet/device is dead"],["several-points","Several outlets/devices are dead"],["upstream","Upstream GFCI/breaker may be tripped"],["control","Could involve a switch/interlock/control"]],
+ voltage:[["unknown","Not sure yet"],["line-line","Line-to-line reading is unexpected"],["line-neutral","Line-to-neutral reading is unexpected"],["line-ground","Line-to-ground reading is unexpected"],["unstable","Reading changes or seems unstable"]],
+ motor:[["unknown","Not sure yet"],["no-response","No response at all"],["hums","Hums/buzzes but doesn't start"],["trips","Trips protection"],["fault-code","Displays a fault code"]],
+ gfci:[["unknown","Not sure yet"],["immediate","Trips immediately"],["one-load","Trips with one particular load"],["no-reset","Won't reset with loads unplugged"],["wet","Moisture/wet location may be involved"]],
+ lights:[["unknown","Not sure yet"],["one-fixture","Only one fixture flickers"],["one-circuit","Several lights on one circuit flicker"],["multiple-circuits","Several circuits/rooms flicker"],["load-start","Flickers when a large load starts"]]
+};
+function refreshTroubleQuickOptions(){
+ const type=document.getElementById("troubleType").value,sel=document.getElementById("troubleQuickAnswer"),old=sel.value;
+ sel.innerHTML=troubleQuickOptions[type].map(([v,t])=>'<option value="'+v+'">'+t+'</option>').join('');
+ if(troubleQuickOptions[type].some(([v])=>v===old))sel.value=old;
+}
+document.getElementById("troubleType").addEventListener("change",refreshTroubleQuickOptions);
+refreshTroubleQuickOptions();
+document.getElementById("solveTrouble").addEventListener("click",()=>{
+ const type=document.getElementById("troubleType").value,when=document.getElementById("troubleWhen").value,system=document.getElementById("troubleSystem").value,quickAnswer=document.getElementById("troubleQuickAnswer").value,quickLabel=document.getElementById("troubleQuickAnswer").selectedOptions[0].text,notes=document.getElementById("troubleNotes").value.trim(),measurements=document.getElementById("troubleMeasurements").value.trim(),equipment=document.getElementById("troubleEquipment").value.trim(),followup=document.getElementById("troubleFollowup").value.trim(),out=document.getElementById("troubleResult");
+ const guides={
+ breaker:{title:"Breaker trips",likely:["A short circuit or ground fault","Overload or inrush current from connected equipment","Damaged cord, equipment, or wiring","Incorrect breaker type, rating, or equipment compatibility"],steps:["Record exactly when it trips: immediately on reset, when a load starts, or after running for a while.","Do not repeatedly reset a breaker that trips. Isolate the affected equipment using the approved site procedure.","With the circuit safely de-energized and verified, a qualified person can inspect for visible damage, moisture, loose or overheated connections, and equipment faults.","Compare the connected load and nameplate data with the circuit design and applicable overcurrent rules.","If the cause is not clear, stop and use the site's qualified troubleshooting process rather than upsizing the breaker."],meaning:"Trips immediately often point toward a fault or a high inrush event; trips after time can point toward overload or heating. Timing is a clue, not proof."},
+ dead:{title:"No power at circuit or receptacle",likely:["Open breaker, fuse, disconnect, or upstream protective device","Open conductor or failed connection upstream","Tripped GFCI/AFCI device or upstream receptacle protection","Control switch, interlock, or equipment disconnect is open"],steps:["Confirm the exact device and whether other loads on the same circuit are also dead.","Check for a tripped protective device using the approved operating procedure; do not repeatedly reset a device that trips again.","Identify upstream GFCI/AFCI devices, switches, disconnects, and controls that may feed the point.","A qualified person should verify the circuit is safely isolated before inspecting terminations or continuity.","If voltage testing is required, only a qualified, authorized person should perform it using properly rated equipment and required safe-work procedures."],meaning:"If one outlet is dead but others work, an upstream connection or protective device may be involved. The symptom alone cannot identify the failed point."},
+ voltage:{title:"Unexpected voltage reading",likely:["Meter reference point or measurement method is incorrect","Open neutral or open phase conductor","Induced/ghost voltage on a high-impedance meter","Loose or high-resistance connection or an actual supply problem"],steps:["Write down the exact points measured (for example, line-to-neutral, line-to-ground, or line-to-line), the meter mode, and the reading.","Confirm the system configuration and nominal voltage; do not infer the system from one reading.","A qualified person should verify the meter and leads are appropriately rated and prove the tester before and after testing under the required procedure.","Compare readings across the correct reference points using the applicable safe-work process. Do not use ground as a substitute for a neutral reference.","Unexpected or unstable readings can indicate a hazardous open conductor; keep equipment out of service until the cause is established."],meaning:"A voltage value is only meaningful with its measurement points and system configuration. A single reading is not enough to conclude a conductor is safe."},
+ motor:{title:"Motor or equipment won't start",likely:["Missing supply phase or incorrect voltage at equipment","Open disconnect, control circuit, interlock, or overload relay","Equipment fault, seized load, or failed starting component","Incorrect control signal or configuration"],steps:["Read the equipment nameplate and wiring diagram; record rated voltage, phase, and any fault indicator or code.","Check the status of disconnects, overloads, interlocks, emergency stops, and control indications without bypassing safety devices.","Confirm whether the problem is no response, humming, tripping, or a displayed fault; these symptoms point to different branches.","A qualified person should follow the manufacturer's diagnostic procedure and required isolation/LOTO before checking mechanical or electrical components.","Do not bypass overloads, interlocks, guards, or safety circuits to force a start."],meaning:"A no-start condition can be in the supply, control circuit, or driven equipment. Nameplate and fault-code details are important before narrowing the cause."},
+ gfci:{title:"GFCI trips or won't reset",likely:["Downstream ground fault or moisture","Connected equipment or cord fault","Line/load wiring or supply problem","Device has failed or is not receiving its required supply"],steps:["Unplug connected loads where safe and permitted, then follow the device manufacturer's reset instructions.","If it resets with loads disconnected, reconnect loads one at a time only if safe; stop if it trips again.","If it will not reset, check the device instructions and whether the circuit has the required supply; do not assume the GFCI itself is bad.","Keep wet or damaged equipment out of service. A qualified person should isolate the circuit before inspecting wiring or testing insulation.","Never defeat or bypass GFCI protection to keep equipment operating."],meaning:"A trip that follows a particular load suggests that load or its cord may be involved, but wiring faults and moisture can cause similar symptoms."},
+ lights:{title:"Lights flicker or dim",likely:["Loose or failing connection","Overloaded circuit or large starting load","Supply voltage variation","Incompatible or failing dimmer, LED driver, or lamp"],steps:["Determine whether one lamp, one circuit, or multiple areas are affected, and whether flicker coincides with equipment starting.","If multiple circuits or the whole building flicker, report it promptly; a supply or neutral problem can be hazardous.","Check lamp/driver/dimmer compatibility and manufacturer guidance for lighting-only symptoms.","A qualified person should isolate equipment before inspecting connections; do not tighten or probe energized parts casually.","If there is heat, odor, buzzing, arcing, or severe flicker, stop using the affected circuit/equipment and escalate."],meaning:"Flicker isolated to one fixture may be a lamp or driver issue; flicker across multiple circuits can indicate a more serious supply or connection problem."}
+ };
+ const g=guides[type];
+ const detailText=(notes+" "+measurements+" "+equipment+" "+followup+" "+quickLabel+" "+quickAnswer).toLowerCase();
+ let nextQuestion="What changed immediately before the fault began, and does the problem affect one device or multiple loads?";
+ let tailored="Start by establishing the scope of the problem and recording exact observations before changing anything.";
+ if(type==="breaker"){
+  nextQuestion=when==="load"?"Which exact load starts when the breaker trips, and does the trip happen immediately or after it runs?":when==="recent"?"What wiring, equipment, or breaker work was done immediately before the first trip?":"Does it trip immediately with all loads disconnected, or only when a particular load is connected?";
+  tailored=when==="load"?"A trip tied to one load raises the priority of checking that load, its cord/wiring, starting current, and circuit loading; timing alone does not prove which one is responsible.":when==="intermittent"?"Intermittent trips can be associated with changing load, heat, moisture, vibration, or a connection fault. Record load and timing rather than repeatedly resetting the breaker.":"An immediate trip and a delayed trip can point to different fault patterns. Do not increase the breaker rating to stop the tripping.";
+ } else if(type==="dead"){
+  nextQuestion="Are all outlets/equipment on the circuit dead, or just one point? Have you checked upstream GFCI/AFCI devices and controls?";
+  tailored=/(one outlet|one receptacle|single outlet|only one)/.test(detailText)?"Because you report only one point affected, an upstream connection, switched feed, or device failure is worth checking in the approved de-energized troubleshooting process.":/(whole|multiple|every outlet|entire circuit)/.test(detailText)?"Because multiple points are affected, prioritize identifying a shared upstream protective device, disconnect, control, or feed before focusing on one receptacle.":"The most useful first distinction is whether the fault affects one point or the whole branch circuit.";
+ } else if(type==="voltage"){
+  nextQuestion="For each reading, what are the two exact test points (L1-L2, L1-N, L1-G, etc.), and what is the nominal system configuration?";
+  tailored=/(ghost|induced|high.impedance|non.contact)/.test(detailText)?"A high-impedance meter can display induced voltage on a disconnected conductor. Do not assume it is harmless; a qualified person must verify with the correct rated tester and procedure.":/(neutral.*ground|ground.*neutral)/.test(detailText)?"Neutral-to-ground readings depend on system bonding and load conditions. They must be interpreted in context; do not use the equipment grounding conductor as a substitute neutral.":"Voltage readings are only comparable when the system and both measurement points are known. One number alone cannot establish that a circuit is safe.";
+ } else if(type==="motor"){
+  nextQuestion="Does the motor do nothing, hum, trip protection, turn slowly, or display a fault code? What are the nameplate voltage and phase?";
+  tailored=/(fault|error|code|overload|ol)/.test(detailText)?"The exact fault code and manufacturer/model are high-value clues. Record them before resetting; follow the manufacturer's troubleshooting sequence and never bypass interlocks or overload protection.":/(hum|humming|buzz)/.test(detailText)?"A motor that hums but does not accelerate may have a supply, starting/control, or mechanical-load issue. Avoid repeated start attempts, which can overheat the motor.":"Confirm the nameplate supply requirements and whether the issue is in the power circuit, control circuit, or driven load before narrowing the cause.";
+ } else if(type==="gfci"){
+  nextQuestion="Does it reset with downstream loads unplugged, and does it trip immediately or only after one particular load is connected?";
+  tailored=/(rain|wet|water|moist|outdoor)/.test(detailText)?"Moisture is a plausible contributor based on your notes. Keep wet/damaged equipment out of service and don't bypass GFCI protection.":"Whether it resets with loads disconnected is a useful distinction, but it does not by itself prove the device or wiring is good.";
+ } else if(type==="lights"){
+  nextQuestion="Is flicker limited to one fixture, one circuit, or multiple circuits/building areas, and does it coincide with a large load starting?";
+  tailored=/(whole building|multiple circuit|throughout|many lights|several rooms)/.test(detailText)?"Flicker across multiple circuits can indicate a supply or neutral issue and deserves prompt escalation. If severe or accompanied by heat, odor, or arcing, stop using the affected equipment and follow site procedures.":"Flicker limited to one fixture makes the lamp, driver, dimmer compatibility, or local connection more relevant, but inspect only using safe, qualified procedures.";
+ }
+ // Quick answer narrows the report using the user's selected branch clue.
+ const quickGuidance={
+  "instant":"An immediate trip is selected. Treat this as a possible fault condition; do not repeatedly reset the breaker. A qualified person should isolate and investigate under site procedures.",
+  "delay":"A delayed trip is selected. Load level, run time, heating, and intermittent connection issues become important clues; do not increase the breaker rating as a workaround.",
+  "load-specific":"A load-specific trip is selected. Keep that load out of service until it and its circuit are evaluated through the approved process.",
+  "all-off":"The breaker trips even with loads switched off. Switching loads off does not prove the circuit is isolated; stop repeated resets and escalate for qualified diagnosis.",
+  "one-point":"One point is affected. An upstream connection, local device, or switched feed may be relevant; inspect only after safe isolation.",
+  "several-points":"Several points are affected. Look for a shared upstream feed, protective device, disconnect, or control rather than assuming each device failed independently.",
+  "upstream":"An upstream protective device may be involved. Follow its instructions and site procedure; if it trips again, stop resetting it.",
+  "control":"A switch, interlock, or control may be involved. Use the equipment diagram and never bypass safety interlocks.",
+  "line-line":"Line-to-line is selected. Compare the reading with the confirmed system and equipment nameplate; record both test points and load state.",
+  "line-neutral":"Line-to-neutral is selected. Confirm the neutral reference and system configuration; abnormal readings can indicate a neutral or supply issue.",
+  "line-ground":"Line-to-ground is selected. This reading alone does not establish correct supply or safety; do not use the equipment grounding conductor as a normal return path.",
+  "unstable":"An unstable reading is selected. Verify the meter, test points, and operating conditions through the required safe-work procedure; treat unexplained variation as unresolved.",
+  "no-response":"No response is selected. The supply, control power, interlocks, and emergency-stop circuit may need to be distinguished using manufacturer procedures.",
+  "hums":"Humming without starting is selected. Avoid repeated attempts that can overheat equipment; supply, starting/control, or mechanical issues may be involved.",
+  "trips":"Protection tripping is selected. Do not bypass protection; record when it trips and follow the manufacturer's troubleshooting procedure.",
+  "fault-code":"A fault code is selected. Record the exact code and model before resetting and consult the manufacturer documentation.",
+  "immediate":"Immediate GFCI tripping is selected. Keep protection in service and isolate the cause; never bypass the GFCI.",
+  "one-load":"A particular load appears associated with the GFCI trip. Keep that load out of service until its cord/equipment and the circuit are evaluated.",
+  "no-reset":"Failure to reset with loads unplugged does not prove the device is defective. Confirm supply and follow the manufacturer's instructions through qualified procedures.",
+  "wet":"Moisture may be involved. Keep wet/damaged equipment out of service and do not attempt testing or reset in an unsafe wet condition.",
+  "one-fixture":"One fixture is affected. Lamp, driver, dimmer compatibility, or local wiring may be more relevant than a building-wide supply issue.",
+  "one-circuit":"One circuit is affected. Consider a circuit-specific connection, loading, or lighting-control issue; use qualified safe-work procedures.",
+  "multiple-circuits":"Multiple circuits are affected. Escalate promptly because a shared supply or neutral issue may be hazardous.",
+  "load-start":"Flicker when a large load starts can reflect starting current or supply/connection problems. If multiple circuits are affected, escalate promptly."
+ };
+ if(quickAnswer!=="unknown"&&quickGuidance[quickAnswer])tailored+=" "+quickGuidance[quickAnswer];
+ // Additional offline rule-based signals from the user's notes, measurements, and equipment details.
+ const signals=[];
+ if(/\b(480|277|208|240|120)\s*v\b/.test(detailText)) signals.push("A voltage value was entered. Interpret it only with the exact two test points, system configuration, meter type, and load state; the number alone cannot establish a fault or prove safety.");
+ if(/l1\s*[-–/]\s*l2|line.?to.?line|phase.?to.?phase/.test(detailText)) signals.push("Line-to-line testing is mentioned. Compare against the equipment nameplate and the expected line-to-line voltage for the confirmed system.");
+ if(/l1\s*[-–/]\s*n|line.?to.?neutral|neutral/.test(detailText)) signals.push("A neutral or line-to-neutral reading is mentioned. An open/high-resistance neutral can produce abnormal readings; do not assume neutral-to-ground or line-to-ground readings substitute for a proper test reference.");
+ if(/ground|earth|bond/.test(detailText)) signals.push("Grounding or bonding is mentioned. The equipment grounding conductor is not a normal load-current return path; investigate unexpected current or voltage using approved procedures.");
+ if(/burn|hot|heat|smell|odor|smoke|arc|spark|shock|tingle|water|wet/.test(detailText)) signals.push("Your notes contain a possible immediate hazard indicator. Stop using the affected equipment, keep clear, and follow site emergency and lockout/tagout procedures; do not continue testing to complete this guide.");
+ if(/recent|replaced|installed|after work|new breaker|new equipment/.test(detailText) || when==="recent") signals.push("Recent work or a change may be relevant. Document exactly what changed and verify the work against drawings, equipment instructions, and the approved de-energized inspection procedure.");
+ if(/several rooms|multiple circuits|whole building|throughout|many lights|entire building/.test(detailText) && type==="lights") signals.push("Multiple areas are reportedly affected. Prioritize escalation for a possible shared supply/neutral issue rather than treating each lamp as an isolated failure.");
+ if(/trips? (immediately|right away)|immediate trip/.test(detailText) && type==="breaker") signals.push("An immediate trip is reported. Do not repeatedly reset the breaker; isolate the cause through the approved process and never increase the breaker rating as a workaround.");
+ if(!signals.length) signals.push("No specific measurement pattern was recognized in the notes. Add the exact reading, both test points, when it was measured, and whether the load was operating to narrow the next branch.");
+ const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const list=arr=>'<ol>'+arr.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol>';
+ out.innerHTML='<article class="card"><h3>'+g.title+'</h3><div class="result"><b>How your answers narrow it down</b><p>'+esc(tailored)+'</p><p><b>Most useful next question:</b> '+esc(nextQuestion)+'</p><p><b>Quick answer used:</b> '+esc(quickLabel)+'</p></div><p><b>What your details may indicate</b></p><ul>'+signals.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul><p><b>What the timing may suggest</b><br>'+esc(g.meaning)+'</p><p><b>Common possibilities to consider</b></p><ul>'+g.likely.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul><p><b>Suggested diagnostic sequence</b></p><div id="troubleProgress"><p class="muted">Mark each step complete as you work through the checks. Only perform work you are qualified and authorized to do.</p><div class="progressTrack" style="height:8px;background:var(--line);border-radius:8px;overflow:hidden"><div id="troubleProgressBar" style="height:100%;width:0%;background:var(--accent)"></div></div><p id="troubleProgressText" class="muted">0 of '+g.steps.length+' steps completed</p>'+g.steps.map((step,i)=>'<label style="display:flex;gap:10px;align-items:flex-start;margin:12px 0"><input type="checkbox" class="troubleStepCheck" style="width:auto;margin-top:4px"><span>'+esc(step)+'</span></label>').join('')+'</div><p><b>Details provided</b><br>Timing: '+esc(document.getElementById("troubleWhen").selectedOptions[0].text)+'. Quick answer: '+esc(quickLabel)+'. System: '+esc(document.getElementById("troubleSystem").selectedOptions[0].text)+'.</p>'+(notes?'<p><b>Your observations</b><br>'+esc(notes).replace(/\n/g,'<br>')+'</p>':'')+(measurements?'<p><b>Measurements and test points</b><br>'+esc(measurements).replace(/\n/g,'<br>')+'</p>':'')+(equipment?'<p><b>Equipment details</b><br>'+esc(equipment).replace(/\n/g,'<br>')+'</p>':'')+(followup?'<p><b>Answer to follow-up question</b><br>'+esc(followup).replace(/\n/g,'<br>')+'</p>':'')+'<div class="row" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn secondary" type="button" id="copyTroubleReport">Copy diagnostic report</button><button class="btn" type="button" id="saveTroubleReport">Save report on this device</button></div><div class="notice">This offline guide narrows common possibilities; it does not determine the fault or confirm the installation is safe. Verify the diagnosis with qualified procedures, equipment documentation, and applicable code.</div></article>';
+  const progressChecks=Array.from(out.querySelectorAll(".troubleStepCheck"));
+  const updateTroubleProgress=()=>{const done=progressChecks.filter(x=>x.checked).length,bar=document.getElementById("troubleProgressBar"),txt=document.getElementById("troubleProgressText");if(bar)bar.style.width=(done/Math.max(1,progressChecks.length)*100)+"%";if(txt)txt.textContent=done+" of "+progressChecks.length+" steps completed";};
+  progressChecks.forEach(x=>x.addEventListener("change",updateTroubleProgress));
+  const buildReport=()=>["Electrician's Toolbox — Diagnostic Report","Problem: "+g.title,"Timing: "+document.getElementById("troubleWhen").selectedOptions[0].text,"Quick answer: "+quickLabel,"System: "+document.getElementById("troubleSystem").selectedOptions[0].text,"Likely possibilities:",...g.likely.map(x=>"- "+x),"Suggested steps:",...g.steps.map((x,i)=>(progressChecks[i]&&progressChecks[i].checked?"[x] ":"[ ] ")+(i+1)+". "+x),notes?"Observations: "+notes:"",measurements?"Measurements: "+measurements:"",equipment?"Equipment details: "+equipment:"",followup?"Follow-up answer: "+followup:""].filter(Boolean).join("\n");
+  const copyBtn=document.getElementById("copyTroubleReport");
+  if(copyBtn){copyBtn.addEventListener("click",()=>{const report=buildReport();if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(report).then(()=>{copyBtn.textContent="Report copied";}).catch(()=>window.prompt("Copy this diagnostic report:",report));}else{window.prompt("Copy this diagnostic report:",report);}});}
+  const saveBtn=document.getElementById("saveTroubleReport");
+  if(saveBtn){saveBtn.addEventListener("click",()=>{try{const key="electricianToolboxSavedTroubleshooting";const saved=JSON.parse(localStorage.getItem(key)||"[]");saved.unshift({id:Date.now(),title:g.title,date:new Date().toLocaleString(),report:buildReport()});localStorage.setItem(key,JSON.stringify(saved.slice(0,25)));renderSavedTroubleReports();saveBtn.textContent="Report saved";}catch(e){alert("Could not save on this device. Check browser storage settings.");}});}
+});
+
+function renderSavedTroubleReports(){
+ const target=document.getElementById("savedTroubleList");if(!target)return;
+ const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ let saved=[];try{saved=JSON.parse(localStorage.getItem("electricianToolboxSavedTroubleshooting")||"[]");}catch(e){}
+ if(!saved.length){target.innerHTML='<p class="muted">No reports saved yet. Build a diagnostic report, then tap “Save report on this device.”</p>';return;}
+ target.innerHTML=saved.map(item=>'<article class="card"><b>'+esc(item.title)+'</b><p class="muted">'+esc(item.date)+'</p><details><summary>View report</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere;font:inherit">'+esc(item.report)+'</pre></details><button class="btn secondary" type="button" data-copy-saved="'+Number(item.id)+'">Copy</button> <button class="btn secondary" type="button" data-delete-saved="'+Number(item.id)+'">Delete</button></article>').join('');
+ target.querySelectorAll('[data-delete-saved]').forEach(btn=>btn.addEventListener('click',()=>{const id=Number(btn.getAttribute('data-delete-saved'));const next=saved.filter(x=>Number(x.id)!==id);localStorage.setItem("electricianToolboxSavedTroubleshooting",JSON.stringify(next));renderSavedTroubleReports();}));
+ target.querySelectorAll('[data-copy-saved]').forEach(btn=>btn.addEventListener('click',()=>{const id=Number(btn.getAttribute('data-copy-saved'));const item=saved.find(x=>Number(x.id)===id);if(!item)return;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(item.report).then(()=>{btn.textContent="Copied";}).catch(()=>window.prompt("Copy saved report:",item.report));}else{window.prompt("Copy saved report:",item.report);}}));
+}
+document.getElementById("clearTroubleHistory").addEventListener("click",()=>{if(confirm("Delete all saved diagnostic reports from this device?")){localStorage.removeItem("electricianToolboxSavedTroubleshooting");renderSavedTroubleReports();}});
+
+// Offline motor troubleshooting guide: organize evidence without asserting a definitive fault.
+document.getElementById("buildMotorTrouble").addEventListener("click",()=>{
+ const type=document.getElementById("motorType").value;
+ const symptom=document.getElementById("motorSymptom").value;
+ const when=document.getElementById("motorWhen").value;
+ const nameplateRaw=document.getElementById("motorNameplateV").value.trim();
+ const measuredRaw=document.getElementById("motorMeasuredV").value.trim();
+ const nameplate=parseFloat(nameplateRaw), measured=parseFloat(measuredRaw);
+ const details=document.getElementById("motorDetails").value.trim();
+ const out=document.getElementById("motorTroubleResult");
+ const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const types={"3phase":"Three-phase AC motor","single":"Single-phase AC motor","dc":"DC motor","unknown":"Unknown / other motor"};
+ const symptoms={nostart:"Won't start",hums:"Hums or buzzes but won't start",trip:"Breaker or overload trips",hot:"Runs hot",lowtorque:"Runs but lacks torque / runs slowly",noise:"Unusual noise or vibration","starts-stops":"Starts and stops intermittently"};
+ let causes=[],steps=[],question="What exact motor model and nameplate data are shown, and what does the manufacturer's troubleshooting chart say?";
+ if(symptom==="nostart") {causes=["Missing or incorrect supply voltage","Control circuit, interlock, overload, or emergency-stop condition","Loose/damaged connection or failed component","Mechanical load or driven equipment preventing rotation"];steps=["Record the exact symptom, fault indication, and whether any sound or movement occurs.","Use approved procedures and qualified personnel to verify control power, interlocks, and the manufacturer's fault indications.","Have a qualified person verify supply voltage at the specified test points and compare it with the nameplate and wiring diagram.","With equipment safely isolated and verified de-energized, follow manufacturer procedures to assess mechanical binding and inspect connections."];}
+ if(symptom==="hums") {causes=["Supply loss or voltage problem","Starting circuit / capacitor / switch issue on applicable single-phase motors","Mechanical binding or excessive load","Incorrect connection or motor fault"];steps=["Stop repeated start attempts; humming can rapidly overheat a motor.","Record whether the motor is single-phase or three-phase and capture the nameplate and wiring diagram.","Have a qualified person check supply and control conditions using the manufacturer's procedure.","With power isolated and absence of voltage verified, check for mechanical binding only as permitted by the equipment instructions."];question="Does the nameplate identify a single-phase or three-phase motor, and does the overload or drive show a fault code?";}
+ if(symptom==="trip") {causes=["Overload from excessive mechanical load or binding","Supply-voltage problem, phase loss, or voltage imbalance on three-phase equipment","Incorrect protection setting or wiring compared with the nameplate and manufacturer instructions","Motor, cable, or driven-equipment fault"];steps=["Do not repeatedly reset protection or bypass an overload.","Record which device trips, the elapsed time, operating load, and any fault code.","Have a qualified person compare nameplate current, approved overload settings, and manufacturer documentation.","Use approved de-energized procedures to inspect the driven load and wiring; insulation or winding tests must follow manufacturer requirements."];question="Which device trips (breaker, overload relay, or drive), how long after starting, and what exact fault code appears?";}
+ if(symptom==="hot") {causes=["Overload or excessive duty cycle","Cooling obstruction, fan problem, or high ambient temperature","Supply voltage outside the motor's rated range or voltage imbalance","Frequent starts, incorrect application, or internal motor problem"];steps=["If there is smoke, burning odor, abnormal noise, or dangerously hot equipment, stop operation and follow site procedures.","Record load, ambient conditions, run time, and any overload or drive indication.","Compare nameplate current and duty rating with approved operating conditions.","Have a qualified person verify supply conditions and inspect cooling and driven equipment using manufacturer instructions."];question="Is the motor current, duty cycle, ambient temperature, and cooling arrangement known from the nameplate and installation?";}
+ if(symptom==="lowtorque") {causes=["Low or incorrect supply voltage","Incorrect drive parameters, frequency, or motor connection","Excessive driven load or mechanical drag","Motor or control-system fault"];steps=["Record actual speed/load symptoms and any VFD or controller fault information.","Confirm motor nameplate voltage, frequency, connection, and any drive settings against the manufacturer's documentation.","Have a qualified person verify supply and output conditions with appropriate instruments and procedures.","With equipment safely isolated, inspect the driven mechanism for abnormal drag if permitted by the manufacturer."];question="Is the motor controlled by a VFD, and what are the nameplate voltage/frequency and any drive output or fault readings?";}
+ if(symptom==="noise") {causes=["Driven-equipment vibration or misalignment","Bearing wear or lubrication issue where applicable","Loose mounting or mechanical resonance","Electrical or supply issue causing abnormal operation"];steps=["Stop operation if noise is severe, rapidly worsening, or accompanied by heat, smoke, or vibration that threatens equipment integrity.","Record when the noise occurs, where it seems to originate, and whether it changes with load or speed.","Follow manufacturer procedures to inspect mounting, coupling, alignment, and lubrication only when safely isolated.","Have a qualified person check electrical and drive conditions if mechanical causes are not established."];question="Does the noise occur with the motor uncoupled or only when the driven equipment is connected, if the manufacturer allows that test?";}
+ if(symptom==="starts-stops") {causes=["Control signal, interlock, or thermal overload cycling","Loose control/supply connection or voltage variation","Drive protection or fault response","Load or motor overheating"];steps=["Record exactly when it stops, elapsed run time, load condition, and every displayed fault code.","Do not defeat an interlock or bypass protective devices.","Have a qualified person review the control schematic, event log, and approved diagnostic indicators.","Compare supply, motor, and overload/drive data with the equipment instructions."];question="When it stops, does the overload trip, does a VFD display a code, or does the control command simply disappear?";}
+ if(when==="running"&&symptom!=="hot"&&!causes.includes("Overload from excessive mechanical load or binding")) causes.unshift("A condition that develops during operation, such as heating, changing load, or a protection/control response");
+ if(when==="load") causes.unshift("A load-related condition, such as excessive driven load or supply voltage sag, should be evaluated");
+ if(type==="3phase") causes.push("For three-phase motors, phase loss or line-voltage imbalance is another possibility to evaluate using approved procedures.");
+ if(type==="single"&&(symptom==="hums"||symptom==="nostart")) causes.push("For applicable single-phase designs, the starting capacitor, switch, or start winding may require manufacturer-directed evaluation.");
+ let voltageNote="";
+ if(nameplateRaw&&Number.isFinite(nameplate)&&nameplate>0&&measuredRaw&&Number.isFinite(measured)&&measured>=0){const pct=(measured-nameplate)/nameplate*100;voltageNote="Entered voltage values: nameplate "+nameplateRaw+" V; measured "+measuredRaw+" V. Using the first numeric value parsed from each field, the measured value differs by "+(pct>0?"+":"")+pct.toFixed(1)+"%. If the nameplate field contains a range (for example 208-230), this simple comparison uses only its first number and may be misleading; compare actual voltage against the full nameplate range and correct test points.";}
+ else if(nameplateRaw||measuredRaw) voltageNote="One or both voltage entries could not be compared numerically. Record the complete nameplate voltage range and measured voltage at clearly identified test points; do not infer a fault from incomplete data.";
+ const hazard=/smoke|burn|odor|smell|arc|spark|shock|tingle|wet|water|damaged|overheat/i.test(details);
+ if(hazard) steps.unshift("Potential hazard language appears in your notes: stop use, keep clear, and follow site emergency and lockout/tagout procedures; do not continue troubleshooting to complete this guide.");
+ out.innerHTML='<article class="card"><h3>Motor diagnostic guide</h3><p><b>Equipment:</b> '+esc(types[type])+'</p><p><b>Symptom:</b> '+esc(symptoms[symptom])+'</p><p><b>Timing:</b> '+esc(document.getElementById("motorWhen").selectedOptions[0].text)+'</p>'+(voltageNote?'<div class="result"><b>Voltage entry review</b><p>'+esc(voltageNote)+'</p></div>':'')+'<p><b>Possible causes to evaluate</b></p><ol>'+causes.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol><p><b>Suggested diagnostic sequence</b></p><ol>'+steps.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol><p><b>Most useful next question:</b> '+esc(question)+'</p>'+(details?'<p><b>Additional details entered:</b><br>'+esc(details).replace(/\n/g,'<br>')+'</p>':'')+'<div class="notice">This is a free offline decision aid, not a definitive diagnosis. Never bypass overloads, interlocks, or protective devices. Energized testing and motor testing must be done only by qualified, authorized people using manufacturer procedures, appropriate PPE, rated instruments, and site safety requirements.</div><button class="btn secondary" type="button" id="copyMotorReport">Copy motor report</button></article>';
+ const copy=document.getElementById("copyMotorReport");
+ copy.addEventListener("click",()=>{const report=["Electrician's Toolbox — Motor Troubleshooting", "Motor type: "+types[type],"Symptom: "+symptoms[symptom],"Timing: "+document.getElementById("motorWhen").selectedOptions[0].text,"Nameplate voltage: "+(nameplateRaw||"not entered"),"Measured voltage: "+(measuredRaw||"not entered"),voltageNote,"Possible causes:",...causes.map(x=>"- "+x),"Suggested steps:",...steps.map((x,i)=>(i+1)+". "+x),"Next question: "+question,details?"Additional details: "+details:""].filter(Boolean).join("\n");if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(report).then(()=>copy.textContent="Report copied").catch(()=>window.prompt("Copy motor report:",report));}else window.prompt("Copy motor report:",report);});
+});
+
+// Basic offline voltage comparison helper. It compares user-entered values only and does not diagnose faults.
+document.getElementById("interpretReading").addEventListener("click",()=>{
+ const point=document.getElementById("readingPoint").value;
+ const expected=parseFloat(document.getElementById("readingExpected").value);
+ const measured=parseFloat(document.getElementById("readingMeasured").value);
+ const load=document.getElementById("readingLoad").selectedOptions[0].text;
+ const out=document.getElementById("readingResult");
+ const labels={ll:"line-to-line",ln:"line-to-neutral",lg:"line-to-ground",ng:"neutral-to-ground",dc:"DC positive-to-negative"};
+ const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ if(!Number.isFinite(expected)||expected<=0||!Number.isFinite(measured)||measured<0){out.innerHTML='<p class="notice">Enter a positive expected voltage and a measured voltage of zero or greater.</p>';return;}
+ const diff=measured-expected, pct=diff/expected*100, abs=Math.abs(pct);
+ let summary;
+ if(abs<=5) summary="The measured value is within 5% of the nominal value you entered. That comparison alone does not confirm correct operation or compliance.";
+ else if(pct<0) summary="The measured value is more than 5% below the nominal value you entered. Confirm the system and test points, meter setup, load condition, and equipment specifications before narrowing causes.";
+ else summary="The measured value is more than 5% above the nominal value you entered. Confirm the system and test points, meter setup, load condition, and equipment specifications before narrowing causes.";
+ let extra="";
+ if(point==="ng") extra="Neutral-to-ground voltage is context-dependent and this value alone cannot establish neutral integrity or safety.";
+ if(point==="lg") extra="Line-to-ground readings depend on system grounding and configuration; this reading alone does not establish a safe or correct supply.";
+ if(point==="ln"||point==="ll") extra="Compare with the confirmed system configuration and equipment nameplate; make sure the expected and measured values use the same pair of test points.";
+ if(point==="dc") extra="For DC equipment, confirm polarity, ripple/measurement method, and the manufacturer's specified operating range.";
+ if(load==="During startup / switching") extra+=(extra?" ":"")+"Because the reading was taken during startup or switching, note whether the change is brief or sustained and follow the equipment's approved diagnostic procedure.";
+ out.innerHTML='<div class="result"><b>Basic comparison</b><p>Test point: '+esc(labels[point])+'.</p><p>Difference: '+(diff>0?'+':'')+diff.toFixed(2)+' V ('+(pct>0?'+':'')+pct.toFixed(1)+'%).</p><p>'+esc(summary)+'</p><p>'+esc(extra)+'</p><p>Load condition: '+esc(load)+'.</p></div><div class="notice">Electrical measurements can be hazardous. Only qualified and authorized people should measure energized circuits using the required PPE, properly rated instruments, and site procedures. Stop if there is arcing, burning odor, shock/tingle, water, or damaged equipment. This tool does not determine a fault or prove safety.</div>';
+});
+document.getElementById("calculatePhaseBalance").addEventListener("click",()=>{
+ const vals=["phaseVab","phaseVbc","phaseVca"].map(id=>parseFloat(document.getElementById(id).value));
+ const out=document.getElementById("phaseBalanceResult");
+ if(vals.some(v=>!Number.isFinite(v)||v<=0)){out.innerHTML='<p class="notice">Enter all three positive line-to-line voltage readings.</p>';return;}
+ const avg=vals.reduce((a,b)=>a+b,0)/3;
+ const deviations=vals.map(v=>Math.abs(v-avg));
+ const maxDev=Math.max(...deviations);
+ const imbalance=maxDev/avg*100;
+ const fmt=v=>v.toFixed(2);
+ let interpretation=imbalance<1?"The calculated imbalance is under 1%. Confirm measurement accuracy and compare with the equipment manufacturer's requirements.":imbalance<3?"The calculated imbalance is between 1% and 3%. Review the equipment manufacturer's limit and investigate if the equipment shows symptoms.":"The calculated imbalance is 3% or greater. This may be significant for some equipment. Have a qualified person evaluate supply conditions and manufacturer guidance before continued operation if symptoms or limits warrant it.";
+ out.innerHTML='<div class="result"><b>Calculated results</b><p>Average line-to-line voltage: '+fmt(avg)+' V</p><p>Largest deviation from average: '+fmt(maxDev)+' V</p><p>Voltage imbalance: <b>'+fmt(imbalance)+'%</b></p><p>'+interpretation+'</p></div><div class="notice">This calculation uses maximum deviation from the average of the three line-to-line readings. Thresholds and acceptable operating conditions vary by equipment and standard; this result alone does not diagnose the cause or establish safety. Verify readings with suitable rated instruments and qualified procedures.</div>';
+});
+renderSavedTroubleReports();
+
+
+// Offline connected-load estimator. This does not perform code sizing.
+document.getElementById("calculateLoad").addEventListener("click",()=>{
+ const phase=Number(document.getElementById("loadPhase").value), voltage=Number(document.getElementById("loadVoltage").value), out=document.getElementById("loadCalcResult");
+ if(!Number.isFinite(voltage)||voltage<=0){out.innerHTML='<p class="notice">Enter a valid system voltage greater than zero.</p>';return;}
+ let totalVA=0, lines=[];
+ for(let i=1;i<=3;i++){
+  const raw=document.getElementById("loadVa"+i).value, qtyRaw=document.getElementById("loadQty"+i).value;
+  if(raw.trim()==="") continue;
+  const va=Number(raw), qty=Number(qtyRaw), name=document.getElementById("loadName"+i).value.trim()||("Load "+i);
+  if(!Number.isFinite(va)||va<0||!Number.isInteger(qty)||qty<0){out.innerHTML='<p class="notice">Enter VA as zero or greater and quantity as a whole number of zero or greater.</p>';return;}
+  const row=va*qty; totalVA+=row; if(row>0) lines.push(name+': '+row.toLocaleString(undefined,{maximumFractionDigits:2})+' VA');
+ }
+ if(totalVA<=0){out.innerHTML='<p class="notice">Enter at least one positive VA value and quantity.</p>';return;}
+ const amps=totalVA/(phase===3?Math.sqrt(3)*voltage:voltage), safe=x=>String(x).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+ out.innerHTML='<div class="result"><p><b>'+totalVA.toLocaleString(undefined,{maximumFractionDigits:2})+' VA</b></p><p>Total connected apparent load</p><p>Estimated current: <b>'+amps.toFixed(2)+' A</b></p><p>Formula: '+(phase===3?'VA ÷ (√3 × line-to-line voltage)':'VA ÷ voltage')+'</p><p>'+lines.map(safe).join('<br>')+'</p></div><div class="notice">Estimate only. All loads are assumed to share the selected voltage and phase. Demand factors, power factor conversions, continuous-load rules, motor rules, and code sizing requirements are not included.</div>';
+});
+
+</script>
+</body>
+</html>
