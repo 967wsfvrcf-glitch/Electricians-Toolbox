@@ -156,6 +156,14 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
    <p class="muted">Enter a verified combined factor from the applicable code tables when correction or adjustment is required. Leave at 100% only when no reduction applies.</p>
    <button class="btn" id="lookupAmp">Calculate ampacity reference</button><div id="ampResult" aria-live="polite"></div>
   </div>
+  <div class="card">
+   <h3>Correction & adjustment factor helper</h3>
+   <p class="muted">Enter the percentages you have verified from the applicable NEC edition and installation conditions. This helper combines factors; it does not select code-table values for you.</p>
+   <div class="row"><div><label for="ambientFactor">Ambient temperature factor (%)</label><input id="ambientFactor" type="number" min="1" max="150" step="any" value="100" placeholder="Verified factor"></div><div><label for="cccFactor">Current-carrying conductor adjustment (%)</label><input id="cccFactor" type="number" min="1" max="150" step="any" value="100" placeholder="Verified factor"></div></div>
+   <label for="otherFactor">Other applicable factor (%) — optional</label><input id="otherFactor" type="number" min="1" max="150" step="any" value="100" placeholder="100 if none applies">
+   <button class="btn secondary" id="combineAmpFactors">Combine factors and use above</button><div id="factorResult" aria-live="polite"></div>
+   <p class="muted">Combined factor = each verified factor multiplied together. Do not enter 100% unless that factor truly does not reduce ampacity. Check special rules, conductor bundling, raceway/cable conditions, and whether a factor is applicable before using this helper.</p>
+  </div>
   <div class="card"><h3>Important limits</h3><p>These are preliminary table values, not automatically the final allowable ampacity. Base conditions, correction/adjustment factors, terminal temperature ratings, overcurrent rules, installation conditions, and the locally adopted code matter. Verify the official table for the code edition adopted on your job.</p></div>
  </section>
 <section id="fill" class="hidden">
@@ -376,6 +384,14 @@ function renderNecTopics(){
 }
 document.getElementById("necSearch").addEventListener("input",renderNecTopics);
 renderNecTopics();
+document.getElementById("combineAmpFactors").addEventListener("click",()=>{
+ const ids=["ambientFactor","cccFactor","otherFactor"],vals=ids.map(id=>Number(document.getElementById(id).value)),box=document.getElementById("factorResult");
+ if(vals.some((v,i)=>!Number.isFinite(v)||v<=0||v>150||document.getElementById(ids[i]).value.trim()==="")){box.innerHTML='<div class="notice">Enter verified factors greater than 0% and no more than 150% in each field. Use 100% only when appropriate.</div>';return;}
+ const combined=vals.reduce((a,b)=>a*b/100,100);
+ if(!Number.isFinite(combined)||combined<=0||combined>100){box.innerHTML='<div class="notice">The combined factor is above 100%. Verify the inputs and applicable code rules before using it.</div>';return;}
+ document.getElementById("ampFactor").value=String(Math.round(combined*10000)/10000);
+ box.innerHTML='<div class="result"><b>Combined factor: '+(Math.round(combined*10000)/10000)+'%</b><p>This value has been copied into the ampacity reference factor field. Tap “Calculate ampacity reference” to see the preliminary result.</p><small>Factors were entered by you and were not verified by this app. Confirm each factor and the correct order/application against the adopted NEC edition and equipment instructions.</small></div>';
+});
 document.getElementById("lookupAmp").addEventListener("click",()=>{
  const material=document.getElementById("ampMaterial").value,size=document.getElementById("ampSize").value,box=document.getElementById("ampResult");
  // Preliminary 2023 NEC Table 310.16 reference values. 60/75/90 C ampacities in amperes.
