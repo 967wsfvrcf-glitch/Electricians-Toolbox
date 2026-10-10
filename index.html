@@ -206,6 +206,11 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
    <label for="readingLoad">Condition during measurement</label><select id="readingLoad"><option value="unknown">Unknown / not recorded</option><option value="idle">Load off or idle</option><option value="running">Load running</option><option value="start">During startup / switching</option></select>
    <button class="btn" id="interpretReading" type="button">Interpret reading</button><div id="readingResult" aria-live="polite"></div>
   </div>
+  <div class="card" id="phaseBalanceCard"><h3>Three-phase voltage imbalance</h3><p class="muted">Enter three line-to-line voltage readings taken at the same location and operating condition. This calculates the maximum deviation from the average; compare the result with the equipment manufacturer's limit and applicable guidance.</p>
+   <div class="row"><div><label for="phaseVab">L1–L2 (V)</label><input id="phaseVab" type="number" min="0" step="any" placeholder="e.g. 208"></div><div><label for="phaseVbc">L2–L3 (V)</label><input id="phaseVbc" type="number" min="0" step="any" placeholder="e.g. 205"></div></div>
+   <label for="phaseVca">L3–L1 (V)</label><input id="phaseVca" type="number" min="0" step="any" placeholder="e.g. 207">
+   <button class="btn" id="calculatePhaseBalance" type="button">Calculate voltage imbalance</button><div id="phaseBalanceResult" aria-live="polite"></div>
+  </div>
   <div class="card" id="savedTroubleCard"><h3>Saved diagnostic reports</h3><p class="muted">Reports are saved only on this device in this browser. They are not uploaded anywhere.</p><div id="savedTroubleList" aria-live="polite"></div><button class="btn secondary" id="clearTroubleHistory" type="button">Clear saved reports</button></div>
   <div class="notice"><b>Stop-work conditions:</b> If there is smoke, burning odor, arcing, water in electrical equipment, damaged conductors, or suspected shock/tingle voltage, keep clear and follow site emergency and lockout/tagout procedures. Do not open energized equipment or take live measurements unless qualified, authorized, and following the required electrical-safety procedures.</div>
  </section>
@@ -519,6 +524,18 @@ document.getElementById("interpretReading").addEventListener("click",()=>{
  if(point==="dc") extra="For DC equipment, confirm polarity, ripple/measurement method, and the manufacturer's specified operating range.";
  if(load==="During startup / switching") extra+=(extra?" ":"")+"Because the reading was taken during startup or switching, note whether the change is brief or sustained and follow the equipment's approved diagnostic procedure.";
  out.innerHTML='<div class="result"><b>Basic comparison</b><p>Test point: '+esc(labels[point])+'.</p><p>Difference: '+(diff>0?'+':'')+diff.toFixed(2)+' V ('+(pct>0?'+':'')+pct.toFixed(1)+'%).</p><p>'+esc(summary)+'</p><p>'+esc(extra)+'</p><p>Load condition: '+esc(load)+'.</p></div><div class="notice">Electrical measurements can be hazardous. Only qualified and authorized people should measure energized circuits using the required PPE, properly rated instruments, and site procedures. Stop if there is arcing, burning odor, shock/tingle, water, or damaged equipment. This tool does not determine a fault or prove safety.</div>';
+});
+document.getElementById("calculatePhaseBalance").addEventListener("click",()=>{
+ const vals=["phaseVab","phaseVbc","phaseVca"].map(id=>parseFloat(document.getElementById(id).value));
+ const out=document.getElementById("phaseBalanceResult");
+ if(vals.some(v=>!Number.isFinite(v)||v<=0)){out.innerHTML='<p class="notice">Enter all three positive line-to-line voltage readings.</p>';return;}
+ const avg=vals.reduce((a,b)=>a+b,0)/3;
+ const deviations=vals.map(v=>Math.abs(v-avg));
+ const maxDev=Math.max(...deviations);
+ const imbalance=maxDev/avg*100;
+ const fmt=v=>v.toFixed(2);
+ let interpretation=imbalance<1?"The calculated imbalance is under 1%. Confirm measurement accuracy and compare with the equipment manufacturer's requirements.":imbalance<3?"The calculated imbalance is between 1% and 3%. Review the equipment manufacturer's limit and investigate if the equipment shows symptoms.":"The calculated imbalance is 3% or greater. This may be significant for some equipment. Have a qualified person evaluate supply conditions and manufacturer guidance before continued operation if symptoms or limits warrant it.";
+ out.innerHTML='<div class="result"><b>Calculated results</b><p>Average line-to-line voltage: '+fmt(avg)+' V</p><p>Largest deviation from average: '+fmt(maxDev)+' V</p><p>Voltage imbalance: <b>'+fmt(imbalance)+'%</b></p><p>'+interpretation+'</p></div><div class="notice">This calculation uses maximum deviation from the average of the three line-to-line readings. Thresholds and acceptable operating conditions vary by equipment and standard; this result alone does not diagnose the cause or establish safety. Verify readings with suitable rated instruments and qualified procedures.</div>';
 });
 renderSavedTroubleReports();
 
