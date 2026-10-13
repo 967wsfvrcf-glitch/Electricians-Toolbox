@@ -23,8 +23,9 @@ main{max-width:900px;margin:0 auto;padding:18px 14px 28px}.view{display:none}.vi
 <header><div class="brand"><div class="mark">⚡</div><div><h1>Electrician's Toolbox</h1><p>Field Companion · Built for the jobsite</p></div><div class="status" id="onlineStatus">● Ready</div></div></header>
 <main>
 <section class="view active" id="homeView">
-  <div class="hero"><p class="eyebrow">Troubleshooting first</p><h2>Find the next useful check.</h2><p>Start with what the equipment is doing. Follow a structured path, record what you know, and keep your findings for the next shift.</p><button class="button primary wide" onclick="showView('diagnoseView')">＋ Start troubleshooting</button></div>
+  <div class="hero"><p class="eyebrow">Troubleshooting first</p><h2>Find the next useful check.</h2><p>Start with what the equipment is doing. Follow a structured path, record what you know, and keep your findings for the next shift.</p><button class="button primary wide" onclick="showView('diagnoseView')">＋ Start troubleshooting</button><button class="button secondary wide" style="margin-top:10px" onclick="showView('guidesView');showGuide('meter')">📟 Interpret a meter reading</button></div>
   <div class="grid">
+    <button class="tile" onclick="showView('guidesView');showGuide('meter')"><span class="ico">📟</span><strong>Meter reading interpreter</strong><span>Enter expected and measured values to understand your next check.</span></button>
     <button class="tile" onclick="showView('diagnoseView')"><span class="ico">🧭</span><strong>Diagnose a problem</strong><span>Guided questions and next checks.</span></button>
     <button class="tile" onclick="showView('guidesView')"><span class="ico">📘</span><strong>Field guides</strong><span>Wire sizing and conduit fill references.</span></button>
     <button class="tile" onclick="showView('recordsView')"><span class="ico">🗂️</span><strong>Saved findings</strong><span>Resume and review past sessions.</span></button>
