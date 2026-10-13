@@ -1,4 +1,4 @@
-const CACHE_NAME = 'et-field-companion-v3-meter';
+const CACHE_NAME = 'et-field-companion-v4-home-shortcuts';
 const APP_SHELL = ['./', './index.html', './field-app.webmanifest', './field-icon.svg'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
