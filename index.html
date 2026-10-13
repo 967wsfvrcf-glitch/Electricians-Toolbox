@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#10151d">
-<meta name="description" content="Electrician's Toolbox — field calculations and references">
-<title>Electrician's Toolbox</title>
+<meta name="description" content="Electrician's Toolbox — Diagnostic Assistant 2.0 test build">
+<title>Electrician's Toolbox — Diagnostic Assistant 2.0 Test</title>
 <style>
 :root{color-scheme:dark;--bg:#0b1017;--panel:#141d28;--panel2:#1a2634;--line:#2b3a4b;--text:#f3f6fa;--muted:#a8b6c6;--accent:#ffbd59;--good:#69d6a5;--warn:#ffd080}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -192,6 +192,33 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
  <section id="trouble" class="hidden">
   <button class="back" data-home>← Home</button><div class="eyebrow">Guided field diagnosis · Offline</div><h2>Troubleshooting Guide</h2>
   <p class="intro">Describe the symptom and use the guided questions to narrow common causes. This is a built-in decision guide, not a live AI service, and it does not replace qualified diagnosis.</p>
+
+  <div class="card" id="guidedDiagnosticAssistant">
+   <div class="section-title"><h3>Diagnostic Assistant 2.0</h3><span class="muted">Guided · Offline</span></div>
+   <p class="muted">Answer one question at a time. The assistant organizes observations and suggests safe next checks; it does not confirm a fault.</p>
+   <div id="diagProgress" class="muted" aria-live="polite">Step 1</div>
+   <div id="diagQuestionArea" aria-live="polite">
+    <label for="diagCategory">What problem are you investigating?</label>
+    <select id="diagCategory">
+     <option value="">Choose a problem…</option>
+     <option value="breaker">Breaker or protective device trips</option>
+     <option value="dead">Circuit or equipment has no power</option>
+     <option value="voltage">Unexpected voltage reading</option>
+     <option value="motor">Motor or equipment won't start</option>
+     <option value="gfci">GFCI/AFCI trips or won't reset</option>
+     <option value="lights">Lighting flickers, dims, or fails</option>
+     <option value="transformer">Transformer or control-power problem</option>
+     <option value="emergency">Emergency lighting / battery backup problem</option>
+    </select>
+   </div>
+   <div class="row">
+    <button class="btn secondary" id="diagBack" type="button" disabled>Back</button>
+    <button class="btn" id="diagNext" type="button">Start diagnosis</button>
+   </div>
+   <div id="diagReport" aria-live="polite"></div>
+   <p class="muted">Safety first: stop and escalate for smoke, burning odor, arcing, water in equipment, shock/tingle voltage, damaged equipment, or other immediate hazards. Do not bypass protective devices. Energized testing is only for qualified, authorized personnel following site procedures.</p>
+  </div>
+
   <div class="card">
    <label for="troubleType">What problem are you seeing?</label>
    <select id="troubleType"><option value="breaker">Breaker trips</option><option value="dead">Circuit or receptacle has no power</option><option value="voltage">Voltage reading is unexpected</option><option value="motor">Motor or equipment won't start</option><option value="gfci">GFCI trips or won't reset</option><option value="lights">Lights flicker or dim</option></select>
@@ -644,6 +671,196 @@ document.getElementById("calculateLoad").addEventListener("click",()=>{
  const amps=totalVA/(phase===3?Math.sqrt(3)*voltage:voltage), safe=x=>String(x).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
  out.innerHTML='<div class="result"><p><b>'+totalVA.toLocaleString(undefined,{maximumFractionDigits:2})+' VA</b></p><p>Total connected apparent load</p><p>Estimated current: <b>'+amps.toFixed(2)+' A</b></p><p>Formula: '+(phase===3?'VA ÷ (√3 × line-to-line voltage)':'VA ÷ voltage')+'</p><p>'+lines.map(safe).join('<br>')+'</p></div><div class="notice">Estimate only. All loads are assumed to share the selected voltage and phase. Demand factors, power factor conversions, continuous-load rules, motor rules, and code sizing requirements are not included.</div>';
 });
+
+
+// Diagnostic Assistant 2.0 — local, guided decision support; no network or AI service required.
+(function(){
+ const categoryEl=document.getElementById("diagCategory");
+ const questionArea=document.getElementById("diagQuestionArea");
+ const progressEl=document.getElementById("diagProgress");
+ const backBtn=document.getElementById("diagBack");
+ const nextBtn=document.getElementById("diagNext");
+ const reportEl=document.getElementById("diagReport");
+ if(!categoryEl||!questionArea||!progressEl||!backBtn||!nextBtn||!reportEl)return;
+
+ const categoryNames={
+  breaker:"Breaker or protective device trips",
+  dead:"Circuit or equipment has no power",
+  voltage:"Unexpected voltage reading",
+  motor:"Motor or equipment won't start",
+  gfci:"GFCI/AFCI trips or won't reset",
+  lights:"Lighting flickers, dims, or fails",
+  transformer:"Transformer or control-power problem",
+  emergency:"Emergency lighting / battery backup problem"
+ };
+ const option=(value,label)=>({value,label});
+ const commonWhen=[
+  option("always","Every time / will not operate"),
+  option("startup","At startup or when switching"),
+  option("load","Only when a load turns on"),
+  option("intermittent","Intermittently"),
+  option("recent","Started after recent work or a change")
+ ];
+ const flows={
+  breaker:[
+   {key:"device",label:"Which device operates or trips?",type:"select",options:[option("breaker","Branch breaker"),option("gfci-afci","GFCI/AFCI breaker"),option("overload","Motor overload relay"),option("drive","VFD / electronic drive"),option("unknown","Not sure")]},
+   {key:"timing",label:"When does it happen?",type:"select",options:commonWhen},
+   {key:"scope",label:"What is affected?",type:"select",options:[option("one","One load or device"),option("several","Several loads on one circuit"),option("multiple","Multiple circuits / wider area"),option("unknown","Not determined")]},
+   {key:"recent",label:"Was work or equipment changed just before this began?",type:"select",options:[option("yes","Yes"),option("no","No"),option("unknown","Not sure")]},
+   {key:"details",label:"Record the circuit, device rating, load, trip timing, and any indication (optional).",type:"text",placeholder:"Example: panel/circuit ID, load, trip time, fault code"}
+  ],
+  dead:[
+   {key:"scope",label:"How much is without power?",type:"select",options:[option("one","One receptacle / device"),option("room","A room or group of devices"),option("circuit","Entire known circuit"),option("equipment","One machine or fixture"),option("unknown","Not sure")]},
+   {key:"protection",label:"Have the applicable protective devices or controls been identified?",type:"select",options:[option("yes","Yes, status recorded"),option("no","Not yet"),option("unknown","Not sure")]},
+   {key:"recent",label:"Did this start after maintenance, installation, or a change?",type:"select",options:[option("yes","Yes"),option("no","No"),option("unknown","Not sure")]},
+   {key:"details",label:"Record what is dead, labels, status lights, and observations (optional).",type:"text",placeholder:"Avoid guessing; note exact device/circuit IDs"}
+  ],
+  voltage:[
+   {key:"system",label:"What system is involved?",type:"select",options:[option("120","120 V single-phase"),option("208","208 V system"),option("240","240 V single-phase"),option("277","277 V system"),option("480","480 V three-phase"),option("dc","DC system"),option("unknown","Unknown / other")]},
+   {key:"points",label:"What exact test points were recorded?",type:"select",options:[option("ll","Line-to-line (L-L)"),option("ln","Line-to-neutral (L-N)"),option("lg","Line-to-ground (L-G)"),option("ng","Neutral-to-ground (N-G)"),option("dc","DC positive-to-negative"),option("unknown","Not recorded / other")]},
+   {key:"condition",label:"Under what condition was the reading taken?",type:"select",options:[option("idle","Load off / idle"),option("running","Load running"),option("startup","During startup / switching"),option("unknown","Unknown")]},
+   {key:"readings",label:"Enter expected and measured voltage, with location (optional).",type:"text",placeholder:"Example: expected 208 V; measured 196 V L1-L2 at equipment"}
+  ],
+  motor:[
+   {key:"motorType",label:"What equipment type is it?",type:"select",options:[option("3phase","Three-phase AC motor"),option("single","Single-phase AC motor"),option("vfd","Motor with VFD / drive"),option("other","Other / unknown")]},
+   {key:"symptom",label:"What happens when a start is requested?",type:"select",options:[option("nothing","Nothing happens"),option("hum","Hums / buzzes but does not start"),option("trip","Breaker / overload / drive trips"),option("slow","Starts slowly or lacks torque"),option("stop","Starts then stops"),option("noise","Unusual noise or vibration")]},
+   {key:"fault",label:"Is there a displayed fault code or protection indication?",type:"select",options:[option("yes","Yes — record exact code"),option("no","No indication seen"),option("unknown","Not checked")]},
+   {key:"details",label:"Record nameplate voltage/phase, model, fault code, and timing (optional).",type:"text",placeholder:"Use exact nameplate values and exact fault code"}
+  ],
+  gfci:[
+   {key:"device",label:"Which protective device is involved?",type:"select",options:[option("receptacle","GFCI receptacle"),option("breaker","GFCI/AFCI breaker"),option("unknown","Unknown")]},
+   {key:"scope",label:"What happens?",type:"select",options:[option("trip","Trips when a load is connected or started"),option("reset","Will not reset"),option("dead","Downstream outlets are dead"),option("intermittent","Trips intermittently"),option("unknown","Other / not sure")]},
+   {key:"conditions",label:"Are moisture, damage, or recent work involved?",type:"select",options:[option("yes","Yes or suspected"),option("no","No known issue"),option("unknown","Not sure")]},
+   {key:"details",label:"Record device labels, affected outlets, load, and conditions (optional).",type:"text",placeholder:"Do not bypass the protective device"}
+  ],
+  lights:[
+   {key:"scope",label:"What is the extent of the lighting problem?",type:"select",options:[option("one","One lamp or fixture"),option("group","A group of fixtures"),option("whole","Multiple areas / circuits"),option("emergency","Emergency lighting only"),option("unknown","Not sure")]},
+   {key:"timing",label:"When does it happen?",type:"select",options:commonWhen},
+   {key:"type",label:"What kind of lighting is involved?",type:"select",options:[option("led","LED fixture / driver"),option("fluorescent","Fluorescent / ballast"),option("emergency","Emergency fixture / inverter / battery"),option("other","Other / unknown")]},
+   {key:"details",label:"Record fixture/model, indicator status, circuit, and recent changes (optional).",type:"text",placeholder:"Include emergency indicator or fault-code details if present"}
+  ],
+  transformer:[
+   {key:"symptom",label:"What is the main symptom?",type:"select",options:[option("no-output","No or low secondary output"),option("overheat","Overheating, noise, or odor"),option("protection","Fuse / breaker / protection operates"),option("control","Control circuit has no power"),option("unknown","Other / not sure")]},
+   {key:"type",label:"What transformer or control supply is involved?",type:"select",options:[option("control","Control transformer / control power"),option("distribution","Power / distribution transformer"),option("electronic","Electronic power supply"),option("unknown","Unknown")]},
+   {key:"details",label:"Record nameplate, primary/secondary ratings, load, and indications (optional).",type:"text",placeholder:"Do not infer winding or connection details"}
+  ],
+  emergency:[
+   {key:"symptom",label:"What is the emergency-lighting symptom?",type:"select",options:[option("not-on","Fixture does not illuminate on test"),option("battery","Battery indicator / charging fault"),option("inverter","Emergency inverter / driver fault"),option("normal","Normal lighting works, emergency mode does not"),option("unknown","Other / not sure")]},
+   {key:"recent",label:"Was there a recent outage, maintenance, or battery replacement?",type:"select",options:[option("yes","Yes"),option("no","No"),option("unknown","Not sure")]},
+   {key:"details",label:"Record fixture model, indicator lights, test-switch behavior, and fault code (optional).",type:"text",placeholder:"Use exact indicator wording and model number"}
+  ]
+ };
+ let activeFlow=[], answers={}, index=-1, chosenCategory="";
+ function escapeHtml(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+ function renderCategory(){
+  progressEl.textContent="Step 1 · Problem";
+  questionArea.innerHTML='<label for="diagCategory">What problem are you investigating?</label><select id="diagCategory"><option value="">Choose a problem…</option>'+Object.keys(categoryNames).map(k=>'<option value="'+k+'" '+(chosenCategory===k?'selected':'')+'>'+escapeHtml(categoryNames[k])+'</option>').join("")+'</select>';
+  categoryEl.value=chosenCategory;
+  const fresh=document.getElementById("diagCategory");
+  fresh.addEventListener("change",()=>{chosenCategory=fresh.value;});
+  backBtn.disabled=true;nextBtn.textContent="Start diagnosis";reportEl.innerHTML="";
+ }
+ function renderQuestion(){
+  const q=activeFlow[index];
+  if(!q){renderReport();return;}
+  progressEl.textContent="Question "+(index+1)+" of "+activeFlow.length+" · "+escapeHtml(categoryNames[chosenCategory]);
+  let field="";
+  if(q.type==="select"){
+   field='<select id="diagAnswer"><option value="">Choose an answer…</option>'+q.options.map(o=>'<option value="'+escapeHtml(o.value)+'" '+(answers[q.key]===o.value?'selected':'')+'>'+escapeHtml(o.label)+'</option>').join("")+'</select>';
+  }else{
+   field='<textarea id="diagAnswer" rows="3" placeholder="'+escapeHtml(q.placeholder||"Enter notes")+'">'+escapeHtml(answers[q.key]||"")+'</textarea>';
+  }
+  questionArea.innerHTML='<label for="diagAnswer">'+escapeHtml(q.label)+'</label>'+field;
+  backBtn.disabled=index===0;nextBtn.textContent=index===activeFlow.length-1?"Build report":"Next question";reportEl.innerHTML="";
+ }
+ function start(){
+  chosenCategory=document.getElementById("diagCategory").value||chosenCategory;
+  if(!chosenCategory||!flows[chosenCategory]){reportEl.innerHTML='<div class="notice">Choose a problem type to begin.</div>';return;}
+  activeFlow=flows[chosenCategory];answers={};index=0;renderQuestion();
+ }
+ function buildReportText(causes,steps,question){
+  const lines=["Electrician's Toolbox — Diagnostic Assistant 2.0","Problem: "+categoryNames[chosenCategory]];
+  activeFlow.forEach(q=>{const v=answers[q.key];if(v){const opt=q.options&&q.options.find(o=>o.value===v);lines.push(q.label+" "+(opt?opt.label:v));}});
+  lines.push("Possible areas to investigate:",...causes.map((x,i)=>(i+1)+". "+x),"Suggested next checks:",...steps.map((x,i)=>(i+1)+". "+x),"Most useful next question: "+question,"Safety: Follow site procedures, lockout/tagout, manufacturer instructions, and applicable requirements. This report does not confirm a fault or prove equipment safe.");
+  return lines.join("\n");
+ }
+ function renderReport(){
+  const cat=chosenCategory;
+  let causes=[],steps=[],question="What changed immediately before the problem began, and what exact equipment/model is involved?";
+  const a=answers;
+  if(cat==="breaker"){
+   causes=["Load or equipment fault, overload, or abnormal starting current","Wiring, insulation, moisture, or connection problem","Protection-device, setting, or equipment issue requiring verification"];
+   steps=["Do not repeatedly reset the device or increase its rating.","Record which device operates, when it happens, the affected load(s), and any fault indication.","Have a qualified person follow approved procedures to inspect the circuit/equipment and compare the load and protection with the design and manufacturer instructions."];
+   question=a.device==="overload"||a.device==="drive"?"What exact overload/drive code, elapsed time, and operating condition are recorded?":"Does the device trip with a particular load, and what does the equipment documentation say to check next?";
+  }else if(cat==="dead"){
+   causes=["An upstream protective device, disconnect, control, or feed may be involved","A device, connection, or equipment fault may affect one point","Recent work or a control/interlock condition may explain the change"];
+   steps=["Confirm the scope and identify affected circuit/equipment labels.","Check documented status and controls only where safe and authorized; do not remove covers on energized equipment.","Have a qualified person trace the supply using approved de-energized or otherwise authorized procedures."];
+   question="Is the loss of power limited to one point or does it affect every load supplied by the same circuit/feed?";
+  }else if(cat==="voltage"){
+   causes=["The expected value may not match the system configuration or test points","A supply, neutral, grounding, connection, or load condition may affect the reading","Meter setup, rating, or measurement conditions may affect interpretation"];
+   steps=["Record nominal system configuration, exact two test points, measured value, location, and load condition.","Do not interpret a single reading without the system diagram and measurement context.","Have a qualified person verify the result with a properly rated instrument and required safety procedures; do not assume a conductor is safe because a reading is low or zero."];
+   question="What are the exact two test points and nominal system arrangement, and was the reading taken with the load idle or running?";
+  }else if(cat==="motor"){
+   causes=["Supply voltage, phase, control, or starter/drive condition","Overload, motor protection, or manufacturer fault indication","Mechanical load or internal motor condition"];
+   steps=["Stop repeated start attempts if the motor hums, stalls, overheats, or protection operates.","Record the nameplate, wiring diagram, starter/drive model, and exact fault code before resetting.","Have a qualified person follow manufacturer procedures to assess supply, controls, protection, and mechanical condition."];
+   question="What exact fault code or protection indicator appears, and what are the motor's nameplate voltage, phase, and full-load current?";
+  }else if(cat==="gfci"){
+   causes=["Leakage current or a fault in connected equipment","Moisture, damaged wiring, or downstream equipment issue","Protective device condition or an installation issue"];
+   steps=["Do not bypass or defeat GFCI/AFCI protection.","Disconnect loads only when safe and permitted; note which load or condition correlates with the trip.","If moisture, damage, heat, or repeated unexplained trips are present, keep the circuit out of service and escalate under site procedures."];
+   question="Does it trip with a specific connected load, or will the device not reset even when downstream loads are safely disconnected?";
+  }else if(cat==="lights"){
+   causes=["Lamp, LED driver, ballast, or fixture issue","Control, dimmer, sensor, or emergency-power system issue","Supply or connection issue, especially if multiple areas are affected"];
+   steps=["Determine whether one fixture, a group, or multiple circuits are affected.","Record fixture/driver model, dimmer or control type, status indicators, and whether normal or emergency mode is involved.","If there is widespread flicker, burning odor, heat, or arcing, stop use and escalate; otherwise follow manufacturer-approved checks."];
+   question="Is the symptom isolated to one fixture or does it affect multiple fixtures/circuits, and does it occur in normal mode or emergency mode?";
+  }else if(cat==="transformer"){
+   causes=["Primary supply or upstream protection issue","Secondary load, connection, configuration, or control-circuit issue","Transformer or power-supply fault"];
+   steps=["Record the nameplate, wiring diagram, primary/secondary ratings, load, and protective-device status.","Stop and escalate for overheating, smoke, unusual odor, or abnormal noise.","Have a qualified person verify configuration and carry out manufacturer-directed checks with required electrical-safety procedures."];
+   question="What are the exact nameplate primary/secondary ratings and what symptom or protection indication is present?";
+  }else{
+   causes=["Battery condition, charging supply, or test procedure issue","Fixture, emergency driver/inverter, or indicator/fault-code issue","Incorrect configuration or manufacturer-specific test requirement"];
+   steps=["Record fixture model, indicator status, last test/maintenance date, and exact fault wording.","Do not assume normal lighting operation proves the emergency function works.","Follow the fixture/inverter manufacturer's test and maintenance instructions; arrange required inspection or repair if emergency operation fails."];
+   question="What exact model and indicator/fault wording are shown, and what happens when the manufacturer's test procedure is followed?";
+  }
+  const allText=activeFlow.map(q=>String(a[q.key]||"")).join(" ").toLowerCase();
+  if(/smoke|burning|burnt|arc|arcing|shock|tingle|wet inside|water in|exposed live|severe heat/.test(allText)){
+   steps.unshift("STOP: The recorded notes suggest a possible immediate hazard. Keep clear, prevent access as appropriate, and follow site emergency and lockout/tagout procedures. Do not continue this diagnostic workflow.");
+  }
+  const report=buildReportText(causes,steps,question);
+  const safeReport=escapeHtml(report);
+  reportEl.innerHTML='<article class="card"><h3>Diagnostic report</h3><p><b>Problem:</b> '+escapeHtml(categoryNames[cat])+'</p><p><b>Assessment:</b> Possible areas to investigate — not a confirmed diagnosis.</p><h3>Possible areas to investigate</h3><ol>'+causes.map(x=>'<li>'+escapeHtml(x)+'</li>').join("")+'</ol><h3>Suggested next checks</h3><ol>'+steps.map(x=>'<li>'+escapeHtml(x)+'</li>').join("")+'</ol><div class="result"><b>Most useful next question</b><p>'+escapeHtml(question)+'</p></div><button class="btn" id="diagCopy" type="button">Copy report</button><button class="btn secondary" id="diagSave" type="button">Save report on this device</button><button class="btn secondary" id="diagRestart" type="button">Start another diagnosis</button><p class="muted">This report does not establish code compliance or prove equipment safe. Use qualified personnel, appropriate instruments/PPE, lockout/tagout, manufacturer instructions, and site procedures.</p></article>';
+  document.getElementById("diagCopy").addEventListener("click",async()=>{
+   try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(report);document.getElementById("diagCopy").textContent="Report copied";}else{window.prompt("Copy diagnostic report:",report);}}catch(e){window.prompt("Copy diagnostic report:",report);}
+  });
+  document.getElementById("diagSave").addEventListener("click",()=>{
+   try{
+    const key="electricianToolboxDiagnosticAssistantReports";
+    const list=JSON.parse(localStorage.getItem(key)||"[]");
+    list.unshift({date:new Date().toLocaleString(),category:categoryNames[cat],report});
+    localStorage.setItem(key,JSON.stringify(list.slice(0,30)));
+    document.getElementById("diagSave").textContent="Saved on this device";
+   }catch(e){document.getElementById("diagSave").textContent="Could not save — storage unavailable";}
+  });
+  document.getElementById("diagRestart").addEventListener("click",()=>{chosenCategory="";activeFlow=[];answers={};index=-1;renderCategory();});
+  questionArea.innerHTML='<p class="muted">All questions answered. Review your report below, copy it, or save it on this device.</p>';
+  progressEl.textContent="Report ready · "+categoryNames[cat];
+  backBtn.disabled=true;nextBtn.disabled=true;nextBtn.textContent="Report complete";
+ }
+ backBtn.addEventListener("click",()=>{
+  if(index>0){const q=activeFlow[index];const field=document.getElementById("diagAnswer");if(field)answers[q.key]=field.value;index--;renderQuestion();}
+  else renderCategory();
+ });
+ nextBtn.addEventListener("click",()=>{
+  if(index<0){start();return;}
+  const q=activeFlow[index],field=document.getElementById("diagAnswer");
+  if(field){
+   const value=field.value.trim();
+   if(q.type==="select"&&!value){reportEl.innerHTML='<div class="notice">Choose an answer to continue.</div>';return;}
+   answers[q.key]=value;
+  }
+  if(index<activeFlow.length-1){index++;renderQuestion();}else renderReport();
+ });
+ renderCategory();
+})();
 
 </script>
 </body>
