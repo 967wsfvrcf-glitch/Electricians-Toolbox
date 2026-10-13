@@ -49,13 +49,11 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
   <div class="eyebrow">Field toolkit</div><h2>What do you need to work out?</h2>
   <p class="intro">Fast, practical tools for the electrical jobsite. More modules will be added and verified in stages.</p>
   <div class="grid">
-   <button class="tile" data-page="breakerhelper"><span class="ico">🛡️</span><strong>NEW: Breaker & Conductor Helper</strong><span>Guided preliminary sizing checks</span></button>
    <button class="tile" data-page="conduit"><span class="ico">〰️</span><strong>Conduit Bending</strong><span>Offsets, stubs, kicks & saddles</span></button>
    <button class="tile" data-page="ohms"><span class="ico">⚡</span><strong>Ohm's Law</strong><span>Voltage, current, resistance & power</span></button>
    <button class="tile" data-page="voltage"><span class="ico">📉</span><strong>Voltage Drop</strong><span>Single- and three-phase estimate</span></button>
    <button class="tile" data-page="loadcalc"><span class="ico">📊</span><strong>Electrical Load</strong><span>Total connected VA and estimated current</span></button>
    <button class="tile" data-page="transformer"><span class="ico">🔄</span><strong>Transformer Current</strong><span>Estimate primary and secondary current from kVA</span></button>
-   <button class="tile" data-page="ampacity"><span class="ico">🔌</span><strong>Wire Ampacity</strong><span>Preliminary conductor reference</span></button>
    <button class="tile" data-page="fill"><span class="ico">🧰</span><strong>Conduit Fill</strong><span>Raceway and conductor planning</span></button>
    <button class="tile" data-page="boxfill"><span class="ico">📦</span><strong>Box Fill</strong><span>Calculate box volume allowances</span></button>
    <button class="tile" data-page="code"><span class="ico">📘</span><strong>NEC Reference</strong><span>2026 edition planning & code topics</span></button>
@@ -147,28 +145,7 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
    <p class="muted">Model assumptions: simplified K-method using one-way length and a circuit factor of 2 for single-phase/DC two-wire circuits or √3 for three-phase. Actual AC impedance, conductor temperature, terminals, load characteristics, and applicable code requirements can change the result. Verify with approved tables and project conditions.</p>
   </div>
  </section>
- <section id="ampacity" class="hidden">
-  <button class="back" data-home>← Home</button><div class="eyebrow">Electrical reference</div><h2>Wire Ampacity Reference</h2>
-  <p class="intro">Preliminary lookup of common conductor ampacity values. This starter reference uses 2023 NEC Table 310.16 values and has not been validated against the 2026 NEC.</p>
-  <div class="card">
-   <label for="ampMaterial">Conductor material</label><select id="ampMaterial"><option value="cu">Copper</option><option value="al">Aluminum / copper-clad aluminum</option></select>
-   <label for="ampSize">Conductor size</label><select id="ampSize"><option value="14">14 AWG</option><option value="12" selected>12 AWG</option><option value="10">10 AWG</option><option value="8">8 AWG</option><option value="6">6 AWG</option><option value="4">4 AWG</option><option value="3">3 AWG</option><option value="2">2 AWG</option><option value="1">1 AWG</option><option value="0">1/0 AWG</option><option value="-1">2/0 AWG</option><option value="-2">3/0 AWG</option><option value="-3">4/0 AWG</option><option value="250">250 kcmil</option><option value="300">300 kcmil</option><option value="350">350 kcmil</option><option value="500">500 kcmil</option></select>
-   <label for="ampInsulation">Conductor insulation temperature rating</label><select id="ampInsulation"><option value="0">60°C</option><option value="1" selected>75°C</option><option value="2">90°C</option></select>
-   <label for="ampTerminal">Equipment terminal temperature rating</label><select id="ampTerminal"><option value="0">60°C</option><option value="1" selected>75°C</option><option value="2">90°C</option></select>
-   <label for="ampFactor">Combined correction / adjustment factor (%)</label><input id="ampFactor" type="number" min="1" max="100" step="any" value="100" placeholder="Use verified factor, e.g. 80">
-   <p class="muted">Enter a verified combined factor from the applicable code tables when correction or adjustment is required. Leave at 100% only when no reduction applies.</p>
-   <button class="btn" id="lookupAmp">Calculate ampacity reference</button><div id="ampResult" aria-live="polite"></div>
-  </div>
-  <div class="card">
-   <h3>Correction & adjustment factor helper</h3>
-   <p class="muted">Enter the percentages you have verified from the applicable NEC edition and installation conditions. This helper combines factors; it does not select code-table values for you.</p>
-   <div class="row"><div><label for="ambientFactor">Ambient temperature factor (%)</label><input id="ambientFactor" type="number" min="1" max="150" step="any" value="100" placeholder="Verified factor"></div><div><label for="cccFactor">Current-carrying conductor adjustment (%)</label><input id="cccFactor" type="number" min="1" max="150" step="any" value="100" placeholder="Verified factor"></div></div>
-   <label for="otherFactor">Other applicable factor (%) — optional</label><input id="otherFactor" type="number" min="1" max="150" step="any" value="100" placeholder="100 if none applies">
-   <button class="btn secondary" id="combineAmpFactors">Combine factors and use above</button><div id="factorResult" aria-live="polite"></div>
-   <p class="muted">Combined factor = each verified factor multiplied together. Do not enter 100% unless that factor truly does not reduce ampacity. Check special rules, conductor bundling, raceway/cable conditions, and whether a factor is applicable before using this helper.</p>
-  </div>
-  <div class="card"><h3>Important limits</h3><p>These are preliminary table values, not automatically the final allowable ampacity. Base conditions, correction/adjustment factors, terminal temperature ratings, overcurrent rules, installation conditions, and the locally adopted code matter. Verify the official table for the code edition adopted on your job.</p></div>
- </section>
+ 
 <section id="fill" class="hidden">
   <button class="back" data-home>← Home</button><div class="eyebrow">Raceway planning</div><h2>Conduit Fill</h2><p class="intro">Choose a common raceway and insulated conductor to fill the area fields automatically, or enter verified areas manually.</p>
   <div class="card">
@@ -268,19 +245,7 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
   </div>
   <div class="notice"><b>Important:</b> This is a connected-load estimate only. It does not apply NEC demand factors, continuous-load rules, motor calculations, noncoincident loads, feeder/service requirements, or phase balancing. Do not use it alone to size conductors, breakers, feeders, or services. Verify nameplates and the adopted code.</div>
  </section>
- <section id="breakerhelper" class="hidden">
-  <button class="back" data-home>← Home</button><div class="eyebrow">Guided sizing aid · Offline</div><h2>Breaker & Conductor Helper</h2>
-  <p class="intro">Organize the key inputs for a preliminary conductor and overcurrent-protection review. This tool does not select a code-compliant breaker or wire size by itself.</p>
-  <div class="card">
-   <label for="bhLoad">Calculated load current (A)</label><input id="bhLoad" type="number" min="0.01" step="any" placeholder="e.g. 16">
-   <label for="bhKind">Load type</label><select id="bhKind"><option value="general">General load</option><option value="continuous">Continuous load (expected maximum current for 3 hours or more)</option><option value="motor">Motor circuit</option><option value="hvac">Air-conditioning / refrigeration equipment</option><option value="welder">Welder or other special load</option></select>
-   <div class="row"><div><label for="bhBase">Base conductor ampacity (A)</label><input id="bhBase" type="number" min="0.1" step="any" placeholder="From verified applicable table"></div><div><label for="bhCorrection">Combined correction/adjustment (%)</label><input id="bhCorrection" type="number" min="0.1" max="100" step="any" value="100"></div></div>
-   <div class="row"><div><label for="bhTerminal">Applicable terminal ampacity limit (A)</label><input id="bhTerminal" type="number" min="0.1" step="any" placeholder="Use verified terminal limit"></div><div><label for="bhOcpd">Proposed breaker/fuse rating (A)</label><input id="bhOcpd" type="number" min="0.1" step="any" placeholder="Optional"></div></div>
-   <label for="bhNotes">Conductor, installation, and equipment notes (optional)</label><textarea id="bhNotes" rows="3" placeholder="e.g. copper THHN, 75°C terminals, 4 current-carrying conductors, 35°C ambient"></textarea>
-   <button class="btn" id="bhCalculate" type="button" onclick="(function(){var g=function(id){var e=document.getElementById(id);if(!e)return null;var v=String(e.value||'').trim().replace(/\s/g,'').replace(',','.');if(!v)return null;var n=Number(v);return Number.isFinite(n)?n:null;};var load=g('bhLoad'),base=g('bhBase'),factor=g('bhCorrection'),kind=document.getElementById('bhKind').value,out=document.getElementById('bhResult');if(!out)return;if(load===null||load<=0){out.innerHTML='<div class=&quot;notice&quot;>Enter a load current greater than zero, such as 16 A.</div>';return;}if(base===null||base<=0){out.innerHTML='<div class=&quot;notice&quot;>Enter a verified base conductor ampacity greater than zero.</div>';return;}if(factor===null||factor<=0||factor>100){out.innerHTML='<div class=&quot;notice&quot;>Enter a combined correction/adjustment factor above 0% and no greater than 100%.</div>';return;}var required=load*(kind==='continuous'?1.25:1),adjusted=base*factor/100,fmt=function(n){return n.toLocaleString(undefined,{maximumFractionDigits:2});};out.innerHTML='<div class=&quot;result&quot;><h3>Preliminary review</h3><p>Entered load current: <b>'+fmt(load)+' A</b></p><p>Preliminary current comparison: <b>'+fmt(required)+' A</b></p><p>Adjusted conductor ampacity from your inputs: <b>'+fmt(adjusted)+' A</b></p><p>'+(adjusted<required?'<b>Flag:</b> Entered ampacity is below the preliminary comparison.':'The entered values meet this limited numerical comparison; this does not establish code compliance.')+'</p><p>This is a preliminary aid only. Verify the adopted code, installation conditions, terminal ratings, equipment instructions, and applicable exceptions with a qualified person.</p></div>';})()">Review inputs</button><div id="bhResult" aria-live="polite"></div>
-  </div>
-  <div class="notice"><b>Important:</b> Enter ampacity and factors only after verifying the adopted NEC edition, conductor type, insulation rating, terminal ratings, ambient temperature, number of current-carrying conductors, and installation conditions. Motor, HVAC, welding, and other special loads use additional rules. This helper does not determine a permitted overcurrent-device size, conductor size, or code compliance.</div>
- </section>
+ 
  <section id="transformer" class="hidden">
   <button class="back" data-home>← Home</button><div class="eyebrow">Power calculations · Offline</div><h2>Transformer Current Calculator</h2>
   <p class="intro">Estimate full-load primary and secondary current from transformer kVA and voltage. Select the phase arrangement that matches the calculation.</p>
@@ -306,32 +271,11 @@ ul{padding-left:20px}.section-title{display:flex;justify-content:space-between;a
  <button data-nav="code"><span>▤</span>NEC & refs</button>
 </nav>
 <script>
-const pages=["home","conduit","ohms","voltage","transformer","loadcalc","breakerhelper","ampacity","fill","boxfill","code","trouble","quick","about"];
-function showPage(id){pages.forEach(p=>document.getElementById(p).classList.toggle("hidden",p!==id));document.querySelectorAll("[data-nav]").forEach(b=>b.classList.toggle("active",b.dataset.nav===id||(id==="voltage"||id==="transformer"||id==="loadcalc"||id==="breakerhelper"||id==="ampacity"||id==="fill"||id==="boxfill"||id==="trouble"||id==="quick")&&b.dataset.nav==="ohms"||(id==="about")&&b.dataset.nav==="home"));window.scrollTo({top:0,behavior:"instant"});}
+const pages=["home","conduit","ohms","voltage","transformer","loadcalc","fill","boxfill","code","trouble","quick","about"];
+function showPage(id){pages.forEach(p=>document.getElementById(p).classList.toggle("hidden",p!==id));document.querySelectorAll("[data-nav]").forEach(b=>b.classList.toggle("active",b.dataset.nav===id||(id==="voltage"||id==="transformer"||id==="loadcalc"||id==="fill"||id==="boxfill"||id==="trouble"||id==="quick")&&b.dataset.nav==="ohms"||(id==="about")&&b.dataset.nav==="home"));window.scrollTo({top:0,behavior:"instant"});}
 document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
 document.querySelectorAll("[data-nav]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.nav)));
 document.querySelectorAll("[data-home]").forEach(b=>b.addEventListener("click",()=>showPage("home")));
-document.getElementById("bhCalculate").addEventListener("click",()=>{
- const readNumber=id=>{const el=document.getElementById(id);if(!el)return null;const raw=String(el.value??"").trim().replace(/\s/g,"").replace(",", ".");if(raw==="")return null;const parsed=Number(raw);if(Number.isFinite(parsed))return parsed;const native=el.valueAsNumber;return Number.isFinite(native)?native:null;};
- const load=readNumber("bhLoad"),kind=document.getElementById("bhKind").value,base=readNumber("bhBase"),factor=readNumber("bhCorrection"),terminalRaw=document.getElementById("bhTerminal").value,ocpdRaw=document.getElementById("bhOcpd").value,notes=document.getElementById("bhNotes").value.trim(),out=document.getElementById("bhResult");
- if(load===null||!Number.isFinite(load)||load<=0){out.innerHTML='<div class="notice">The calculator could not read the load current. Tap the field, clear it, type 16, then tap Review inputs again. If this message persists, refresh the page so the latest version loads.</div>';return;}
- if(base===null||!Number.isFinite(base)||base<=0||factor===null||!Number.isFinite(factor)||factor<=0||factor>100){out.innerHTML='<div class="notice">Enter a verified base ampacity greater than zero and a combined factor above 0% and no greater than 100%.</div>';return;}
- const terminal=terminalRaw.trim()===""?null:Number(terminalRaw),ocpd=ocpdRaw.trim()===""?null:Number(ocpdRaw);
- if((terminal!==null&&(!Number.isFinite(terminal)||terminal<=0))||(ocpd!==null&&(!Number.isFinite(ocpd)||ocpd<=0))){out.innerHTML='<div class="notice">Terminal limit and proposed breaker/fuse rating must be positive values, or left blank.</div>';return;}
- const adjusted=base*factor/100,effective=terminal===null?adjusted:Math.min(adjusted,terminal),continuous=kind==="continuous",required=load*(continuous?1.25:1);
- let message='';
- if(kind==="motor") message='Motor circuits require separate checks for motor-table current, branch-circuit short-circuit/ground-fault protection, overload protection, conductor sizing, and equipment instructions. Do not use this general comparison to select motor protection.';
- else if(kind==="hvac") message='For HVAC/refrigeration equipment, check the nameplate minimum circuit ampacity (MCA) and maximum overcurrent protection (MOCP), plus applicable equipment instructions and code rules. Do not use this general comparison as the final selection.';
- else if(kind==="welder") message='Welders and other special loads have specific calculation and duty-cycle rules. Verify the applicable code article before selecting conductors or protection.';
- else message=continuous?'For a continuous load, this helper shows a preliminary 125% comparison only. Confirm whether the load qualifies, whether equipment is listed for 100% operation, and all applicable exceptions and rules.':'This is only a preliminary comparison. Verify load classification, applicable continuous-load treatment, standard overcurrent-device rules, and all code-specific exceptions.';
- const fmt=n=>n.toLocaleString(undefined,{maximumFractionDigits:2});
- let checks='<p>Entered load current: <b>'+fmt(load)+' A</b></p><p>Preliminary current comparison: <b>'+fmt(required)+' A</b>'+(continuous?' (125% of entered current)':'')+'</p><p>Adjusted conductor ampacity from your inputs: <b>'+fmt(adjusted)+' A</b></p><p>Comparison value after optional terminal limit: <b>'+fmt(effective)+' A</b></p>';
- if(effective<required) checks+='<p><b>Flag:</b> The entered ampacity values are below the preliminary current comparison. Recheck inputs and the applicable sizing rules.</p>';
- else checks+='<p>The entered ampacity values meet this limited numerical comparison; that does <b>not</b> establish code compliance.</p>';
- if(ocpd!==null) checks+='<p>Proposed protective-device rating entered: <b>'+fmt(ocpd)+' A</b>. This tool does not determine whether that rating is permitted.</p>';
- out.innerHTML='<div class="result"><h3>Preliminary review</h3>'+checks+'<p>'+esc(message)+'</p>'+(notes?'<p><b>Your notes:</b> '+esc(notes)+'</p>':'')+'</div><div class="notice">Do not upsize a breaker to resolve tripping. Confirm the adopted code, equipment nameplate, conductor identification, terminal ratings, installation conditions, and manufacturer instructions with a qualified person.</div>';
-});
-
 document.getElementById("calcTransformer").addEventListener("click",()=>{
  const kva=num("xfKva"),pv=num("xfPrimaryV"),sv=num("xfSecondaryV"),phase=Number(document.getElementById("xfPhase").value),out=document.getElementById("xfResult");
  if([kva,pv,sv].some(v=>v===null||!Number.isFinite(v)||v<=0)){out.innerHTML='<div class="notice">Enter positive values for kVA and both voltages.</div>';return;}
@@ -472,27 +416,6 @@ function renderNecTopics(){
 }
 document.getElementById("necSearch").addEventListener("input",renderNecTopics);
 renderNecTopics();
-document.getElementById("combineAmpFactors").addEventListener("click",()=>{
- const ids=["ambientFactor","cccFactor","otherFactor"],vals=ids.map(id=>Number(document.getElementById(id).value)),box=document.getElementById("factorResult");
- if(vals.some((v,i)=>!Number.isFinite(v)||v<=0||v>150||document.getElementById(ids[i]).value.trim()==="")){box.innerHTML='<div class="notice">Enter verified factors greater than 0% and no more than 150% in each field. Use 100% only when appropriate.</div>';return;}
- const combined=vals.reduce((a,b)=>a*b/100,100);
- if(!Number.isFinite(combined)||combined<=0||combined>100){box.innerHTML='<div class="notice">The combined factor is above 100%. Verify the inputs and applicable code rules before using it.</div>';return;}
- document.getElementById("ampFactor").value=String(Math.round(combined*10000)/10000);
- box.innerHTML='<div class="result"><b>Combined factor: '+(Math.round(combined*10000)/10000)+'%</b><p>This value has been copied into the ampacity reference factor field. Tap “Calculate ampacity reference” to see the preliminary result.</p><small>Factors were entered by you and were not verified by this app. Confirm each factor and the correct order/application against the adopted NEC edition and equipment instructions.</small></div>';
-});
-document.getElementById("lookupAmp").addEventListener("click",()=>{
- const material=document.getElementById("ampMaterial").value,size=document.getElementById("ampSize").value,box=document.getElementById("ampResult");
- // Preliminary 2023 NEC Table 310.16 reference values. 60/75/90 C ampacities in amperes.
- const cu={"14":[15,20,25],"12":[20,25,30],"10":[30,35,40],"8":[40,50,55],"6":[55,65,75],"4":[70,85,95],"3":[85,100,115],"2":[95,115,130],"1":[110,130,145],"0":[125,150,170],"-1":[145,175,195],"-2":[165,200,225],"-3":[195,230,260],"250":[215,255,290],"300":[240,285,320],"350":[260,310,350],"500":[320,380,430]};
- const al={"14":[null,null,null],"12":[15,20,25],"10":[25,30,35],"8":[30,40,45],"6":[40,50,55],"4":[55,65,75],"3":[65,75,85],"2":[75,90,100],"1":[85,100,115],"0":[100,120,135],"-1":[115,135,150],"-2":[130,155,175],"-3":[150,180,205],"250":[170,205,230],"300":[190,230,255],"350":[210,250,280],"500":[260,310,350]};
- const vals=(material==="cu"?cu:al)[size],label=document.getElementById("ampSize").selectedOptions[0].text;
- const ins=Number(document.getElementById("ampInsulation").value),term=Number(document.getElementById("ampTerminal").value),factor=Number(document.getElementById("ampFactor").value);
- if(!vals){box.innerHTML='<div class="notice">No preliminary value is available for this selection. Check the official adopted code table.</div>';return;}
- if(!Number.isFinite(factor)||factor<=0||factor>100){box.innerHTML='<div class="notice">Enter a combined correction/adjustment factor greater than 0 and no more than 100%.</div>';return;}
- if(vals[ins]===null||vals[term]===null){box.innerHTML='<div class="notice">No preliminary value is available for that temperature rating and conductor size. Check the official adopted code table.</div>';return;}
- const base=vals[ins], terminalLimit=vals[term], corrected=base*factor/100, result=Math.min(corrected,terminalLimit);
- box.innerHTML='<div class="result"><b>'+label+' · '+(material==="cu"?"Copper":"Aluminum / copper-clad aluminum")+'</b><div class="row"><p>Selected insulation rating<br><strong>'+["60°C","75°C","90°C"][ins]+'</strong></p><p>Table ampacity<br><strong>'+base+' A</strong></p><p>After entered factor<br><strong>'+Math.round(corrected*100)/100+' A</strong></p><p>Selected terminal table value<br><strong>'+terminalLimit+' A</strong></p><p>Lower of these two values<br><strong>'+Math.round(result*100)/100+' A</strong></p></div><small>This is a screening estimate using preliminary 2023 Table 310.16 values and the factor you entered. It is not a final allowable ampacity: verify the adopted code edition, small-conductor and overcurrent rules, actual equipment terminal ratings, load, installation conditions, and all applicable correction/adjustment requirements.</small></div>';
-});
 document.getElementById("solveOhm").addEventListener("click",()=>{
  let v=num("v"),i=num("i"),r=num("r"),p=num("p");const a=[v,i,r,p].filter(x=>x!==null);
  const box=document.getElementById("ohmResult");
